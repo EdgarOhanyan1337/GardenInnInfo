@@ -500,35 +500,35 @@ function initWiFi() {
     /**
      * Generate QR code for WiFi connection
      */
-    async function generateWiFiQRCode() {
+    function generateWiFiQRCode() {
         if (!wifiQRContainer) return;
 
         // Clear previous QR code
         wifiQRContainer.innerHTML = '';
 
+        // Check if QRCode library is loaded
+        if (typeof QRCode === 'undefined') {
+            console.error('QRCode library not loaded');
+            wifiQRContainer.innerHTML = '<p class="error">QR библиотека не загружена</p>';
+            return;
+        }
+
         try {
             const qrString = generateWiFiQRString(WIFI_CONFIG);
             console.log('Generating WiFi QR code for:', qrString);
 
-            // Create canvas element for QR code
-            const canvas = document.createElement('canvas');
-            canvas.setAttribute('aria-label', 'QR код для подключения к WiFi');
-            
-            // Use Promise-based API
-            await QRCode.toCanvas(canvas, qrString, {
+            // Use QRCode.js library - creates QR code in the container
+            // eslint-disable-next-line no-new
+            new QRCode(wifiQRContainer, {
+                text: qrString,
                 width: 200,
-                margin: 2,
-                color: {
-                    dark: '#000000',
-                    light: '#ffffff'
-                },
-                errorCorrectionLevel: 'M'
+                height: 200
             });
             
-            wifiQRContainer.appendChild(canvas);
+            console.log('QR code generated successfully');
         } catch (error) {
-            console.error('WiFi QR generation error:', error);
-            wifiQRContainer.innerHTML = '<p class="error">Ошибка генерации QR кода</p>';
+            console.error('QR Code generation error:', error);
+            wifiQRContainer.innerHTML = '<p class="error">Не удалось сгенерировать QR код</p>';
         }
     }
 
