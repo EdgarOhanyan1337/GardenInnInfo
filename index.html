@@ -287,6 +287,43 @@
         </div>
     </section>
 
+    <!-- WiFi Modal -->
+    <section id="wifi-modal" class="modal" aria-labelledby="wifi-title" role="dialog" aria-modal="true">
+        <div class="modal-content glass wifi-modal-content">
+            <button class="modal-close" data-modal="wifi" aria-label="Закрыть">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+            </button>
+            <h2 id="wifi-title" data-key="wifi">WiFi</h2>
+            <div class="wifi-content">
+                <div class="wifi-qr-container" id="wifi-qr-container" aria-label="QR код для подключения к WiFi">
+                    <!-- QR code will be generated here -->
+                </div>
+                <div class="wifi-details">
+                    <p class="wifi-ssid">
+                        <span class="wifi-label" data-key="network">Network:</span>
+                        <span class="wifi-value">Rostelecom_0023488</span>
+                    </p>
+                    <div class="wifi-password-container">
+                        <label for="wifi-password-input" class="wifi-label" data-key="password">Password:</label>
+                        <div class="wifi-password-input-wrapper">
+                            <input type="text" id="wifi-password-input" class="wifi-password-input" value="094146454" readonly aria-readonly="true">
+                            <button id="wifi-copy-btn" class="wifi-copy-btn" aria-label="Копировать пароль">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                <span data-key="copy">Copy</span>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="wifi-instructions" data-key="wifiInstructions">Scan the QR code or enter the password manually to connect to WiFi.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Lightbox -->
     <div id="lightbox" class="lightbox" role="dialog" aria-label="Просмотр изображения" aria-modal="true">
         <button class="lightbox-close" aria-label="Закрыть">
@@ -310,6 +347,9 @@
         </div>
     </div>
 
+    <!-- QRCode.js Library for WiFi QR code generation -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" integrity="sha512-CyKwt8E2v1sB4eL2iLdS5FjB4KffmfvVMd7hGLLn4Cob5Z5v9L2q1qPY2E1dF8S1iY5VxYnYDJ1gkxLZG3oAgg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
     <script src="script.js"></script>
 </body>
 </html>

@@ -34,7 +34,14 @@ const translations = {
         tour2Title: "Boat Cruise",
         tour2Desc: "3-hour lake cruise with dinner and drinks.<br><br><strong>Includes:</strong> Dinner, unlimited drinks, music<br><strong>Duration:</strong> 3 hours<br><strong>Departure:</strong> 18:00",
         tour3Title: "Ancient Ruins",
-        tour3Desc: "Full-day tour of ancient Armenian historical sites.<br><br><strong>Includes:</strong> Guide, entrance tickets, lunch<br><strong>Duration:</strong> 6 hours<br><strong>Highlights:</strong> Temple of Garni, Monastery of Geghard"
+        tour3Desc: "Full-day tour of ancient Armenian historical sites.<br><br><strong>Includes:</strong> Guide, entrance tickets, lunch<br><strong>Duration:</strong> 6 hours<br><strong>Highlights:</strong> Temple of Garni, Monastery of Geghard",
+        // WiFi modal
+        copied: "Copied!",
+        wifi: "WiFi",
+        network: "Network:",
+        password: "Password:",
+        copy: "Copy",
+        wifiInstructions: "Scan the QR code or enter the password manually to connect to WiFi."
     },
     ru: {
         welcome: "Добро пожаловать",
@@ -65,7 +72,14 @@ const translations = {
         tour2Title: "Прогулка на лодке",
         tour2Desc: "3-часовая прогулка по озеру с ужином.<br><br><strong>Включено:</strong> Ужин, напитки, музыка<br><strong>Продолжительность:</strong> 3 часа<br><strong>Отправление:</strong> 18:00",
         tour3Title: "Древние руины",
-        tour3Desc: "Полный день: экскурсия по древним армянским памятникам.<br><br><strong>Включено:</strong> Гид, билеты, обед<br><strong>Продолжительность:</strong> 6 часов<br><strong>Особенности:</strong> Храм Гарни, монастырь Гегард"
+        tour3Desc: "Полный день: экскурсия по древним армянским памятникам.<br><br><strong>Включено:</strong> Гид, билеты, обед<br><strong>Продолжительность:</strong> 6 часов<br><strong>Особенности:</strong> Храм Гарни, монастырь Гегард",
+        // WiFi modal
+        copied: "Скопировано!",
+        wifi: "WiFi",
+        network: "Сеть:",
+        password: "Пароль:",
+        copy: "Копировать",
+        wifiInstructions: "Отсканируйте QR код или введите пароль вручную для подключения к WiFi."
     },
     hy: {
         welcome: "Բարի գալուստ",
@@ -96,7 +110,14 @@ const translations = {
         tour2Title: "Նավով Զբոսանք",
         tour2Desc: "3-ժամյան լճի զբոսնում ընթրիքով:<br><br><strong>Ներառված է:</strong> Ընթրիք, ըմպելիքներ, երաժշտություն<br><strong>Տևողություն:</strong> 3 ժամ<br><strong>Մեկնում:</strong> 18:00",
         tour3Title: "Հին Ավերակներ",
-        tour3Desc: "Ամբողջ օր հին հայկական պատմական վայրերի ուղևորություն:<br><br><strong>Ներառված է:</strong> Ուղեցույց, տոմսեր, ճաշ<br><strong>Տևողություն:</strong> 6 ժամ<br><strong>Առանձնահատկություններ:</strong> Գառնի տաճատ, Գեղարդ վանք"
+        tour3Desc: "Ամբողջ օր հին հայկական պատմական վայրերի ուղևորություն:<br><br><strong>Ներառված է:</strong> Ուղեցույց, տոմսեր, ճաշ<br><strong>Տևողություն:</strong> 6 ժամ<br><strong>Առանձնահատկություններ:</strong> Գառնի տաճատ, Գեղարդ վանք",
+        // WiFi modal
+        copied: "Պատճենվել է!",
+        wifi: "WiFi",
+        network: "Ցանց:",
+        password: "Գաղտնաբառ:",
+        copy: "Պատճենել",
+        wifiInstructions: "Սկան QR կոդը կամ ձեռքով մուտքագրեք գաղտնաբառը WiFi-ին միանալու համար:"
     }
 };
 
@@ -448,40 +469,196 @@ const WIFI_CONFIG = {
 
 function initWiFi() {
     const wifiBtn = document.getElementById('wifi-connect-btn');
-    
-    if (!wifiBtn) return;
-    
-    wifiBtn.addEventListener('click', async () => {
-        const btn = wifiBtn;
-        const originalText = btn.innerHTML;
-        
-        // Show connecting state
-        btn.innerHTML = '<span class="wifi-icon">⏳</span> Подключение...';
-        btn.disabled = true;
-        
-        try {
-            // Simulate connection (web browsers cannot directly connect to WiFi)
-            // Show success after simulating connection time
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            btn.innerHTML = '<span class="wifi-icon">✅</span> Подключено!';
-            
-            // Reset button after 3 seconds
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }, 3000);
-            
-        } catch (error) {
-            console.error('WiFi connection error:', error);
-            btn.innerHTML = '<span class="wifi-icon">❌</span> Ошибка';
-            
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }, 3000);
+    const wifiModal = document.getElementById('wifi-modal');
+    const wifiQRContainer = document.getElementById('wifi-qr-container');
+    const wifiCopyBtn = document.getElementById('wifi-copy-btn');
+    const wifiPasswordInput = document.getElementById('wifi-password-input');
+
+    // WiFi configuration
+    const WIFI_CONFIG = {
+        ssid: 'Rostelecom_0023488',
+        password: '094146454',
+        encryption: 'WPA',
+        hidden: false
+    };
+
+    if (!wifiBtn || !wifiModal) return;
+
+    /**
+     * Generate WiFi QR code string in WIFI联盟 format
+     * Format: WIFI:T:<encryption>;S:<ssid>;P:<password>;H:<hidden>;;
+     */
+    function generateWiFiQRString(config) {
+        let qrString = `WIFI:T:${config.encryption};S:${config.ssid};P:${config.password};`;
+        if (config.hidden) {
+            qrString += 'H:true;';
         }
+        qrString += ';';
+        return qrString;
+    }
+
+    /**
+     * Generate QR code for WiFi connection
+     */
+    async function generateWiFiQRCode() {
+        if (!wifiQRContainer) return;
+
+        // Clear previous QR code
+        wifiQRContainer.innerHTML = '';
+
+        try {
+            const qrString = generateWiFiQRString(WIFI_CONFIG);
+            console.log('Generating WiFi QR code for:', qrString);
+
+            // Create canvas element for QR code
+            const canvas = document.createElement('canvas');
+            canvas.setAttribute('aria-label', 'QR код для подключения к WiFi');
+            
+            // Use Promise-based API
+            await QRCode.toCanvas(canvas, qrString, {
+                width: 200,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#ffffff'
+                },
+                errorCorrectionLevel: 'M'
+            });
+            
+            wifiQRContainer.appendChild(canvas);
+        } catch (error) {
+            console.error('WiFi QR generation error:', error);
+            wifiQRContainer.innerHTML = '<p class="error">Ошибка генерации QR кода</p>';
+        }
+    }
+
+    /**
+     * Copy password to clipboard with fallback for older browsers
+     */
+    async function copyPasswordToClipboard() {
+        const password = WIFI_CONFIG.password;
+
+        try {
+            // Modern clipboard API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(password);
+                showCopySuccess();
+                return;
+            }
+
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = password;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            if (successful) {
+                showCopySuccess();
+            } else {
+                showCopyError();
+            }
+        } catch (error) {
+            console.error('Copy to clipboard error:', error);
+            showCopyError();
+        }
+    }
+
+    /**
+     * Show copy success feedback
+     */
+    function showCopySuccess() {
+        if (!wifiCopyBtn) return;
+        
+        const originalContent = wifiCopyBtn.innerHTML;
+        wifiCopyBtn.classList.add('copied');
+        wifiCopyBtn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>${translations[currentLang]?.copied || 'Copied!'}</span>
+        `;
+
+        setTimeout(() => {
+            wifiCopyBtn.classList.remove('copied');
+            wifiCopyBtn.innerHTML = originalContent;
+        }, 2000);
+    }
+
+    /**
+     * Show copy error feedback
+     */
+    function showCopyError() {
+        if (!wifiPasswordInput) return;
+        
+        // Select the text for manual copy
+        wifiPasswordInput.select();
+        wifiPasswordInput.setSelectionRange(0, 99999);
+        
+        // Show error message
+        const originalBorder = wifiPasswordInput.style.borderColor;
+        wifiPasswordInput.style.borderColor = '#ef4444';
+        
+        setTimeout(() => {
+            wifiPasswordInput.style.borderColor = originalBorder;
+        }, 2000);
+    }
+
+    /**
+     * Open WiFi modal and generate QR code
+     */
+    function openWiFiModal() {
+        const modal = document.getElementById('wifi-modal');
+        if (!modal) return;
+
+        // Generate QR code
+        generateWiFiQRCode();
+
+        // Show modal using existing modal system
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Focus close button for accessibility
+        const closeBtn = modal.querySelector('.modal-close');
+        if (closeBtn) {
+            setTimeout(() => closeBtn.focus(), 100);
+        }
+    }
+
+    // WiFi button click - open modal
+    wifiBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openWiFiModal();
     });
+
+    // Copy button click
+    if (wifiCopyBtn) {
+        wifiCopyBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            copyPasswordToClipboard();
+        });
+    }
+
+    // Generate QR code when modal opens
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.target.id === 'wifi-modal' && 
+                mutation.target.classList.contains('active') &&
+                mutation.attributeName === 'class') {
+                generateWiFiQRCode();
+            }
+        });
+    });
+
+    if (wifiModal) {
+        observer.observe(wifiModal, { attributes: true });
+    }
 }
 
 // ==================== INITIALIZATION ====================
