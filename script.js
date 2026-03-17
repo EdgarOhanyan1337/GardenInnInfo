@@ -476,7 +476,7 @@ function initWiFi() {
 
     // WiFi configuration
     const WIFI_CONFIG = {
-        ssid: 'Rostelecom_0023488',
+        ssid: 'Rostelecom_23488',
         password: '094146454',
         encryption: 'WPA',
         hidden: false
