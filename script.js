@@ -463,7 +463,7 @@ function initVideo() {
 // ==================== WIFI FUNCTIONS ====================
 // WiFi credentials - EDIT THESE VALUES
 const WIFI_CONFIG = {
-    ssid: 'Rostelecom_0023488',
+    ssid: 'Rostelecom_23488',
     password: '094146454'
 };
 
