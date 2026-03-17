@@ -11,16 +11,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Background Video -->
+    <!-- Background Video - REPLACE THIS: Your hotel background video -->
     <video id="bg-video" autoplay loop muted playsinline aria-hidden="true">
-        <source src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_5MB.mp4" type="video/mp4">
+        <source src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_5MB.mp4" type="video/mp4" alt="[ФОНОВОЕ ВИДЕО ОТЕЛЯ - Замените на свое видео]">
     </video>
     <div class="overlay" aria-hidden="true"></div>
 
     <!-- Header -->
     <header class="header" role="banner">
         <div class="logo">
-            <img src="assets/logo.png" alt="Garden Inn Resort" id="logo-img">
+            <!-- REPLACE THIS: Your hotel logo image -->
+            <img src="assets/logo.png" alt="[ЛОГОТИП ОТЕЛЯ - Замените на свой логотип]" id="logo-img">
         </div>
         <div class="header-controls">
             <button id="wifi-connect-btn" class="wifi-connect-btn" aria-label="Подключиться к WiFi">
@@ -69,7 +70,7 @@
         <section class="contact-section" aria-labelledby="contact-heading">
             <h2 id="contact-heading" data-key="contact">Get in Touch</h2>
             <div class="contact-grid">
-                <a href="https://wa.me/37455123456?text=Hello%20from%20LUXORA%20Resort!" 
+                <a href="https://wa.me/37477055813?text=Hello%20from%20Garden%20Inn%20Resort!" 
                    target="_blank" 
                    rel="noopener noreferrer" 
                    class="contact-btn whatsapp"
@@ -89,20 +90,13 @@
                     </svg>
                     <span>Telegram</span>
                 </a>
-                <a href="viber://chat?number=%2B37455123456" 
-                   class="contact-btn viber"
-                   aria-label="Связаться через Viber">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M18 2H6C4.34 2 3 3.34 3 5v14c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3zM7.5 17c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm3.5-6H5v-1.5l2.5-3v-.5h1l1 1.5V8h1v2.5l1 1.5-.5 1z"/>
-                    </svg>
-                    <span>Viber</span>
-                </a>
+
             </div>
         </section>
 
         <!-- Social Media Bar -->
         <nav class="social-bar" aria-label="Социальные сети">
-            <a href="https://instagram.com/luxora_resort" 
+            <a href="https://www.instagram.com/gardeninn.resortsevan/" 
                target="_blank" 
                rel="noopener noreferrer" 
                class="social-icon instagram"
@@ -111,7 +105,7 @@
                     <path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25z"/><path d="M15.75 8.25h-7.5v7.5h7.5v-7.5z"/><circle cx="12" cy="12" r="2.5"/>
                 </svg>
             </a>
-            <a href="https://facebook.com/luxoraresort" 
+            <a href="https://www.facebook.com/GardenInnResortSevan/" 
                target="_blank" 
                rel="noopener noreferrer" 
                class="social-icon facebook"
@@ -120,13 +114,14 @@
                     <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
                 </svg>
             </a>
-            <a href="https://tiktok.com/@luxora_resort" 
+            <a href="https://www.booking.com/hotel/am/garden-inn-resort-sevan.ru.html" 
                target="_blank" 
                rel="noopener noreferrer" 
-               class="social-icon tiktok"
-               aria-label="TikTok">
+               class="social-icon booking"
+               aria-label="Booking.com">
+                <!-- Booking.com SVG Icon -->
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M19.5 9.75c-1.657 0-3-1.343-3-3v-4.5M12.525 2.25h3.3v7.5h-3.3V2.25z"/>
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm4 0h-2V7h2v10z"/>
                 </svg>
             </a>
         </nav>
@@ -152,7 +147,7 @@
             <div class="services-grid">
                 <article class="service-card" data-service="pool">
                     <div class="service-icon">∞</div>
-                    <h3>Infinity Pool</h3>
+                    <h3>Swimming Pool</h3>
                     <span class="status free">Free</span>
                     <button class="more-btn" data-key="more">More →</button>
                 </article>
@@ -198,8 +193,9 @@
             <h2 id="minibar-title" data-key="minibar">Mini Bar</h2>
             <div class="products-grid">
                 <article class="product-card">
-                    <div class="product-image" data-images='["https://picsum.photos/id/29/1200/800","https://picsum.photos/id/30/1200/800"]'>
-                        <img src="https://picsum.photos/id/29/400/300" alt="Lays Classic" loading="lazy">
+                    <div class="product-image" data-images='["assets/lays-classic.png"]'>
+                        <!-- REPLACE THIS: Mini bar product - chips/snack image -->
+                        <img src="assets/lays-classic.png" alt="[МИНИ БАР - Изображение снеков/чипсов - Замените на свое]" loading="lazy">
                         <div class="product-overlay">
                             <button class="view-btn" aria-label="Посмотреть изображение">👁</button>
                         </div>
@@ -210,8 +206,9 @@
                     </div>
                 </article>
                 <article class="product-card">
-                    <div class="product-image" data-images='["https://picsum.photos/id/201/1200/800"]'>
-                        <img src="https://picsum.photos/id/201/400/300" alt="Coca Cola 0.5L" loading="lazy">
+                    <div class="product-image" data-images='["assets/Cola.png"]'>
+                        <!-- REPLACE THIS: Mini bar product - Coca Cola/drink image -->
+                        <img src="assets/Cola.png" alt="[МИНИ БАР - Изображение напитка (Coca Cola) - Замените на свое]" loading="lazy">
                         <div class="product-overlay">
                             <button class="view-btn" aria-label="Посмотреть изображение">👁</button>
                         </div>
@@ -336,7 +333,8 @@
                 <path d="M15 18l-6-6 6-6"/>
             </svg>
         </button>
-        <img id="lightbox-image" src="" alt="" role="img">
+        <!-- This is dynamically loaded when user clicks on product images -->
+        <img id="lightbox-image" src="" alt="[ИЗОБРАЖЕНИЕ ДЛЯ ЛАЙТБОКСА - Динамически загружается при клике на изображения товаров]" role="img">
         <button class="lightbox-nav lightbox-next" aria-label="Следующее изображение">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M9 18l6-6-6-6"/>

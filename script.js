@@ -22,8 +22,8 @@ const translations = {
         rule3: "Pets not allowed",
         rule4: "Pool closes at 20:00",
         // Service details
-        poolTitle: "Infinity Pool",
-        poolDesc: "Open-air pool with stunning mountain views. <br><br><strong>Hours:</strong> 24/7<br><strong>Access:</strong> Free for all guests<br><strong>Amenities:</strong> Free towels, sun loungers, pool bar",
+        poolTitle: "Pool",
+        poolDesc: "Open-air pool with stunning views on our cottages. <br><br><strong>Hours:</strong> 08:00–20:00<br><strong>Access:</strong> Free for all guests<br><strong>Amenities:</strong> Free towels, sun loungers, pool bar",
         saunaTitle: "Sauna & SPA",
         saunaDesc: "Relax and rejuvenate in our premium sauna and spa facilities.<br><br><strong>Pricing:</strong><br>1 hour — 15,000 AMD<br>2 hours — 25,000 AMD<br>Day pass — 35,000 AMD",
         restaurantTitle: "Signature Restaurant",
@@ -60,8 +60,8 @@ const translations = {
         rule3: "Животные запрещены",
         rule4: "Бассейн закрывается в 20:00",
         // Service details
-        poolTitle: "Бесконечный бассейн",
-        poolDesc: "Открытый бассейн с видом на горы.<br><br><strong>Часы работы:</strong> Круглосуточно<br><strong>Доступ:</strong> Бесплатно для гостей<br><strong>Удобства:</strong> Полотенца, шезлонги, бар у бассейна",
+        poolTitle: "Открытый бассейн",
+        poolDesc: "Открытый бассейн c видом на номера, и на наш ресторан.<br><br><strong>Часы работы:</strong> c  08:00–21:00<br><strong>Доступ:</strong> Бесплатно для гостей<br><strong>Удобства:</strong> Полотенца, шезлонги, бар рядом с бассейна",
         saunaTitle: "Сауна и СПА",
         saunaDesc: "Расслабьтесь и омолодитесь в наших премиальных спа-услугах.<br><br><strong>Цены:</strong><br>1 час — 15 000 AMD<br>2 часа — 25 000 AMD<br>Дневной абонемент — 35 000 AMD",
         restaurantTitle: "Ресторан Signature",
@@ -98,8 +98,8 @@ const translations = {
         rule3: "Կենդանիներ չեն թույլատրվում",
         rule4: "Լողավազանը փակվում է 20:00-ին",
         // Service details
-        poolTitle: "Անվերջ Լողավազան",
-        poolDesc: "Բաց լողավազան լեռների տեսքով:<br><br><strong>Ժամեր:</strong> 24/7<br><strong>Մուտք:</strong> Անվճար հյուրերի համար<br><strong>Հարմարություններ:</strong> Կտորներ, նստինգներ, բար",
+        poolTitle: "Լողավազան",
+        poolDesc: "Բաց լողավազան քոթթեջներին նայող տեսքով:<br><br><strong>Ժամեր:</strong> 08:00–20:00<br><strong>Մուտք:</strong> Անվճար հյուրերի համար<br><strong>Հարմարություններ:</strong> Կտորներ, նստինգներ, բար",
         saunaTitle: "Սաունա և ՍՊԱ",
         saunaDesc: "Հանգստացեք մեր պրեմիում սպա ծառայություններում:<br><br><strong>Գներ:</strong><br>1 ժամ — 15,000 AMD<br>2 ժամ — 25,000 AMD<br>Օրվա անցում — 35,000 AMD",
         restaurantTitle: "Ստորագրության Ռեստորան",
@@ -153,6 +153,12 @@ function setLanguage(lang) {
 function updateTexts() {
     document.querySelectorAll('[data-key]').forEach(el => {
         const key = el.dataset.key;
+        
+        // Skip translation for price elements - they should stay fixed
+        if (el.classList.contains('price')) {
+            return;
+        }
+        
         if (translations[currentLang][key]) {
             el.textContent = translations[currentLang][key];
         }
