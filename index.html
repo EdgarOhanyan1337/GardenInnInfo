@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUXORA Resort</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- BACKGROUND VIDEO -->
+    <video id="bg-video" autoplay loop muted playsinline>
+        <source src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_5MB.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo">
+            <!-- ← ЗАМЕНИ НА СВОЙ ЛОГОТИП -->
+            <img src="https://via.placeholder.com/180x60/ffffff/000000?text=LUXORA" alt="LUXORA" id="logo-img">
+        </div>
+        <div class="language-switcher">
+            <button data-lang="en" class="lang-btn active">ENG</button>
+            <button data-lang="ru" class="lang-btn">RUS</button>
+            <button data-lang="hy" class="lang-btn">ARM</button>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="glass-container">
+            <h1 data-key="welcome">Welcome</h1>
+            <p data-key="tagline" class="tagline">Luxury Resort &amp; Spa</p>
+            <div class="main-nav">
+                <button class="nav-btn" data-modal="services" data-key="services">Services</button>
+                <button class="nav-btn" data-modal="rules" data-key="rules">Rules</button>
+                <button class="nav-btn" data-modal="minibar" data-key="minibar">Mini Bar</button>
+                <button class="nav-btn" data-modal="tours" data-key="tours">Tours</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTACT -->
+    <section class="contact-section">
+        <h2 data-key="contact">Get in Touch</h2>
+        <div class="contact-grid">
+            <a href="https://wa.me/37455123456?text=Hello%20from%20LUXORA%20Resort!" target="_blank" class="contact-btn whatsapp">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.198-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.485-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.297-.446.1-.149.05-.298-.05-.446-.1-.148-.67-.81-.92-1.109-.25-.3-.5-.25-.67-.25-.17 0-.446.025-.67.15-.223.124-.945.894-.945 2.102 0 1.208.97 2.378 1.105 2.546.134.168 1.89 2.88 4.58 3.94 2.69 1.06 2.69.74 3.18.69.49-.05 1.758-.72 2.006-1.42.248-.7.248-1.3.173-1.42-.074-.12-.298-.198-.595-.347z"/></svg>
+                WhatsApp
+            </a>
+            <a href="https://t.me/luxora_resort" target="_blank" class="contact-btn telegram">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="#229ED9"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 7.2L9.88 14.3c-.24.1-.5.15-.75.15-.3 0-.6-.08-.85-.23l-2.5-1.5c-.35-.2-.55-.55-.55-.95s.2-.75.55-.95l2.5-1.5c.25-.15.55-.23.85-.23.25 0 .5.05.75.15l6.76 5.1c.35.25.55.65.55 1.1 0 .45-.2.85-.55 1.1z"/></svg>
+                Telegram
+            </a>
+            <a href="viber://chat?number=%2B37455123456" class="contact-btn viber">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="#7D3C98"><path d="M18 2H6C4.34 2 3 3.34 3 5v14c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3z"/><path d="M12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="#fff"/></svg>
+                Viber
+            </a>
+        </div>
+    </section>
+
+    <!-- SOCIAL -->
+    <div class="social-bar">
+        <a href="https://instagram.com/luxora_resort" target="_blank" class="social-icon instagram">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25z"/><path d="M15.75 8.25h-7.5v7.5h7.5v-7.5z"/></svg>
+        </a>
+        <a href="https://facebook.com/luxoraresort" target="_blank" class="social-icon facebook">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+        </a>
+        <a href="https://tiktok.com/@luxora_resort" target="_blank" class="social-icon tiktok">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M19.5 9.75c-1.657 0-3-1.343-3-3v-4.5M12.525 2.25h3.3v7.5h-3.3V2.25z"/></svg>
+        </a>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p data-key="about">LUXORA Resort offers unparalleled luxury in a private paradise.</p>
+        <p class="copyright">© 2026 LUXORA Resort • All Rights Reserved</p>
+    </footer>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Services -->
+    <div id="services-modal" class="modal">
+        <div class="modal-content glass">
+            <button class="modal-close" data-modal="services">✕</button>
+            <h2 data-key="services">Services</h2>
+            <div class="services-grid">
+                <div class="service-card" data-service="pool">
+                    <h3>∞ Infinity Pool</h3>
+                    <span class="status free">Free</span>
+                    <button class="more-btn" data-key="more">More →</button>
+                </div>
+                <div class="service-card" data-service="sauna">
+                    <h3>♨ Sauna &amp; SPA</h3>
+                    <span class="status paid">Paid</span>
+                    <button class="more-btn" data-key="more">More →</button>
+                </div>
+                <div class="service-card" data-service="restaurant">
+                    <h3>🍽️ Signature Restaurant</h3>
+                    <span class="status paid">Paid</span>
+                    <button class="more-btn" data-key="more">More →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal (один для всех) -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-content glass wide">
+            <button class="modal-close" data-modal="detail">✕</button>
+            <h2 id="detail-title"></h2>
+            <div id="detail-content"></div>
+            <h3 data-key="gallery">Gallery</h3>
+            <div id="detail-gallery" class="gallery-grid"></div>
+        </div>
+    </div>
+
+    <!-- Mini Bar (прокручиваемый) -->
+    <div id="minibar-modal" class="modal">
+        <div class="modal-content glass scrollable">
+            <button class="modal-close" data-modal="minibar">✕</button>
+            <h2 data-key="minibar">Mini Bar</h2>
+            <div class="products-grid">
+                <!-- ФОТОГРАФИЯ 1 ДЛЯ LAYS → ЗАМЕНИ НА СВОЮ -->
+                <div class="product-card" data-images='["https://picsum.photos/id/29/1200/800","https://picsum.photos/id/30/1200/800"]'>
+                    <img src="https://picsum.photos/id/29/400/300" alt="Lays" onclick="openProductLightbox(this)">
+                    <h4>Lays Classic</h4>
+                    <p data-key="price">2 500 AMD</p>
+                </div>
+                <!-- ФОТОГРАФИЯ 1 ДЛЯ COCA COLA → ЗАМЕНИ -->
+                <div class="product-card" data-images='["https://picsum.photos/id/201/1200/800"]'>
+                    <img src="https://picsum.photos/id/201/400/300" alt="Coca Cola" onclick="openProductLightbox(this)">
+                    <h4>Coca Cola 0.5L</h4>
+                    <p data-key="price">1 500 AMD</p>
+                </div>
+                
+                <!-- Добавляй новые товары ниже точно так же -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Tours -->
+    <div id="tours-modal" class="modal">
+        <div class="modal-content glass">
+            <button class="modal-close" data-modal="tours">✕</button>
+            <h2 data-key="tours">Tours</h2>
+            <div class="services-grid">
+                <div class="service-card" data-service="tour1">
+                    <h3>⛰️ Mountain Hike</h3>
+                    <span class="status paid">25 000 AMD</span>
+                    <button class="more-btn" data-key="more">More →</button>
+                </div>
+                <div class="service-card" data-service="tour2">
+                    <h3>⛵ Boat Cruise</h3>
+                    <span class="status paid">35 000 AMD</span>
+                    <button class="more-btn" data-key="more">More →</button>
+                </div>
+                <div class="service-card" data-service="tour3">
+                    <h3>🏛️ Ancient Ruins</h3>
+                    <span class="status paid">45 000 AMD</span>
+                    <button class="more-btn" data-key="more">More →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rules -->
+    <div id="rules-modal" class="modal">
+        <div class="modal-content glass">
+            <button class="modal-close" data-modal="rules">✕</button>
+            <h2 data-key="rules">Rules</h2>
+            <ul class="rules-list">
+                <li data-key="rule1">No smoking inside rooms</li>
+                <li data-key="rule2">Quiet hours 22:00–08:00</li>
+                <li data-key="rule3">Pets not allowed</li>
+                <li data-key="rule4">Pool closes at 20:00</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="lightbox">
+        <button class="lightbox-close">✕</button>
+        <button class="lightbox-prev">←</button>
+        <img id="lightbox-image" src="" alt="">
+        <button class="lightbox-next">→</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
