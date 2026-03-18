@@ -4,9 +4,9 @@
  */
 
 // ==================== SUPABASE INITIALIZATION ====================
-const supabaseUrl = 'https://klnxybjaaxtlfabnzxcd.supabase.co';
-const supabaseKey = 'sb_secret_CS9wfE_qUfL3MrR2xzrTAQ_kf-z1ciE';
-const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+const ROOT_SUPABASE_URL = 'https://klnxybjaaxtlfabnzxcd.supabase.co';
+const ROOT_SUPABASE_KEY = 'sb_secret_CS9wfE_qUfL3MrR2xzrTAQ_kf-z1ciE';
+const supabaseClient = window.supabase ? window.supabase.createClient(ROOT_SUPABASE_URL, ROOT_SUPABASE_KEY) : null;
 
 // ==================== TRANSLATIONS ====================
 const translations = {
@@ -720,6 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initVideo();
     initLogoAnimation();
     initContactModal();
+    initSupabaseFeatures();
 });
 
 // Add smooth CSS transitions for lightbox image
@@ -734,10 +735,10 @@ window.addEventListener('load', () => {
 
 // Helper to Load Minibar from Supabase
 async function loadMinibar() {
-    if (!supabase) return;
+    if (!supabaseClient) return;
     
     try {
-        const { data, error } = await supabase.from('minibar_items').select('*').order('created_at', { ascending: true });
+        const { data, error } = await supabaseClient.from('minibar_items').select('*').order('created_at', { ascending: true });
         if (error) throw error;
         
         const container = document.querySelector('.products-grid');
@@ -778,9 +779,9 @@ async function loadMinibar() {
 
 // Helper to Load Services from Supabase
 async function loadServices() {
-    if (!supabase) return;
+    if (!supabaseClient) return;
     try {
-        const { data, error } = await supabase.from('services').select('*').order('created_at', { ascending: true });
+        const { data, error } = await supabaseClient.from('services').select('*').order('created_at', { ascending: true });
         if (error) throw error;
         dynamicServices = data;
         const container = document.querySelector('#services-modal .services-grid');
@@ -809,9 +810,9 @@ async function loadServices() {
 }
 
 async function loadTours() {
-    if (!supabase) return;
+    if (!supabaseClient) return;
     try {
-        const { data, error } = await supabase.from('tours').select('*').order('created_at', { ascending: true });
+        const { data, error } = await supabaseClient.from('tours').select('*').order('created_at', { ascending: true });
         if (error) throw error;
         dynamicTours = data;
         const container = document.querySelector('#tours-modal .services-grid');
@@ -840,11 +841,11 @@ async function loadTours() {
 }
 
 async function initRealtime() {
-    if (!supabase) return;
+    if (!supabaseClient) return;
     
     const channels = ['minibar_items', 'services', 'tours', 'rules'];
     channels.forEach(table => {
-        supabase.channel(`public:${table}`)
+        supabaseClient.channel(`public:${table}`)
             .on('postgres_changes', { event: '*', schema: 'public', table: table }, () => {
                 if (table === 'minibar_items') loadMinibar();
                 if (table === 'services') loadServices();
@@ -856,7 +857,7 @@ async function initRealtime() {
 }
 
 function initSupabaseFeatures() {
-    if (!supabase) return;
+    if (!supabaseClient) return;
     loadMinibar();
     loadServices();
     loadTours();
@@ -880,7 +881,7 @@ function initSupabaseFeatures() {
             hkSubmitBtn.disabled = true;
             
             try {
-                const { error } = await supabase.from('housekeeping_requests').insert([{ room_number: room }]);
+                const { error } = await supabaseClient.from('housekeeping_requests').insert([{ room_number: room }]);
                 if (error) throw error;
                 
                 document.getElementById('hk-msg').style.display = 'block';
@@ -916,7 +917,7 @@ function initSupabaseFeatures() {
             ratingSubmitBtn.disabled = true;
             
             try {
-                const { error } = await supabase.from('housekeeping_ratings').insert([{ rating, comment }]);
+                const { error } = await supabaseClient.from('housekeeping_ratings').insert([{ rating, comment }]);
                 if (error) throw error;
                 
                 document.getElementById('rating-msg').style.display = 'block';
