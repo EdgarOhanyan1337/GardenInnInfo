@@ -119,10 +119,6 @@
                         <span class="nav-icon">🧹</span>
                         <span data-key="housekeeping">Housekeeping</span>
                     </button>
-                    <button class="nav-btn" data-modal="rating">
-                        <span class="nav-icon">⭐</span>
-                        <span data-key="rating">Rate Us</span>
-                    </button>
                 </nav>
             </div>
         </section>
@@ -453,48 +449,52 @@
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Housekeeping Modal -->
+    <!-- Housekeeping Modal (Call + Rate) -->
     <section id="housekeeping-modal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content glass">
-            <button class="modal-close" data-modal="housekeeping" aria-label="Закрыть">
+            <button class="modal-close" data-modal="housekeeping" aria-label="Close">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
             </button>
-            <h2 data-key="housekeeping">Call Housekeeping</h2>
-            <div style="display:flex; flex-direction:column; gap:16px; margin-top:20px;">
+            <h2 data-key="housekeeping">Housekeeping</h2>
+
+            <!-- Tab Buttons -->
+            <div style="display:flex; gap:8px; margin-top:16px;">
+                <button id="hk-tab-call" onclick="switchHkTab('call')" class="nav-btn wide-btn" style="flex:1; background:var(--color-primary); color:white; border:none; font-size:14px;">Call Housekeeping</button>
+                <button id="hk-tab-rate" onclick="switchHkTab('rate')" class="nav-btn wide-btn" style="flex:1; background:var(--color-glass); color:var(--color-text); border:1px solid var(--color-glass-border); font-size:14px;">Rate Housekeeping</button>
+            </div>
+
+            <!-- CALL TAB -->
+            <div id="hk-call-view" style="display:flex; flex-direction:column; gap:16px; margin-top:20px;">
                 <input type="text" id="hk-room" placeholder="Enter Room Number" style="padding:12px; border-radius:8px; border:1px solid var(--color-glass-border); background:var(--color-glass); color:var(--color-text); font-family:var(--font-body); outline:none;">
-                <button id="hk-submit-btn" class="nav-btn wide-btn" style="background:var(--color-primary); color:white; border:none; margin-top:10px;">Call Now</button>
-                <div id="hk-msg" style="color:var(--color-primary-light); display:none; text-align:center; font-weight:bold; margin-top:10px;">Request saved & Staff notified!</div>
+                <button id="hk-submit-btn" class="nav-btn wide-btn" style="background:var(--color-primary); color:white; border:none; margin-top:10px;" onclick="callHousekeeping()">Call Now</button>
+                <div id="hk-msg" style="display:none; text-align:center; margin-top:10px;">
+                    <p style="color:var(--color-primary-light); font-weight:bold;">Request sent! Staff notified.</p>
+                    <p style="margin-top:8px;">Your code: <strong id="hk-code-display" style="font-size:24px; color:var(--color-primary-light); letter-spacing:4px;"></strong></p>
+                    <p style="font-size:12px; opacity:0.7; margin-top:4px;">Save this code to rate our housekeeping service later.</p>
+                </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Rating Modal -->
-    <section id="rating-modal" class="modal" role="dialog" aria-modal="true">
-        <div class="modal-content glass">
-            <button class="modal-close" data-modal="rating" aria-label="Закрыть">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-            </button>
-            <h2 data-key="rating">Rate Our Service</h2>
-            <div style="display:flex; flex-direction:column; gap:16px; margin-top:20px;">
-                <select id="rating-val" style="padding:12px; border-radius:8px; border:1px solid var(--color-glass-border); background:var(--color-glass); color:black; font-family:var(--font-body); outline:none;">
-                    <option value="5" style="color:black;">⭐⭐⭐⭐⭐ 5 - Excellent</option>
-                    <option value="4" style="color:black;">⭐⭐⭐⭐ 4 - Good</option>
-                    <option value="3" style="color:black;">⭐⭐⭐ 3 - Average</option>
-                    <option value="2" style="color:black;">⭐⭐ 2 - Poor</option>
-                    <option value="1" style="color:black;">⭐ 1 - Terrible</option>
+            <!-- RATE TAB -->
+            <div id="hk-rate-view" style="display:none; flex-direction:column; gap:16px; margin-top:20px;">
+                <input type="text" id="hk-rate-code" placeholder="Enter your code (e.g. 483291)" maxlength="6" style="padding:12px; border-radius:8px; border:1px solid var(--color-glass-border); background:var(--color-glass); color:var(--color-text); font-family:var(--font-body); outline:none; text-align:center; font-size:20px; letter-spacing:6px;">
+                <select id="hk-rate-stars" style="padding:12px; border-radius:8px; border:1px solid var(--color-glass-border); background:var(--color-glass); color:black; font-family:var(--font-body); outline:none;">
+                    <option value="5" style="color:black;">5 - Excellent</option>
+                    <option value="4" style="color:black;">4 - Good</option>
+                    <option value="3" style="color:black;">3 - Average</option>
+                    <option value="2" style="color:black;">2 - Poor</option>
+                    <option value="1" style="color:black;">1 - Terrible</option>
                 </select>
-                <textarea id="rating-comment" placeholder="Optional comments..." rows="4" style="padding:12px; border-radius:8px; border:1px solid var(--color-glass-border); background:var(--color-glass); color:var(--color-text); font-family:var(--font-body); outline:none; resize:none;"></textarea>
-                <button id="rating-submit-btn" class="nav-btn wide-btn" style="background:var(--color-primary); color:white; border:none; margin-top:10px;">Submit Rating</button>
-                <div id="rating-msg" style="color:var(--color-primary-light); display:none; text-align:center; font-weight:bold; margin-top:10px;">Thank you for your feedback!</div>
+                <textarea id="hk-rate-comment" placeholder="Optional comments..." rows="3" style="padding:12px; border-radius:8px; border:1px solid var(--color-glass-border); background:var(--color-glass); color:var(--color-text); font-family:var(--font-body); outline:none; resize:none;"></textarea>
+                <button class="nav-btn wide-btn" style="background:var(--color-primary); color:white; border:none;" onclick="rateHousekeeping()">Submit Rating</button>
+                <div id="hk-rate-msg" style="display:none; color:var(--color-primary-light); text-align:center; font-weight:bold; margin-top:10px;">Thank you for your feedback!</div>
+                <div id="hk-rate-err" style="display:none; color:#e74c3c; text-align:center; font-weight:bold; margin-top:10px;"></div>
             </div>
         </div>
     </section>
 
-    <script src="script.js?v=3"></script>
+    <script src="script.js?v=4"></script>
 </body>
 
 </html>

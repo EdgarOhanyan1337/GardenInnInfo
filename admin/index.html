@@ -62,8 +62,7 @@
             margin-top: 15px;
         }
 
-        th,
-        td {
+        th, td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
@@ -96,6 +95,7 @@
         }
 
         .form-group { margin-bottom: 15px; }
+        .lang-label { font-size: 12px; color: #888; margin-top: 8px; display: block; }
 
         #login-screen {
             position: fixed;
@@ -118,6 +118,8 @@
             max-width: 400px;
             width: 90%;
         }
+
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; }
     </style>
 </head>
 
@@ -141,9 +143,9 @@
             <a onclick="loadData('services', renderServices)">Services</a>
             <a onclick="loadData('tours', renderTours)">Tours</a>
             <a onclick="loadData('rules', renderRules)">Rules</a>
-            <a onclick="loadData('translations', renderTranslations)">Translations</a>
+            <a onclick="loadData('translations', renderTranslations)">UI Translations</a>
             <a onclick="loadData('housekeeping_requests', renderHousekeeping)">Housekeeping Logs</a>
-            <a onclick="loadData('housekeeping_ratings', renderRatings)">Guest Ratings</a>
+            <a onclick="loadData('housekeeping_ratings', renderRatings)">HK Ratings</a>
             <a onclick="logout()" style="color:#e74c3c;">Logout</a>
         </div>
 
@@ -163,18 +165,28 @@
                 <div id="minibar-table"></div>
             </div>
 
-            <!-- SERVICES SECTION -->
+            <!-- SERVICES SECTION (Multi-lang) -->
             <div class="card" id="services-section" style="display:none;">
                 <h3>Add Service</h3>
                 <div class="form-group">
                     <input type="text" id="svc-key" placeholder="Key (e.g. pool)">
-                    <input type="text" id="svc-title" placeholder="Title">
-                    <textarea id="svc-desc" placeholder="Description (HTML allowed)"></textarea>
+                    <input type="text" id="svc-icon" placeholder="Icon (e.g. pool emoji)">
                     <select id="svc-type">
                         <option value="free">Free</option>
                         <option value="paid">Paid</option>
                     </select>
-                    <input type="text" id="svc-icon" placeholder="Icon (e.g. 🏊)">
+                    <span class="lang-label">Title (EN):</span>
+                    <input type="text" id="svc-title-en" placeholder="Title in English">
+                    <span class="lang-label">Title (RU):</span>
+                    <input type="text" id="svc-title-ru" placeholder="Title in Russian">
+                    <span class="lang-label">Title (HY):</span>
+                    <input type="text" id="svc-title-hy" placeholder="Title in Armenian">
+                    <span class="lang-label">Description (EN):</span>
+                    <textarea id="svc-desc-en" placeholder="Description in English (HTML allowed)"></textarea>
+                    <span class="lang-label">Description (RU):</span>
+                    <textarea id="svc-desc-ru" placeholder="Description in Russian"></textarea>
+                    <span class="lang-label">Description (HY):</span>
+                    <textarea id="svc-desc-hy" placeholder="Description in Armenian"></textarea>
                     <p><small>Upload Main Image:</small></p>
                     <input type="file" id="svc-file">
                 </div>
@@ -182,15 +194,25 @@
                 <div id="services-table"></div>
             </div>
 
-            <!-- TOURS SECTION -->
+            <!-- TOURS SECTION (Multi-lang) -->
             <div class="card" id="tours-section" style="display:none;">
                 <h3>Add Tour</h3>
                 <div class="form-group">
                     <input type="text" id="tour-key" placeholder="Key (e.g. sevan-trip)">
-                    <input type="text" id="tour-title" placeholder="Title">
-                    <textarea id="tour-desc" placeholder="Description (HTML allowed)"></textarea>
+                    <input type="text" id="tour-icon" placeholder="Icon (e.g. boat emoji)">
                     <input type="text" id="tour-price" placeholder="Price (e.g. 10,000 AMD)">
-                    <input type="text" id="tour-icon" placeholder="Icon (e.g. ⛵)">
+                    <span class="lang-label">Title (EN):</span>
+                    <input type="text" id="tour-title-en" placeholder="Title in English">
+                    <span class="lang-label">Title (RU):</span>
+                    <input type="text" id="tour-title-ru" placeholder="Title in Russian">
+                    <span class="lang-label">Title (HY):</span>
+                    <input type="text" id="tour-title-hy" placeholder="Title in Armenian">
+                    <span class="lang-label">Description (EN):</span>
+                    <textarea id="tour-desc-en" placeholder="Description in English (HTML allowed)"></textarea>
+                    <span class="lang-label">Description (RU):</span>
+                    <textarea id="tour-desc-ru" placeholder="Description in Russian"></textarea>
+                    <span class="lang-label">Description (HY):</span>
+                    <textarea id="tour-desc-hy" placeholder="Description in Armenian"></textarea>
                     <p><small>Upload Main Image:</small></p>
                     <input type="file" id="tour-file">
                 </div>
@@ -198,20 +220,28 @@
                 <div id="tours-table"></div>
             </div>
 
-            <!-- RULES SECTION -->
+            <!-- RULES SECTION (Multi-lang) -->
             <div class="card" id="rules-section" style="display:none;">
                 <h3>Add Rule</h3>
-                <input type="text" id="rule-icon" placeholder="Icon (e.g. 🚭)">
-                <input type="text" id="rule-text" placeholder="Rule Text">
+                <div class="form-group">
+                    <input type="text" id="rule-icon" placeholder="Icon (e.g. no smoking emoji)">
+                    <span class="lang-label">Text (EN):</span>
+                    <input type="text" id="rule-text-en" placeholder="Rule text in English">
+                    <span class="lang-label">Text (RU):</span>
+                    <input type="text" id="rule-text-ru" placeholder="Rule text in Russian">
+                    <span class="lang-label">Text (HY):</span>
+                    <input type="text" id="rule-text-hy" placeholder="Rule text in Armenian">
+                </div>
                 <button onclick="addRule()">Add Rule</button>
                 <div id="rules-table"></div>
             </div>
 
-            <!-- TRANSLATIONS SECTION -->
+            <!-- TRANSLATIONS SECTION (UI strings) -->
             <div class="card" id="translations-section" style="display:none;">
-                <h3>Manage Translations</h3>
+                <h3>UI Translations</h3>
+                <p><small>These translate the interface buttons/labels (welcome, services, rules, etc.)</small></p>
                 <div class="form-group">
-                    <input type="text" id="trans-key" placeholder="Text Key (e.g. welcome)">
+                    <input type="text" id="trans-key" placeholder="Key (e.g. welcome)">
                     <input type="text" id="trans-en" placeholder="English">
                     <input type="text" id="trans-ru" placeholder="Russian">
                     <input type="text" id="trans-hy" placeholder="Armenian">
@@ -220,20 +250,21 @@
                 <div id="translations-table"></div>
             </div>
 
-            <!-- LOGS SECTIONS -->
+            <!-- HOUSEKEEPING LOGS -->
             <div class="card" id="housekeeping-section" style="display:none;">
                 <h3>Housekeeping Requests</h3>
                 <div id="hk-table"></div>
             </div>
 
+            <!-- HK RATINGS -->
             <div class="card" id="ratings-section" style="display:none;">
-                <h3>Guest Ratings</h3>
+                <h3>Housekeeping Ratings</h3>
                 <div id="ratings-table"></div>
             </div>
         </div>
     </div>
 
-    <script src="admin-script.js?v=4"></script>
+    <script src="admin-script.js?v=5"></script>
 </body>
 
 </html>
