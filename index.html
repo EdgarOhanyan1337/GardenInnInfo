@@ -23,10 +23,39 @@
     <!-- Header -->
     <header class="header" role="banner">
         <div class="logo" id="logo-container">
-            <!-- REPLACE THIS: Your hotel logo image -->
-            <img src="assets/logo.png" alt="[ЛОГОТИП ОТЕЛЯ - Замените на свой логотип]" id="logo-img">
+            <!-- Premium Garden / Forest Geometric Vector Logo Icon (Overlapping Leaves) -->
+            <svg id="logo-img" width="46" height="46" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="transition: transform var(--transition-bounce);">
+                <!-- Left leaf -->
+                <path d="M48 85 C 10 80, 5 35, 30 20 C 40 40, 55 60, 48 85 Z" fill="url(#leaf-light)" fill-opacity="0.9"/>
+                <!-- Right leaf -->
+                <path d="M52 85 C 90 80, 95 35, 70 20 C 60 40, 45 60, 52 85 Z" fill="url(#leaf-dark)" fill-opacity="0.9"/>
+                <!-- Center top leaf -->
+                <path d="M50 85 C 30 70, 30 25, 50 10 C 70 25, 70 70, 50 85 Z" fill="url(#leaf-accent)" fill-opacity="0.95"/>
+                
+                <defs>
+                    <linearGradient id="leaf-light" x1="5" y1="20" x2="48" y2="85" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#A8E063"/>
+                        <stop offset="1" stop-color="#4F9D6B"/>
+                    </linearGradient>
+                    <linearGradient id="leaf-dark" x1="95" y1="20" x2="52" y2="85" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#4F9D6B"/>
+                        <stop offset="1" stop-color="#1B5E20"/>
+                    </linearGradient>
+                    <linearGradient id="leaf-accent" x1="50" y1="10" x2="50" y2="85" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#D4E157"/>
+                        <stop offset="1" stop-color="#2E7D32"/>
+                    </linearGradient>
+                    <!-- Gradient for the subline RESORT & SPA -->
+                    <linearGradient id="logo-green-grad" x1="0" y1="0" x2="240" y2="0" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#A8E063"/>
+                        <stop offset="0.5" stop-color="#4F9D6B"/>
+                        <stop offset="1" stop-color="#A8E063"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            
             <svg viewBox="0 0 240 60" class="logo-svg-animation" aria-label="Garden Inn">
-                <text x="0" y="42" class="logo-svg-text">
+                <text x="0" y="40" class="logo-svg-text">
                     <tspan class="logo-letter" style="animation-delay: 0s">G</tspan>
                     <tspan class="logo-letter" style="animation-delay: 0.15s">a</tspan>
                     <tspan class="logo-letter" style="animation-delay: 0.3s">r</tspan>
@@ -38,8 +67,8 @@
                     <tspan class="logo-letter" style="animation-delay: 1.2s">n</tspan>
                     <tspan class="logo-letter" style="animation-delay: 1.35s">n</tspan>
                 </text>
-                <!-- Finishing underline touch -->
-                <line x1="0" y1="52" x2="0" y2="52" class="finishing-glow" />
+                <!-- Luxury Sub-brand fade-in targeting green gradient -->
+                <text x="5" y="55" class="logo-subline" fill="url(#logo-green-grad)">RESORT &amp; SPA</text>
             </svg>
         </div>
         <div class="header-controls">

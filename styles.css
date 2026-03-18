@@ -202,7 +202,7 @@ body {
 }
 
 .logo-svg-animation {
-    height: 45px;
+    height: 52px;
     width: auto;
     overflow: visible;
 }
@@ -249,19 +249,19 @@ body {
     }
 }
 
-.finishing-glow {
-    stroke: var(--color-primary-light);
-    stroke-width: 2px;
-    stroke-linecap: round;
-    filter: drop-shadow(0 0 4px var(--color-primary));
-    stroke-dasharray: 200;
-    stroke-dashoffset: 200;
-    animation: underlineDraw 1s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-    animation-delay: 2.8s; /* After letters are filled */
+.logo-subline {
+    font-family: 'Karla', sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    opacity: 0;
+    animation: fadeInSubline 1.5s ease-out forwards;
+    animation-delay: 2.8s; /* Appears after letters are filled */
 }
 
-@keyframes underlineDraw {
-    100% { stroke-dashoffset: 0; }
+@keyframes fadeInSubline {
+    0% { opacity: 0; transform: translateY(4px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 
 /* Language Switcher */
@@ -1241,7 +1241,7 @@ body {
     }
     
     .logo-svg-animation {
-        height: 35px;
+        height: 44px;
     }
     
     .logo-svg-text {
@@ -1425,7 +1425,7 @@ body {
     }
     
     .logo-svg-animation {
-        height: 30px;
+        height: 36px;
     }
     
     .logo-svg-text {
@@ -1558,7 +1558,7 @@ body {
     }
     
     .logo-svg-animation {
-        height: 26px;
+        height: 32px;
     }
     
     .logo-svg-text {
