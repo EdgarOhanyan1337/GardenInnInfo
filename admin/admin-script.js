@@ -1,14 +1,14 @@
-const supabaseUrl = 'https://klnxybjaaxtlfabnzxcd.supabase.co';
-const supabaseKey = 'sb_secret_CS9wfE_qUfL3MrR2xzrTAQ_kf-z1ciE';
-const supabase = window.Supabase.createClient(supabaseUrl, supabaseKey);
+const ADM_SUPABASE_URL = 'https://klnxybjaaxtlfabnzxcd.supabase.co';
+const ADM_SUPABASE_KEY = 'sb_secret_CS9wfE_qUfL3MrR2xzrTAQ_kf-z1ciE';
+const supabaseClient = window.supabase.createClient(ADM_SUPABASE_URL, ADM_SUPABASE_KEY);
 
 // Auth
 async function login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { alert('Login Failed: ' + error.message); }
-    else {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) { alert('Login Failed: ' + error.message); } 
+    else { 
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         loadData('minibar_items', renderMinibar);
@@ -16,12 +16,12 @@ async function login() {
 }
 
 async function logout() {
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
     location.reload();
 }
 
 // Check session on load
-supabase.auth.getSession().then(({ data: { session } }) => {
+supabaseClient.auth.getSession().then(({ data: { session } }) => {
     if (session) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
@@ -38,14 +38,14 @@ async function loadData(table, renderCallback) {
     document.getElementById('housekeeping-section').style.display = 'none';
     document.getElementById('ratings-section').style.display = 'none';
 
-    if (table === 'minibar_items') document.getElementById('minibar-section').style.display = 'block';
-    if (table === 'services') document.getElementById('services-section').style.display = 'block';
-    if (table === 'tours') document.getElementById('tours-section').style.display = 'block';
-    if (table === 'rules') document.getElementById('rules-section').style.display = 'block';
-    if (table === 'housekeeping_requests') document.getElementById('housekeeping-section').style.display = 'block';
-    if (table === 'housekeeping_ratings') document.getElementById('ratings-section').style.display = 'block';
+    if(table === 'minibar_items') document.getElementById('minibar-section').style.display = 'block';
+    if(table === 'services') document.getElementById('services-section').style.display = 'block';
+    if(table === 'tours') document.getElementById('tours-section').style.display = 'block';
+    if(table === 'rules') document.getElementById('rules-section').style.display = 'block';
+    if(table === 'housekeeping_requests') document.getElementById('housekeeping-section').style.display = 'block';
+    if(table === 'housekeeping_ratings') document.getElementById('ratings-section').style.display = 'block';
 
-    const { data, error } = await supabase.from(table).select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabaseClient.from(table).select('*').order('created_at', { ascending: false });
     if (error) console.error(error);
     renderCallback(data);
 }
@@ -65,7 +65,7 @@ async function addMinibarItem() {
     const name = document.getElementById('mb-name').value;
     const price = document.getElementById('mb-price').value;
     const img = document.getElementById('mb-img').value;
-    await supabase.from('minibar_items').insert([{ name, price: parseInt(price), image_url: img }]);
+    await supabaseClient.from('minibar_items').insert([{ name, price: parseInt(price), image_url: img }]);
     loadData('minibar_items', renderMinibar);
 }
 
@@ -86,7 +86,7 @@ async function addService() {
     const description = document.getElementById('svc-desc').value;
     const status_type = document.getElementById('svc-type').value;
     const icon = document.getElementById('svc-icon').value;
-    await supabase.from('services').insert([{ service_key, title, description, status_type, icon }]);
+    await supabaseClient.from('services').insert([{ service_key, title, description, status_type, icon }]);
     loadData('services', renderServices);
 }
 
@@ -107,7 +107,7 @@ async function addTour() {
     const description = document.getElementById('tour-desc').value;
     const price = document.getElementById('tour-price').value;
     const icon = document.getElementById('tour-icon').value;
-    await supabase.from('tours').insert([{ tour_key, title, description, price, icon }]);
+    await supabaseClient.from('tours').insert([{ tour_key, title, description, price, icon }]);
     loadData('tours', renderTours);
 }
 
@@ -125,7 +125,7 @@ function renderRules(data) {
 async function addRule() {
     const icon = document.getElementById('rule-icon').value;
     const text = document.getElementById('rule-text').value;
-    await supabase.from('rules').insert([{ icon, text }]);
+    await supabaseClient.from('rules').insert([{ icon, text }]);
     loadData('rules', renderRules);
 }
 
@@ -150,20 +150,20 @@ function renderRatings(data) {
         html += `<tr><td>${'⭐'.repeat(item.rating)}</td><td>${item.comment || '-'}</td><td>${new Date(item.created_at).toLocaleString()}</td></tr>`;
     });
     html += `</table>`;
-
+    
     let avg = data.length > 0 ? (sum / data.length).toFixed(1) : 0;
     document.getElementById('ratings-table').innerHTML = `<h4>Average Rating: ⭐ ${avg}</h4>` + html;
 }
 
 // Global Delete
 async function deleteItem(table, id, renderCallback) {
-    await supabase.from(table).delete().eq('id', id);
+    await supabaseClient.from(table).delete().eq('id', id);
     loadData(table, renderCallback);
 }
 
 // Real-time Subscriptions
 function initRealtime() {
-    supabase.channel('public:housekeeping_requests')
+    supabaseClient.channel('public:housekeeping_requests')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'housekeeping_requests' }, () => {
             if (document.getElementById('housekeeping-section').style.display === 'block') {
                 loadData('housekeeping_requests', renderHousekeeping);
@@ -171,7 +171,7 @@ function initRealtime() {
         })
         .subscribe();
 
-    supabase.channel('public:housekeeping_ratings')
+    supabaseClient.channel('public:housekeeping_ratings')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'housekeeping_ratings' }, () => {
             if (document.getElementById('ratings-section').style.display === 'block') {
                 loadData('housekeeping_ratings', renderRatings);
@@ -181,7 +181,7 @@ function initRealtime() {
 }
 
 // Start Real-time after auth
-supabase.auth.onAuthStateChange((event, session) => {
+supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN') {
         initRealtime();
     }
