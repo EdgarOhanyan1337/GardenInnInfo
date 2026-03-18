@@ -1,14 +1,14 @@
 const supabaseUrl = 'https://klnxybjaaxtlfabnzxcd.supabase.co';
 const supabaseKey = 'sb_secret_CS9wfE_qUfL3MrR2xzrTAQ_kf-z1ciE';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
 
 // Auth
 async function login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { alert('Login Failed: ' + error.message); } 
-    else { 
+    if (error) { alert('Login Failed: ' + error.message); }
+    else {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         loadData('minibar_items', renderMinibar);
@@ -38,12 +38,12 @@ async function loadData(table, renderCallback) {
     document.getElementById('housekeeping-section').style.display = 'none';
     document.getElementById('ratings-section').style.display = 'none';
 
-    if(table === 'minibar_items') document.getElementById('minibar-section').style.display = 'block';
-    if(table === 'services') document.getElementById('services-section').style.display = 'block';
-    if(table === 'tours') document.getElementById('tours-section').style.display = 'block';
-    if(table === 'rules') document.getElementById('rules-section').style.display = 'block';
-    if(table === 'housekeeping_requests') document.getElementById('housekeeping-section').style.display = 'block';
-    if(table === 'housekeeping_ratings') document.getElementById('ratings-section').style.display = 'block';
+    if (table === 'minibar_items') document.getElementById('minibar-section').style.display = 'block';
+    if (table === 'services') document.getElementById('services-section').style.display = 'block';
+    if (table === 'tours') document.getElementById('tours-section').style.display = 'block';
+    if (table === 'rules') document.getElementById('rules-section').style.display = 'block';
+    if (table === 'housekeeping_requests') document.getElementById('housekeeping-section').style.display = 'block';
+    if (table === 'housekeeping_ratings') document.getElementById('ratings-section').style.display = 'block';
 
     const { data, error } = await supabase.from(table).select('*').order('created_at', { ascending: false });
     if (error) console.error(error);
@@ -150,7 +150,7 @@ function renderRatings(data) {
         html += `<tr><td>${'⭐'.repeat(item.rating)}</td><td>${item.comment || '-'}</td><td>${new Date(item.created_at).toLocaleString()}</td></tr>`;
     });
     html += `</table>`;
-    
+
     let avg = data.length > 0 ? (sum / data.length).toFixed(1) : 0;
     document.getElementById('ratings-table').innerHTML = `<h4>Average Rating: ⭐ ${avg}</h4>` + html;
 }
