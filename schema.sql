@@ -1,109 +1,186 @@
--- Garden Inn Resort - Database Schema (V2 - Storage & Translations)
--- Paste this into the Supabase SQL Editor
+-- ============================================
+-- Garden Inn Resort — ПОЛНЫЙ ЧИСТЫЙ ЗАПУСК V3
+-- Скопируйте ВСЁ в SQL Editor → Run
+-- ============================================
 
--- Enable UUID extension
-create extension if not exists "uuid-ossp";
+-- Удаляем ВСЁ старое
+DROP POLICY IF EXISTS "Public read access" ON minibar_items;
+DROP POLICY IF EXISTS "Public read minibar" ON minibar_items;
+DROP POLICY IF EXISTS "Admin access minibar" ON minibar_items;
+DROP POLICY IF EXISTS "Admin full minibar" ON minibar_items;
+DROP POLICY IF EXISTS "Full Access" ON minibar_items;
 
--- 1. Minibar Items
-create table minibar_items (
-  id uuid default uuid_generate_v4() primary key,
-  name text not null,
-  price integer not null,
-  image_url text not null,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+DROP POLICY IF EXISTS "Public read access" ON services;
+DROP POLICY IF EXISTS "Public read services" ON services;
+DROP POLICY IF EXISTS "Admin access services" ON services;
+DROP POLICY IF EXISTS "Admin full services" ON services;
+DROP POLICY IF EXISTS "Full Access" ON services;
+
+DROP POLICY IF EXISTS "Public read access" ON tours;
+DROP POLICY IF EXISTS "Public read tours" ON tours;
+DROP POLICY IF EXISTS "Admin access tours" ON tours;
+DROP POLICY IF EXISTS "Admin full tours" ON tours;
+DROP POLICY IF EXISTS "Full Access" ON tours;
+
+DROP POLICY IF EXISTS "Public read access" ON rules;
+DROP POLICY IF EXISTS "Public read rules" ON rules;
+DROP POLICY IF EXISTS "Admin access rules" ON rules;
+DROP POLICY IF EXISTS "Admin full rules" ON rules;
+DROP POLICY IF EXISTS "Full Access" ON rules;
+
+DROP POLICY IF EXISTS "Public read translations" ON translations;
+DROP POLICY IF EXISTS "Admin full translations" ON translations;
+DROP POLICY IF EXISTS "Full Access" ON translations;
+
+DROP POLICY IF EXISTS "Public insert housekeeping" ON housekeeping_requests;
+DROP POLICY IF EXISTS "Admin access housekeeping" ON housekeeping_requests;
+DROP POLICY IF EXISTS "Admin full housekeeping" ON housekeeping_requests;
+DROP POLICY IF EXISTS "Full Access" ON housekeeping_requests;
+
+DROP POLICY IF EXISTS "Public insert ratings" ON housekeeping_ratings;
+DROP POLICY IF EXISTS "Admin access ratings" ON housekeeping_ratings;
+DROP POLICY IF EXISTS "Admin full ratings" ON housekeeping_ratings;
+DROP POLICY IF EXISTS "Full Access" ON housekeeping_ratings;
+
+DROP POLICY IF EXISTS "Public Storage Read" ON storage.objects;
+DROP POLICY IF EXISTS "Public Read" ON storage.objects;
+DROP POLICY IF EXISTS "Admin Storage Insert" ON storage.objects;
+DROP POLICY IF EXISTS "Public Insert" ON storage.objects;
+DROP POLICY IF EXISTS "Admin Storage Update" ON storage.objects;
+DROP POLICY IF EXISTS "Admin Storage Delete" ON storage.objects;
+
+DROP TABLE IF EXISTS minibar_items CASCADE;
+DROP TABLE IF EXISTS services CASCADE;
+DROP TABLE IF EXISTS tours CASCADE;
+DROP TABLE IF EXISTS rules CASCADE;
+DROP TABLE IF EXISTS translations CASCADE;
+DROP TABLE IF EXISTS housekeeping_requests CASCADE;
+DROP TABLE IF EXISTS housekeeping_ratings CASCADE;
+
+-- ============================================
+-- СОЗДАЁМ ТАБЛИЦЫ
+-- ============================================
+
+CREATE TABLE minibar_items (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  price INTEGER NOT NULL,
+  image_url TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Services
-create table services (
-  id uuid default uuid_generate_v4() primary key,
-  service_key text unique not null,
-  title text not null,
-  description text not null,
-  status_type text not null, -- 'free' or 'paid'
-  icon text not null,
-  images jsonb default '[]'::jsonb,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+CREATE TABLE services (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  service_key TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  status_type TEXT NOT NULL DEFAULT 'free',
+  icon TEXT NOT NULL DEFAULT '⭐',
+  images JSONB DEFAULT '[]'::JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Tours
-create table tours (
-  id uuid default uuid_generate_v4() primary key,
-  tour_key text unique not null,
-  title text not null,
-  description text not null,
-  price text not null,
-  icon text not null,
-  images jsonb default '[]'::jsonb,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+CREATE TABLE tours (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  tour_key TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  price TEXT NOT NULL DEFAULT '',
+  icon TEXT NOT NULL DEFAULT '🗺️',
+  images JSONB DEFAULT '[]'::JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 4. Rules
-create table rules (
-  id uuid default uuid_generate_v4() primary key,
-  icon text not null,
-  text text not null,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+CREATE TABLE rules (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  icon TEXT NOT NULL DEFAULT '📋',
+  text TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 5. Housekeeping Requests
-create table housekeeping_requests (
-  id uuid default uuid_generate_v4() primary key,
-  room_number text not null,
-  status text default 'pending', -- pending, accepted, completed
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+CREATE TABLE translations (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  key TEXT UNIQUE NOT NULL,
+  en TEXT NOT NULL DEFAULT '',
+  ru TEXT NOT NULL DEFAULT '',
+  hy TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 6. Housekeeping Ratings
-create table housekeeping_ratings (
-  id uuid default uuid_generate_v4() primary key,
-  rating integer not null check (rating >= 1 and rating <= 5),
-  comment text,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+CREATE TABLE housekeeping_requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  room_number TEXT NOT NULL,
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 7. Translations
-create table translations (
-  id uuid default uuid_generate_v4() primary key,
-  key text unique not null,
-  en text not null,
-  ru text not null,
-  hy text not null,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+CREATE TABLE housekeeping_ratings (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comment TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Enable RLS
-alter table minibar_items enable row level security;
-alter table services enable row level security;
-alter table tours enable row level security;
-alter table rules enable row level security;
-alter table housekeeping_requests enable row level security;
-alter table housekeeping_ratings enable row level security;
-alter table translations enable row level security;
+-- ============================================
+-- RLS: ПОЛНЫЙ ДОСТУП (для тестов)
+-- Все таблицы: любой может читать, любой аутентифицированный может всё
+-- ============================================
 
--- Policies (Public)
-create policy "Public read minibar" on minibar_items for select using (true);
-create policy "Public read services" on services for select using (true);
-create policy "Public read tours" on tours for select using (true);
-create policy "Public read rules" on rules for select using (true);
-create policy "Public read translations" on translations for select using (true);
-create policy "Public insert housekeeping" on housekeeping_requests for insert with check (true);
-create policy "Public insert ratings" on housekeeping_ratings for insert with check (true);
+ALTER TABLE minibar_items ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anyone_select" ON minibar_items FOR SELECT USING (true);
+CREATE POLICY "anyone_insert" ON minibar_items FOR INSERT WITH CHECK (true);
+CREATE POLICY "anyone_update" ON minibar_items FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "anyone_delete" ON minibar_items FOR DELETE USING (true);
 
--- Policies (Admin - Authenticated)
-create policy "Admin full minibar" on minibar_items for all to authenticated using (true) with check (true);
-create policy "Admin full services" on services for all to authenticated using (true) with check (true);
-create policy "Admin full tours" on tours for all to authenticated using (true) with check (true);
-create policy "Admin full rules" on rules for all to authenticated using (true) with check (true);
-create policy "Admin full translations" on translations for all to authenticated using (true) with check (true);
-create policy "Admin full housekeeping" on housekeeping_requests for all to authenticated using (true) with check (true);
-create policy "Admin full ratings" on housekeeping_ratings for all to authenticated using (true) with check (true);
+ALTER TABLE services ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anyone_select" ON services FOR SELECT USING (true);
+CREATE POLICY "anyone_insert" ON services FOR INSERT WITH CHECK (true);
+CREATE POLICY "anyone_update" ON services FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "anyone_delete" ON services FOR DELETE USING (true);
 
--- Storage Setup (Bucket for Images)
-insert into storage.buckets (id, name, public) 
-values ('images', 'images', true)
-on conflict (id) do nothing;
+ALTER TABLE tours ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anyone_select" ON tours FOR SELECT USING (true);
+CREATE POLICY "anyone_insert" ON tours FOR INSERT WITH CHECK (true);
+CREATE POLICY "anyone_update" ON tours FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "anyone_delete" ON tours FOR DELETE USING (true);
 
-create policy "Public Storage Read" on storage.objects for select using ( bucket_id = 'images' );
-create policy "Admin Storage Insert" on storage.objects for insert to authenticated with check ( bucket_id = 'images' );
-create policy "Admin Storage Update" on storage.objects for update to authenticated with check ( bucket_id = 'images' );
-create policy "Admin Storage Delete" on storage.objects for delete to authenticated using ( bucket_id = 'images' );
+ALTER TABLE rules ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anyone_select" ON rules FOR SELECT USING (true);
+CREATE POLICY "anyone_insert" ON rules FOR INSERT WITH CHECK (true);
+CREATE POLICY "anyone_update" ON rules FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "anyone_delete" ON rules FOR DELETE USING (true);
+
+ALTER TABLE translations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anyone_select" ON translations FOR SELECT USING (true);
+CREATE POLICY "anyone_insert" ON translations FOR INSERT WITH CHECK (true);
+CREATE POLICY "anyone_update" ON translations FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "anyone_delete" ON translations FOR DELETE USING (true);
+
+ALTER TABLE housekeeping_requests ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anyone_select" ON housekeeping_requests FOR SELECT USING (true);
+CREATE POLICY "anyone_insert" ON housekeeping_requests FOR INSERT WITH CHECK (true);
+CREATE POLICY "anyone_update" ON housekeeping_requests FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "anyone_delete" ON housekeeping_requests FOR DELETE USING (true);
+
+ALTER TABLE housekeeping_ratings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anyone_select" ON housekeeping_ratings FOR SELECT USING (true);
+CREATE POLICY "anyone_insert" ON housekeeping_ratings FOR INSERT WITH CHECK (true);
+CREATE POLICY "anyone_update" ON housekeeping_ratings FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "anyone_delete" ON housekeeping_ratings FOR DELETE USING (true);
+
+-- ============================================
+-- STORAGE: Корзина для картинок
+-- ============================================
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('images', 'images', true)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "storage_select" ON storage.objects FOR SELECT USING (bucket_id = 'images');
+CREATE POLICY "storage_insert" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'images');
+CREATE POLICY "storage_update" ON storage.objects FOR UPDATE USING (bucket_id = 'images') WITH CHECK (bucket_id = 'images');
+CREATE POLICY "storage_delete" ON storage.objects FOR DELETE USING (bucket_id = 'images');
+
+-- ============================================
+-- ГОТОВО! Теперь обновите страницу админки.
+-- ============================================
