@@ -13,6 +13,10 @@ const translations = {
         minibar: "Mini Bar",
         tours: "Tours",
         contact: "Get in Touch",
+        contactMenu: "Contact Us",
+        wifiMenu: "WiFi",
+        otherContact: "Other",
+        otherMethodsTitle: "Other Methods",
         more: "More →",
         gallery: "Gallery",
         price: "Price",
@@ -51,6 +55,10 @@ const translations = {
         minibar: "Мини-Бар",
         tours: "Туры",
         contact: "Связаться с нами",
+        contactMenu: "Связаться",
+        wifiMenu: "WiFi",
+        otherContact: "Другое",
+        otherMethodsTitle: "Другие способы",
         more: "Подробнее →",
         gallery: "Галерея",
         price: "Цена",
@@ -89,6 +97,10 @@ const translations = {
         minibar: "Մինի-Բար",
         tours: "Տուրեր",
         contact: "Կապվեք մեզ հետ",
+        contactMenu: "Կապ",
+        wifiMenu: "WiFi",
+        otherContact: "Այլ",
+        otherMethodsTitle: "Այլ Եղանակներ",
         more: "Ավելին →",
         gallery: "Պատկերասրահ",
         price: "Գինը",
@@ -122,7 +134,7 @@ const translations = {
 };
 
 // ==================== STATE ====================
-let currentLang = 'ru';
+let currentLang = 'en';
 let currentImages = [];
 let lightboxIndex = 0;
 let currentTheme = 'dark';
@@ -667,6 +679,39 @@ function initWiFi() {
     }
 }
 
+// ==================== ADVANCED LOGO ANIMATION ====================
+function initLogoAnimation() {
+    const letters = document.querySelectorAll('.logo-svg-text .logo-letter');
+    if (!letters.length) return;
+    
+    // Stroke animation finishes around 2.6s (1.35s max delay + 1.2s duration)
+    // We start the fill color animation shortly after.
+    setTimeout(() => {
+        letters.forEach((letter, index) => {
+            setTimeout(() => {
+                letter.classList.add('fill-color');
+            }, index * 80); // 80ms sequential ripple for filling
+        });
+    }, 2600);
+}
+
+// ==================== CONTACT MODAL ====================
+function initContactModal() {
+    const otherBtn = document.getElementById('contact-other-btn');
+    const otherDetails = document.getElementById('contact-other-details');
+    
+    if (otherBtn && otherDetails) {
+        otherBtn.addEventListener('click', () => {
+            // Toggle display
+            if (otherDetails.style.display === 'none') {
+                otherDetails.style.display = 'block';
+            } else {
+                otherDetails.style.display = 'none';
+            }
+        });
+    }
+}
+
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', () => {
     initLanguage();
@@ -676,6 +721,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initLightbox();
     initKeyboard();
     initVideo();
+    initLogoAnimation();
+    initContactModal();
 });
 
 // Add smooth CSS transitions for lightbox image

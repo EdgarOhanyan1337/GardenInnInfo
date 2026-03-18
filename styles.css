@@ -180,12 +180,18 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
     transition: background var(--transition-normal);
 }
 
 .header:hover {
-    background: rgba(0, 0, 0, 0.7);
+    background: linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
 }
 
 .logo img {
@@ -195,8 +201,67 @@ body {
     transition: transform var(--transition-bounce);
 }
 
-.logo img:hover {
-    transform: scale(1.05);
+.logo-svg-animation {
+    height: 45px;
+    width: auto;
+    overflow: visible;
+}
+
+.logo-svg-text {
+    font-family: 'Karla', var(--font-display);
+    font-size: 38px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+}
+
+.logo-letter {
+    fill: transparent;
+    stroke: var(--color-text);
+    stroke-width: 1px;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    /* Smooth ease-in-out drawing effect */
+    animation: drawStroke 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+[data-theme="light"] .logo-letter {
+    stroke: var(--color-text);
+}
+
+@keyframes drawStroke {
+    0% { stroke-dashoffset: 200; }
+    100% { stroke-dashoffset: 0; }
+}
+
+.logo-letter.fill-color {
+    animation: fillLetter 0.8s ease-in-out forwards;
+}
+
+@keyframes fillLetter {
+    0% {
+        fill: transparent;
+        stroke-width: 1px;
+    }
+    100% {
+        fill: var(--color-text);
+        stroke-width: 0;
+        text-shadow: 0 0 12px rgba(255,255,255,0.4);
+    }
+}
+
+.finishing-glow {
+    stroke: var(--color-primary-light);
+    stroke-width: 2px;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 4px var(--color-primary));
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: underlineDraw 1s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    animation-delay: 2.8s; /* After letters are filled */
+}
+
+@keyframes underlineDraw {
+    100% { stroke-dashoffset: 0; }
 }
 
 /* Language Switcher */
@@ -409,6 +474,33 @@ body {
     border-color: var(--color-viber);
 }
 
+/* Contact Modal Styles */
+.contact-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+}
+
+.modal-action-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.contact-other-details {
+    animation: fadeIn 0.3s ease;
+}
+
+.contact-btn.other {
+    background: var(--color-glass);
+    border-color: var(--color-glass-border);
+}
+
+.contact-btn.other:hover {
+    background: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+}
+
 /* ==================== SOCIAL BAR ==================== */
 .social-bar {
     position: fixed;
@@ -434,42 +526,30 @@ body {
 }
 
 .social-icon svg {
+    width: 28px;
+    height: 28px;
     transition: transform var(--transition-bounce);
 }
 
 .social-icon:hover {
     transform: translateX(-5px) scale(1.1);
+    background: rgba(255,255,255,0.2);
 }
 
 .social-icon:hover svg {
-    transform: scale(1.2);
+    transform: scale(1.15);
 }
 
-.social-icon.instagram {
-    background: var(--color-instagram);
-}
-
-.social-icon.facebook {
-    background: var(--color-facebook);
-}
-
-.social-icon.tiktok {
-    background: var(--color-tiktok);
-    border: 1px solid rgba(255,255,255,0.3);
-}
-
-.social-icon.booking {
-    background: #003580;
-    border: 1px solid rgba(255,255,255,0.3);
-}
+/* Official colors are now embedded within the SVG files themselves.
+   Glassmorphism backgrounds from .social-icon handle the outer ring beautifully. */
 
 /* ==================== FOOTER ==================== */
 .footer {
     position: relative;
     z-index: 2;
-    padding: var(--space-2xl) var(--space-xl);
+    padding: var(--space-3xl) var(--space-xl) var(--space-2xl);
     text-align: center;
-    background: rgba(0, 0, 0, 0.85);
+    background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.9) 100%);
 }
 
 .footer p {
@@ -1160,6 +1240,14 @@ body {
         height: 40px;
     }
     
+    .logo-svg-animation {
+        height: 35px;
+    }
+    
+    .logo-svg-text {
+        font-size: 28px;
+    }
+    
     .header-controls {
         gap: var(--space-xs);
     }
@@ -1336,6 +1424,14 @@ body {
         height: 35px;
     }
     
+    .logo-svg-animation {
+        height: 30px;
+    }
+    
+    .logo-svg-text {
+        font-size: 24px;
+    }
+    
     .language-switcher {
         gap: 2px;
     }
@@ -1459,6 +1555,14 @@ body {
     
     .logo img {
         height: 30px;
+    }
+    
+    .logo-svg-animation {
+        height: 26px;
+    }
+    
+    .logo-svg-text {
+        font-size: 20px;
     }
     
     .header-controls {
