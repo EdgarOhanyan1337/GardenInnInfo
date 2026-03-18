@@ -409,6 +409,23 @@ body {
     transform: translateY(-1px) scale(0.98);
 }
 
+/* Prominent Wide Navigation Buttons (Desktop/Tablet) */
+@media (min-width: 480px) {
+    .wide-btn {
+        grid-column: span 2;
+        flex-direction: row;
+        justify-content: center;
+        gap: var(--space-lg);
+        padding: var(--space-lg) var(--space-xl);
+        background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+        border: 1px solid rgba(255,255,255,0.15);
+    }
+    
+    .wide-btn .nav-icon {
+        font-size: 1.6rem;
+    }
+}
+
 /* ==================== CONTACT SECTION ==================== */
 .contact-section {
     position: relative;
@@ -542,6 +559,60 @@ body {
 
 /* Official colors are now embedded within the SVG files themselves.
    Glassmorphism backgrounds from .social-icon handle the outer ring beautifully. */
+
+/* ==================== CONTACT MODAL ==================== */
+.contact-modal-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+}
+
+.contact-btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-xl);
+    background: var(--color-glass);
+    border: 1px solid var(--color-glass-border);
+    color: var(--color-text);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    text-decoration: none;
+    width: 100%;
+    max-width: 320px;
+}
+
+.contact-btn:hover {
+    background: var(--color-glass-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary);
+}
+
+.contact-btn.whatsapp {
+    background: var(--color-whatsapp);
+    color: #fff;
+    border-color: transparent;
+}
+
+.contact-btn.whatsapp:hover {
+    background: #128C7E;
+}
+
+.contact-other-details {
+    background: rgba(0,0,0,0.3);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    border: 1px solid var(--color-glass-border);
+    margin-top: var(--space-lg);
+}
 
 /* ==================== FOOTER ==================== */
 .footer {
@@ -1330,8 +1401,6 @@ body {
     
     .modal {
         padding: var(--space-md);
-        align-items: flex-start;
-        padding-top: 80px;
     }
     
     .modal-content {
@@ -1476,7 +1545,6 @@ body {
     
     .modal {
         padding: var(--space-sm);
-        padding-top: 60px;
     }
     
     .modal-content {
