@@ -1,6 +1,6 @@
 (function() {
     const ADM_SUPABASE_URL = 'https://klnxybjaaxtlfabnzxcd.supabase.co';
-    const ADM_SUPABASE_KEY = 'sb_secret_CS9wfE_qUfL3MrR2xzrTAQ_kf-z1ciE';
+    const ADM_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtsbnh5YmphYXh0bGZhYm56eGNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjA2MjksImV4cCI6MjA4OTQzNjYyOX0.uUAxzL-8nBkgqoYkQg74Ych0BzKFBVcN_IJlqoZ8tQM';
     const supabaseClient = window.supabase.createClient(ADM_SUPABASE_URL, ADM_SUPABASE_KEY);
 
     // Make functions global for HTML attributes
