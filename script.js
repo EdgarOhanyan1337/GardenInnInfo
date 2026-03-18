@@ -368,9 +368,9 @@ window.switchHkTab = function(tab) {
     }
 };
 
-// Send Telegram notification
-async function sendTelegramNotification(room, code) {
-    var text = '🧹 *Housekeeping Requested*\nRoom: *' + room + '*\nCode: `' + code + '`';
+// Send Telegram notification with "I am coming" button
+async function sendTelegramNotification(room, code, requestId) {
+    var text = '🧹 *Housekeeping Requested*\n🏠 Room: *' + room + '*\n🔑 Code: `' + code + '`';
     var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
     for (var i = 0; i < TG_CHAT_IDS.length; i++) {
         try {
@@ -380,13 +380,45 @@ async function sendTelegramNotification(room, code) {
                 body: JSON.stringify({
                     chat_id: TG_CHAT_IDS[i],
                     text: text,
-                    parse_mode: 'Markdown'
+                    parse_mode: 'Markdown',
+                    reply_markup: {
+                        inline_keyboard: [[
+                            { text: '✅ I am coming', callback_data: 'accept_' + requestId }
+                        ]]
+                    }
                 })
             });
         } catch (e) {
             console.error('Telegram error:', e);
         }
     }
+}
+
+// Show toast notification on website
+function showToast(message) {
+    var existing = document.getElementById('hk-toast');
+    if (existing) existing.remove();
+
+    var toast = document.createElement('div');
+    toast.id = 'hk-toast';
+    toast.innerHTML = message;
+    toast.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg, #18bc9c, #1abc9c); color:white; padding:16px 32px; border-radius:12px; font-weight:bold; font-size:16px; z-index:99999; box-shadow:0 8px 32px rgba(0,0,0,0.3); animation:slideDown 0.5s ease; text-align:center; max-width:90%;';
+
+    // Add animation CSS
+    if (!document.getElementById('toast-styles')) {
+        var style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = '@keyframes slideDown{from{transform:translateX(-50%) translateY(-100px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}} @keyframes slideUp{from{transform:translateX(-50%) translateY(0);opacity:1}to{transform:translateX(-50%) translateY(-100px);opacity:0}}';
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(toast);
+
+    // Auto-remove after 8 seconds
+    setTimeout(function() {
+        toast.style.animation = 'slideUp 0.5s ease';
+        setTimeout(function() { toast.remove(); }, 500);
+    }, 8000);
 }
 
 // Call Housekeeping
@@ -402,11 +434,13 @@ window.callHousekeeping = async function() {
 
     try {
         // Save to database
-        var { error } = await supabaseClient.from('housekeeping_requests').insert([{ room_number: room, code: code }]);
+        var { data: inserted, error } = await supabaseClient.from('housekeeping_requests').insert([{ room_number: room, code: code }]).select();
         if (error) { alert('Error: ' + error.message); return; }
 
-        // Send Telegram notification
-        await sendTelegramNotification(room, code);
+        var requestId = inserted && inserted[0] ? inserted[0].id : '';
+
+        // Send Telegram notification with button
+        await sendTelegramNotification(room, code, requestId);
 
         // Show success + code
         var msgDiv = document.getElementById('hk-msg');
@@ -415,6 +449,28 @@ window.callHousekeeping = async function() {
         if (msgDiv) msgDiv.style.display = 'block';
         if (roomInput) roomInput.style.display = 'none';
         if (submitBtn) submitBtn.style.display = 'none';
+
+        // Listen for real-time updates (staff clicks "I am coming")
+        if (requestId && supabaseClient) {
+            supabaseClient.channel('hk_' + requestId)
+                .on('postgres_changes', {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'housekeeping_requests',
+                    filter: 'id=eq.' + requestId
+                }, function(payload) {
+                    if (payload.new && payload.new.status === 'accepted') {
+                        showToast('✅ Staff is on the way to Room ' + room + '!');
+                        // Update the message in the modal
+                        if (msgDiv) {
+                            msgDiv.innerHTML = '<p style="color:var(--color-primary-light); font-weight:bold; font-size:18px;">✅ Staff is on the way!</p>' +
+                                '<p style="margin-top:8px;">Your code: <strong style="font-size:24px; color:var(--color-primary-light); letter-spacing:4px;">' + code + '</strong></p>' +
+                                '<p style="font-size:12px; opacity:0.7; margin-top:4px;">Save this code to rate our housekeeping service later.</p>';
+                        }
+                    }
+                })
+                .subscribe();
+        }
     } catch (e) {
         console.error('Housekeeping error:', e);
         alert('Error sending request. Please try again.');
