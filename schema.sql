@@ -1,4 +1,4 @@
--- Garden Inn Resort - Database Schema
+-- Garden Inn Resort - Database Schema (V2 - Storage & Translations)
 -- Paste this into the Supabase SQL Editor
 
 -- Enable UUID extension
@@ -61,6 +61,16 @@ create table housekeeping_ratings (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
+-- 7. Translations
+create table translations (
+  id uuid default uuid_generate_v4() primary key,
+  key text unique not null,
+  en text not null,
+  ru text not null,
+  hy text not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
 -- Enable RLS
 alter table minibar_items enable row level security;
 alter table services enable row level security;
@@ -68,19 +78,32 @@ alter table tours enable row level security;
 alter table rules enable row level security;
 alter table housekeeping_requests enable row level security;
 alter table housekeeping_ratings enable row level security;
+alter table translations enable row level security;
 
--- Policies
-create policy "Public read access" on minibar_items for select using (true);
-create policy "Public read access" on services for select using (true);
-create policy "Public read access" on tours for select using (true);
-create policy "Public read access" on rules for select using (true);
+-- Policies (Public)
+create policy "Public read minibar" on minibar_items for select using (true);
+create policy "Public read services" on services for select using (true);
+create policy "Public read tours" on tours for select using (true);
+create policy "Public read rules" on rules for select using (true);
+create policy "Public read translations" on translations for select using (true);
 create policy "Public insert housekeeping" on housekeeping_requests for insert with check (true);
 create policy "Public insert ratings" on housekeeping_ratings for insert with check (true);
 
--- Admin Access (Requires Auth)
-create policy "Admin access minibar" on minibar_items for all to authenticated using (true) with check (true);
-create policy "Admin access services" on services for all to authenticated using (true) with check (true);
-create policy "Admin access tours" on tours for all to authenticated using (true) with check (true);
-create policy "Admin access rules" on rules for all to authenticated using (true) with check (true);
-create policy "Admin access housekeeping" on housekeeping_requests for all to authenticated using (true) with check (true);
-create policy "Admin access ratings" on housekeeping_ratings for all to authenticated using (true) with check (true);
+-- Policies (Admin - Authenticated)
+create policy "Admin full minibar" on minibar_items for all to authenticated using (true) with check (true);
+create policy "Admin full services" on services for all to authenticated using (true) with check (true);
+create policy "Admin full tours" on tours for all to authenticated using (true) with check (true);
+create policy "Admin full rules" on rules for all to authenticated using (true) with check (true);
+create policy "Admin full translations" on translations for all to authenticated using (true) with check (true);
+create policy "Admin full housekeeping" on housekeeping_requests for all to authenticated using (true) with check (true);
+create policy "Admin full ratings" on housekeeping_ratings for all to authenticated using (true) with check (true);
+
+-- Storage Setup (Bucket for Images)
+insert into storage.buckets (id, name, public) 
+values ('images', 'images', true)
+on conflict (id) do nothing;
+
+create policy "Public Storage Read" on storage.objects for select using ( bucket_id = 'images' );
+create policy "Admin Storage Insert" on storage.objects for insert to authenticated with check ( bucket_id = 'images' );
+create policy "Admin Storage Update" on storage.objects for update to authenticated with check ( bucket_id = 'images' );
+create policy "Admin Storage Delete" on storage.objects for delete to authenticated using ( bucket_id = 'images' );
