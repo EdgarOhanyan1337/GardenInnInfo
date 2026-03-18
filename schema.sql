@@ -1,5 +1,5 @@
 -- ============================================
--- Garden Inn Resort — V5 (Housekeeping Codes + Multi-lang)
+-- Garden Inn Resort — V5c (with GRANT permissions)
 -- Copy ALL into SQL Editor -> Run
 -- ============================================
 
@@ -10,15 +10,6 @@ DROP TABLE IF EXISTS rules CASCADE;
 DROP TABLE IF EXISTS translations CASCADE;
 DROP TABLE IF EXISTS housekeeping_requests CASCADE;
 DROP TABLE IF EXISTS housekeeping_ratings CASCADE;
-
--- Clean storage policies
-DO $$ BEGIN
-  DROP POLICY IF EXISTS "img_select" ON storage.objects;
-  DROP POLICY IF EXISTS "img_insert" ON storage.objects;
-  DROP POLICY IF EXISTS "img_update" ON storage.objects;
-  DROP POLICY IF EXISTS "img_delete" ON storage.objects;
-EXCEPTION WHEN OTHERS THEN NULL;
-END $$;
 
 -- ============================================
 -- TABLES
@@ -80,7 +71,6 @@ CREATE TABLE translations (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Housekeeping with CODE
 CREATE TABLE housekeeping_requests (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   room_number TEXT NOT NULL,
@@ -89,7 +79,6 @@ CREATE TABLE housekeeping_requests (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Rating linked to CODE
 CREATE TABLE housekeeping_ratings (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   code TEXT NOT NULL,
@@ -99,56 +88,39 @@ CREATE TABLE housekeeping_ratings (
 );
 
 -- ============================================
--- RLS (open for testing)
+-- DISABLE RLS on all tables
 -- ============================================
 
-ALTER TABLE minibar_items ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "open" ON minibar_items FOR ALL USING (true) WITH CHECK (true);
-
-ALTER TABLE services ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "open" ON services FOR ALL USING (true) WITH CHECK (true);
-
-ALTER TABLE tours ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "open" ON tours FOR ALL USING (true) WITH CHECK (true);
-
-ALTER TABLE rules ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "open" ON rules FOR ALL USING (true) WITH CHECK (true);
-
-ALTER TABLE translations ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "open" ON translations FOR ALL USING (true) WITH CHECK (true);
-
-ALTER TABLE housekeeping_requests ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "open" ON housekeeping_requests FOR ALL USING (true) WITH CHECK (true);
-
-ALTER TABLE housekeeping_ratings ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "open" ON housekeeping_ratings FOR ALL USING (true) WITH CHECK (true);
+ALTER TABLE minibar_items DISABLE ROW LEVEL SECURITY;
+ALTER TABLE services DISABLE ROW LEVEL SECURITY;
+ALTER TABLE tours DISABLE ROW LEVEL SECURITY;
+ALTER TABLE rules DISABLE ROW LEVEL SECURITY;
+ALTER TABLE translations DISABLE ROW LEVEL SECURITY;
+ALTER TABLE housekeeping_requests DISABLE ROW LEVEL SECURITY;
+ALTER TABLE housekeeping_ratings DISABLE ROW LEVEL SECURITY;
 
 -- ============================================
--- STORAGE
+-- GRANT full access to anon and authenticated roles
+-- THIS IS THE KEY PART that fixes 403 errors!
+-- ============================================
+
+GRANT ALL ON minibar_items TO anon, authenticated;
+GRANT ALL ON services TO anon, authenticated;
+GRANT ALL ON tours TO anon, authenticated;
+GRANT ALL ON rules TO anon, authenticated;
+GRANT ALL ON translations TO anon, authenticated;
+GRANT ALL ON housekeeping_requests TO anon, authenticated;
+GRANT ALL ON housekeeping_ratings TO anon, authenticated;
+
+-- Also grant usage on sequences (needed for inserts)
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
+
+-- ============================================
+-- STORAGE (bucket only, policies set via Dashboard)
 -- ============================================
 
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('images', 'images', true)
 ON CONFLICT (id) DO NOTHING;
 
-DO $$ BEGIN
-  CREATE POLICY "img_select" ON storage.objects FOR SELECT USING (bucket_id = 'images');
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
-
-DO $$ BEGIN
-  CREATE POLICY "img_insert" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'images');
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
-
-DO $$ BEGIN
-  CREATE POLICY "img_update" ON storage.objects FOR UPDATE USING (bucket_id = 'images') WITH CHECK (bucket_id = 'images');
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
-
-DO $$ BEGIN
-  CREATE POLICY "img_delete" ON storage.objects FOR DELETE USING (bucket_id = 'images');
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
-
--- DONE!
+-- DONE! Tables created + RLS disabled + GRANT permissions given.
