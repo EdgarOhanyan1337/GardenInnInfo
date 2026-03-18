@@ -3,6 +3,11 @@
  * Multi-language support, modal system, lightbox, and animations
  */
 
+// ==================== SUPABASE INITIALIZATION ====================
+const supabaseUrl = 'https://klnxybjaaxtlfabnzxcd.supabase.co';
+const supabaseKey = 'sb_secret_CS9wfE_qUfL3MrR2xzrTAQ_kf-z1ciE';
+const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+
 // ==================== TRANSLATIONS ====================
 const translations = {
     en: {
@@ -12,6 +17,8 @@ const translations = {
         rules: "Rules",
         minibar: "Mini Bar",
         tours: "Tours",
+        housekeeping: "Housekeeping",
+        rating: "Rate Us",
         contact: "Get in Touch",
         contactMenu: "Contact Us",
         wifiMenu: "WiFi",
@@ -54,6 +61,8 @@ const translations = {
         rules: "Правила",
         minibar: "Мини-Бар",
         tours: "Туры",
+        housekeeping: "Уборка",
+        rating: "Оценить нас",
         contact: "Связаться с нами",
         contactMenu: "Связаться",
         wifiMenu: "WiFi",
@@ -96,6 +105,8 @@ const translations = {
         rules: "Կանոններ",
         minibar: "Մինի-Բար",
         tours: "Տուրեր",
+        housekeeping: "Մաքրություն",
+        rating: "Գնահատել մեզ",
         contact: "Կապվեք մեզ հետ",
         contactMenu: "Կապ",
         wifiMenu: "WiFi",
@@ -135,9 +146,11 @@ const translations = {
 
 // ==================== STATE ====================
 let currentLang = 'en';
-let currentImages = [];
-let lightboxIndex = 0;
 let currentTheme = 'dark';
+
+// ==================== DYNAMIC DATA CACHE ====================
+let dynamicServices = [];
+let dynamicTours = [];
 
 // ==================== LANGUAGE FUNCTIONS ====================
 function initLanguage() {
@@ -303,35 +316,19 @@ function openDetail(service) {
     // Get translations
     const t = translations[currentLang];
     
-    // Set content based on service
-    const serviceData = {
-        pool: { title: t.poolTitle, desc: t.poolDesc, images: [
-            'https://picsum.photos/id/1015/1200/800',
-            'https://picsum.photos/id/1016/1200/800',
-            'https://picsum.photos/id/1000/1200/800'
-        ]},
-        sauna: { title: t.saunaTitle, desc: t.saunaDesc, images: [
-            'https://picsum.photos/id/201/1200/800',
-            'https://picsum.photos/id/202/1200/800'
-        ]},
-        restaurant: { title: t.restaurantTitle, desc: t.restaurantDesc, images: [
-            'https://picsum.photos/id/180/1200/800',
-            'https://picsum.photos/id/181/1200/800'
-        ]},
-        tour1: { title: t.tour1Title, desc: t.tour1Desc, images: [
-            'https://picsum.photos/id/1015/1200/800',
-            'https://picsum.photos/id/1016/1200/800'
-        ]},
-        tour2: { title: t.tour2Title, desc: t.tour2Desc, images: [
-            'https://picsum.photos/id/201/1200/800'
-        ]},
-        tour3: { title: t.tour3Title, desc: t.tour3Desc, images: [
-            'https://picsum.photos/id/180/1200/800',
-            'https://picsum.photos/id/160/1200/800'
-        ]}
-    };
+    // Find in dynamic data
+    let data = dynamicServices.find(s => s.service_key === service) || dynamicTours.find(t => t.tour_key === service);
     
-    const data = serviceData[service];
+    // Fallback to static if not found or if data empty
+    if (!data) {
+        const staticData = {
+            pool: { title: t.poolTitle, desc: t.poolDesc, images: ['https://picsum.photos/id/1015/1200/800', 'https://picsum.photos/id/1016/1200/800'] },
+            sauna: { title: t.saunaTitle, desc: t.saunaDesc, images: ['https://picsum.photos/id/201/1200/800'] },
+            restaurant: { title: t.restaurantTitle, desc: t.restaurantDesc, images: ['https://picsum.photos/id/180/1200/800'] }
+        };
+        data = staticData[service];
+    }
+    
     if (!data) return;
     
     // Clear gallery
@@ -339,8 +336,8 @@ function openDetail(service) {
     
     // Set content
     title.textContent = data.title;
-    content.innerHTML = data.desc;
-    currentImages = data.images;
+    content.innerHTML = data.description || data.desc; // handle both DB and static formats
+    currentImages = data.images || [];
     
     // Build gallery
     data.images.forEach((src, i) => {
@@ -731,4 +728,221 @@ window.addEventListener('load', () => {
     if (lightboxImage) {
         lightboxImage.style.transition = 'opacity 0.15s ease';
     }
+});
+
+// ==================== SUPABASE FULL-STACK LOGIC ====================
+
+// Helper to Load Minibar from Supabase
+async function loadMinibar() {
+    if (!supabase) return;
+    
+    try {
+        const { data, error } = await supabase.from('minibar_items').select('*').order('created_at', { ascending: true });
+        if (error) throw error;
+        
+        const container = document.querySelector('.products-grid');
+        if (container && data && data.length > 0) {
+            container.innerHTML = '';
+            data.forEach(item => {
+                const article = document.createElement('article');
+                article.className = 'product-card';
+                const imagesArr = JSON.stringify([item.image_url]).replace(/"/g, '&quot;');
+                article.innerHTML = `
+                    <div class="product-image" data-images="${imagesArr}">
+                        <img src="${item.image_url}" alt="${item.name}" loading="lazy">
+                        <div class="product-overlay">
+                            <button class="view-btn" aria-label="Посмотреть изображение">👁</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h4>${item.name}</h4>
+                        <p class="price" data-key="price">${item.price} AMD</p>
+                    </div>
+                `;
+                container.appendChild(article);
+            });
+            
+            document.querySelectorAll('.products-grid .view-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const productCard = btn.closest('.product-image');
+                    const imagesData = productCard.dataset.images;
+                    if (imagesData) {
+                        currentImages = JSON.parse(imagesData);
+                        openLightbox(0);
+                    }
+                });
+            });
+        }
+    } catch (err) { console.error("Error loading minibar:", err); }
+}
+
+// Helper to Load Services from Supabase
+async function loadServices() {
+    if (!supabase) return;
+    try {
+        const { data, error } = await supabase.from('services').select('*').order('created_at', { ascending: true });
+        if (error) throw error;
+        dynamicServices = data;
+        const container = document.querySelector('#services-modal .services-grid');
+        if (container && data && data.length > 0) {
+            container.innerHTML = '';
+            data.forEach(item => {
+                const article = document.createElement('article');
+                article.className = 'service-card';
+                article.dataset.service = item.service_key;
+                article.innerHTML = `
+                    <div class="service-icon">${item.icon}</div>
+                    <h3>${item.title}</h3>
+                    <span class="status ${item.status_type}">${item.status_type.toUpperCase()}</span>
+                    <button class="more-btn" data-key="more">${translations[currentLang].more}</button>
+                `;
+                container.appendChild(article);
+            });
+            container.querySelectorAll('.more-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const card = btn.closest('.service-card');
+                    if (card) openDetail(card.dataset.service);
+                });
+            });
+        }
+    } catch (err) { console.error("Error loading services:", err); }
+}
+
+async function loadTours() {
+    if (!supabase) return;
+    try {
+        const { data, error } = await supabase.from('tours').select('*').order('created_at', { ascending: true });
+        if (error) throw error;
+        dynamicTours = data;
+        const container = document.querySelector('#tours-modal .services-grid');
+        if (container && data && data.length > 0) {
+            container.innerHTML = '';
+            data.forEach(item => {
+                const article = document.createElement('article');
+                article.className = 'service-card tour-card';
+                article.dataset.service = item.tour_key;
+                article.innerHTML = `
+                    <div class="service-icon">${item.icon}</div>
+                    <h3>${item.title}</h3>
+                    <span class="status paid">${item.price}</span>
+                    <button class="more-btn" data-key="more">${translations[currentLang].more}</button>
+                `;
+                container.appendChild(article);
+            });
+            container.querySelectorAll('.more-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const card = btn.closest('.service-card');
+                    if (card) openDetail(card.dataset.service);
+                });
+            });
+        }
+    } catch (err) { console.error("Error loading tours:", err); }
+}
+
+async function initRealtime() {
+    if (!supabase) return;
+    
+    const channels = ['minibar_items', 'services', 'tours', 'rules'];
+    channels.forEach(table => {
+        supabase.channel(`public:${table}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: table }, () => {
+                if (table === 'minibar_items') loadMinibar();
+                if (table === 'services') loadServices();
+                if (table === 'tours') loadTours();
+                if (table === 'rules') loadRules();
+            })
+            .subscribe();
+    });
+}
+
+function initSupabaseFeatures() {
+    if (!supabase) return;
+    loadMinibar();
+    loadServices();
+    loadTours();
+    loadRules();
+    initRealtime();
+    
+    // Housekeeping Submission
+    const hkSubmitBtn = document.getElementById('hk-submit-btn');
+    if (hkSubmitBtn) {
+        hkSubmitBtn.addEventListener('click', async () => {
+            const roomInput = document.getElementById('hk-room');
+            const room = roomInput.value.trim();
+            
+            if (!room) {
+                roomInput.style.borderColor = 'red';
+                setTimeout(() => roomInput.style.borderColor = '', 2000);
+                return;
+            }
+            
+            hkSubmitBtn.textContent = 'Sending...';
+            hkSubmitBtn.disabled = true;
+            
+            try {
+                const { error } = await supabase.from('housekeeping_requests').insert([{ room_number: room }]);
+                if (error) throw error;
+                
+                document.getElementById('hk-msg').style.display = 'block';
+                roomInput.value = '';
+                
+                setTimeout(() => {
+                    document.getElementById('hk-msg').style.display = 'none';
+                    hkSubmitBtn.textContent = 'Call Now';
+                    hkSubmitBtn.disabled = false;
+                    const modal = document.getElementById('housekeeping-modal');
+                    if (modal) closeModal(modal);
+                }, 2000);
+            } catch (err) {
+                console.error("Error submitting request:", err);
+                hkSubmitBtn.textContent = 'Error! Try again';
+                setTimeout(() => {
+                    hkSubmitBtn.textContent = 'Call Now';
+                    hkSubmitBtn.disabled = false;
+                }, 2000);
+            }
+        });
+    }
+
+    // Rating Submission
+    const ratingSubmitBtn = document.getElementById('rating-submit-btn');
+    if (ratingSubmitBtn) {
+        ratingSubmitBtn.addEventListener('click', async () => {
+            const rating = parseInt(document.getElementById('rating-val').value);
+            const commentInput = document.getElementById('rating-comment');
+            const comment = commentInput.value.trim();
+            
+            ratingSubmitBtn.textContent = 'Submitting...';
+            ratingSubmitBtn.disabled = true;
+            
+            try {
+                const { error } = await supabase.from('housekeeping_ratings').insert([{ rating, comment }]);
+                if (error) throw error;
+                
+                document.getElementById('rating-msg').style.display = 'block';
+                commentInput.value = '';
+                document.getElementById('rating-val').value = '5';
+                
+                setTimeout(() => {
+                    document.getElementById('rating-msg').style.display = 'none';
+                    ratingSubmitBtn.textContent = 'Submit Rating';
+                    ratingSubmitBtn.disabled = false;
+                    const modal = document.getElementById('rating-modal');
+                    if (modal) closeModal(modal);
+                }, 2000);
+            } catch (err) {
+                console.error("Error submitting rating:", err);
+                ratingSubmitBtn.textContent = 'Error! Try again';
+                setTimeout(() => {
+                    ratingSubmitBtn.textContent = 'Submit Rating';
+                    ratingSubmitBtn.disabled = false;
+                }, 2000);
+            }
+        });
+    }
+}
+
+// Apply features after standard init
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initSupabaseFeatures, 100);
 });

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garden Inn - Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 0; }
+        .sidebar { width: 250px; background: #2c3e50; color: white; height: 100vh; position: fixed; padding-top: 20px;}
+        .sidebar h2 { text-align: center; margin-bottom: 30px; color: #18bc9c; }
+        .sidebar a { display: block; color: white; padding: 16px; text-decoration: none; border-bottom: 1px solid #34495e; }
+        .sidebar a:hover { background: #1a252f; }
+        .content { margin-left: 250px; padding: 30px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f9fa; }
+        button { background: #18bc9c; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #128f76; }
+        input { padding: 10px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        #login-screen { position: fixed; top:0; left:0; width: 100%; height: 100%; background: #2c3e50; display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .login-box { background: white; padding: 40px; border-radius: 8px; text-align: center; }
+        .login-box input { display: block; width: 90%; margin: 10px auto; }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Admin Login</h2>
+            <input type="email" id="email" placeholder="Admin Email">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="login()">Login</button>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" style="display:none;">
+        <div class="sidebar">
+            <h2>Garden Inn</h2>
+            <a href="#minibar" onclick="loadData('minibar_items', renderMinibar)">Minibar Items</a>
+            <a href="#services" onclick="loadData('services', renderServices)">Services</a>
+            <a href="#tours" onclick="loadData('tours', renderTours)">Tours</a>
+            <a href="#rules" onclick="loadData('rules', renderRules)">Rules</a>
+            <a href="#housekeeping" onclick="loadData('housekeeping_requests', renderHousekeeping)">Housekeeping Logs</a>
+            <a href="#ratings" onclick="loadData('housekeeping_ratings', renderRatings)">Guest Ratings</a>
+            <a href="#" onclick="logout()" style="color:#e74c3c;">Logout</a>
+        </div>
+
+        <div class="content">
+            <h1>Admin Dashboard</h1>
+            
+            <div class="card" id="minibar-section">
+                <h3>Manage Minibar</h3>
+                <input type="text" id="mb-name" placeholder="Item Name">
+                <input type="number" id="mb-price" placeholder="Price (AMD)">
+                <input type="text" id="mb-img" placeholder="Image URL (assets/...)">
+                <button onclick="addMinibarItem()">Add Item</button>
+                <div id="minibar-table"></div>
+            </div>
+
+            <div class="card" id="services-section" style="display:none;">
+                <h3>Manage Services</h3>
+                <input type="text" id="svc-key" placeholder="Key (e.g. pool)">
+                <input type="text" id="svc-title" placeholder="Title">
+                <input type="text" id="svc-desc" placeholder="Description">
+                <input type="text" id="svc-type" placeholder="Type (free/paid)">
+                <input type="text" id="svc-icon" placeholder="Icon (e.g. 🏊)">
+                <button onclick="addService()">Add Service</button>
+                <div id="services-table"></div>
+            </div>
+
+            <div class="card" id="tours-section" style="display:none;">
+                <h3>Manage Tours</h3>
+                <input type="text" id="tour-key" placeholder="Key (e.g. sevan-trip)">
+                <input type="text" id="tour-title" placeholder="Title">
+                <input type="text" id="tour-desc" placeholder="Description">
+                <input type="number" id="tour-price" placeholder="Price (AMD)">
+                <input type="text" id="tour-icon" placeholder="Icon (e.g. ⛵)">
+                <button onclick="addTour()">Add Tour</button>
+                <div id="tours-table"></div>
+            </div>
+
+            <div class="card" id="rules-section" style="display:none;">
+                <h3>Manage Rules</h3>
+                <input type="text" id="rule-icon" placeholder="Icon (e.g. 🚭)">
+                <input type="text" id="rule-text" placeholder="Rule Text">
+                <button onclick="addRule()">Add Rule</button>
+                <div id="rules-table"></div>
+            </div>
+
+            <div class="card" id="housekeeping-section" style="display:none;">
+                <h3>Housekeeping Requests</h3>
+                <div id="hk-table"></div>
+            </div>
+
+            <div class="card" id="ratings-section" style="display:none;">
+                <h3>Guest Ratings</h3>
+                <div id="ratings-table"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -114,6 +114,15 @@
                         <span class="nav-icon">🗺️</span>
                         <span data-key="tours">Tours</span>
                     </button>
+                    <!-- NEW FULL-STACK BUTTONS -->
+                    <button class="nav-btn" data-modal="housekeeping">
+                        <span class="nav-icon">🧹</span>
+                        <span data-key="housekeeping">Housekeeping</span>
+                    </button>
+                    <button class="nav-btn" data-modal="rating">
+                        <span class="nav-icon">⭐</span>
+                        <span data-key="rating">Rate Us</span>
+                    </button>
                 </nav>
             </div>
         </section>
@@ -440,6 +449,50 @@
 
     <!-- QRCode.js Library for WiFi QR code generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Housekeeping Modal -->
+    <section id="housekeeping-modal" class="modal" role="dialog" aria-modal="true">
+        <div class="modal-content glass">
+            <button class="modal-close" data-modal="housekeeping" aria-label="Закрыть">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+            <h2 data-key="housekeeping">Call Housekeeping</h2>
+            <div style="display:flex; flex-direction:column; gap:16px; margin-top:20px;">
+                <input type="text" id="hk-room" placeholder="Enter Room Number" style="padding:12px; border-radius:8px; border:1px solid var(--color-glass-border); background:var(--color-glass); color:var(--color-text); font-family:var(--font-body); outline:none;">
+                <button id="hk-submit-btn" class="nav-btn wide-btn" style="background:var(--color-primary); color:white; border:none; margin-top:10px;">Call Now</button>
+                <div id="hk-msg" style="color:var(--color-primary-light); display:none; text-align:center; font-weight:bold; margin-top:10px;">Request saved & Staff notified!</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rating Modal -->
+    <section id="rating-modal" class="modal" role="dialog" aria-modal="true">
+        <div class="modal-content glass">
+            <button class="modal-close" data-modal="rating" aria-label="Закрыть">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+            <h2 data-key="rating">Rate Our Service</h2>
+            <div style="display:flex; flex-direction:column; gap:16px; margin-top:20px;">
+                <select id="rating-val" style="padding:12px; border-radius:8px; border:1px solid var(--color-glass-border); background:var(--color-glass); color:black; font-family:var(--font-body); outline:none;">
+                    <option value="5" style="color:black;">⭐⭐⭐⭐⭐ 5 - Excellent</option>
+                    <option value="4" style="color:black;">⭐⭐⭐⭐ 4 - Good</option>
+                    <option value="3" style="color:black;">⭐⭐⭐ 3 - Average</option>
+                    <option value="2" style="color:black;">⭐⭐ 2 - Poor</option>
+                    <option value="1" style="color:black;">⭐ 1 - Terrible</option>
+                </select>
+                <textarea id="rating-comment" placeholder="Optional comments..." rows="4" style="padding:12px; border-radius:8px; border:1px solid var(--color-glass-border); background:var(--color-glass); color:var(--color-text); font-family:var(--font-body); outline:none; resize:none;"></textarea>
+                <button id="rating-submit-btn" class="nav-btn wide-btn" style="background:var(--color-primary); color:white; border:none; margin-top:10px;">Submit Rating</button>
+                <div id="rating-msg" style="color:var(--color-primary-light); display:none; text-align:center; font-weight:bold; margin-top:10px;">Thank you for your feedback!</div>
+            </div>
+        </div>
+    </section>
 
     <script src="script.js"></script>
 </body>
