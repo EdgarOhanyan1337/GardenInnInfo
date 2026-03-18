@@ -1,6 +1,6 @@
 const supabaseUrl = 'https://klnxybjaaxtlfabnzxcd.supabase.co';
 const supabaseKey = 'sb_secret_CS9wfE_qUfL3MrR2xzrTAQ_kf-z1ciE';
-const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+const supabase = window.Supabase.createClient(supabaseUrl, supabaseKey);
 
 // Auth
 async function login() {
