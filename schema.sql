@@ -131,15 +131,15 @@ ALTER TABLE app_settings DISABLE ROW LEVEL SECURITY;
 -- THIS IS THE KEY PART that fixes 403 errors!
 -- ============================================
 
-GRANT ALL ON minibar_items TO anon, authenticated;
-GRANT ALL ON services TO anon, authenticated;
-GRANT ALL ON tours TO anon, authenticated;
-GRANT ALL ON rules TO anon, authenticated;
-GRANT ALL ON translations TO anon, authenticated;
-GRANT ALL ON housekeeping_requests TO anon, authenticated;
-GRANT ALL ON housekeeping_ratings TO anon, authenticated;
-GRANT ALL ON notification_recipients TO anon, authenticated;
-GRANT ALL ON app_settings TO anon, authenticated;
+GRANT ALL ON minibar_items TO anon, authenticated, service_role;
+GRANT ALL ON services TO anon, authenticated, service_role;
+GRANT ALL ON tours TO anon, authenticated, service_role;
+GRANT ALL ON rules TO anon, authenticated, service_role;
+GRANT ALL ON translations TO anon, authenticated, service_role;
+GRANT ALL ON housekeeping_requests TO anon, authenticated, service_role;
+GRANT ALL ON housekeeping_ratings TO anon, authenticated, service_role;
+GRANT ALL ON notification_recipients TO anon, authenticated, service_role;
+GRANT ALL ON app_settings TO anon, authenticated, service_role;
 
 -- Also grant usage on sequences (needed for inserts)
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
