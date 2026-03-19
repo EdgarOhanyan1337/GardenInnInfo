@@ -683,19 +683,15 @@
             </div>
 
             <div class="card" id="notifications-recipients-card" style="display:none;">
-                <h3><span class="card-icon">📨</span> Notification Recipients</h3>
-                <p>Staff who registered via the Telegram bot or were added manually</p>
+                <h3><span class="card-icon">📨</span> Email Recipients</h3>
+                <p>Staff email addresses that receive housekeeping notifications</p>
                 <div class="form-group">
                     <div class="form-row">
-                        <select id="notif-type">
-                            <option value="telegram">📱 Telegram (Chat ID)</option>
-                            <option value="email">📧 Email</option>
-                        </select>
-                        <input type="text" id="notif-value" placeholder="Chat ID or email address">
+                        <input type="email" id="notif-value" placeholder="Email address">
+                        <input type="text" id="notif-label" placeholder="Name (optional)">
                     </div>
-                    <input type="text" id="notif-label" placeholder="Name / label (optional)">
                 </div>
-                <button onclick="addNotificationRecipient()">+ Add Recipient</button>
+                <button onclick="addNotificationRecipient()">+ Add Email</button>
                 <div id="notifications-table" class="table-wrapper"></div>
             </div>
 

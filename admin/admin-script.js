@@ -290,10 +290,10 @@
     };
 
     window.renderNotifications = function(data) {
-        var html = '<table><tr><th>Type</th><th>Username</th><th>Name</th><th>Chat ID / Email</th><th>Status</th><th>Actions</th></tr>';
-        data.forEach(function(item) {
-            var typeIcon = item.type === 'telegram' ? '📱' : '📧';
-            var usernameDisplay = item.username ? '<a href="https://t.me/' + item.username + '" target="_blank" style="color:#4ade80; text-decoration:none;">@' + item.username + '</a>' : '-';
+        // Filter to show only email recipients
+        var emailData = data.filter(function(item) { return item.type === 'email'; });
+        var html = '<table><tr><th>Email</th><th>Name</th><th>Status</th><th>Actions</th></tr>';
+        emailData.forEach(function(item) {
             var isBlocked = !item.enabled;
             var statusColor = isBlocked ? '#f87171' : '#4ade80';
             var statusText = isBlocked ? '🔴 BLOCKED' : '🟢 ACTIVE';
@@ -301,10 +301,8 @@
             var toggleColor = isBlocked ? '#4ade80' : '#f87171';
 
             html += '<tr' + (isBlocked ? ' style="opacity:0.6;"' : '') + '>' +
-                '<td>' + typeIcon + ' ' + item.type + '</td>' +
-                '<td>' + usernameDisplay + '</td>' +
-                '<td>' + (item.label || '-') + '</td>' +
                 '<td><code>' + item.value + '</code></td>' +
+                '<td>' + (item.label || '-') + '</td>' +
                 '<td style="color:' + statusColor + '"><b>' + statusText + '</b></td>' +
                 '<td style="display:flex;gap:6px;flex-wrap:wrap;">' +
                 '<button style="background:' + toggleColor + '; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;" onclick="toggleRecipient(\'' + item.id + '\',' + isBlocked + ')">' + toggleText + '</button>' +
@@ -316,12 +314,11 @@
     };
 
     window.addNotificationRecipient = async function() {
-        var type = document.getElementById('notif-type').value;
         var value = document.getElementById('notif-value').value.trim();
         var label = document.getElementById('notif-label').value.trim();
-        if (!value) { alert('Please enter a Chat ID or email address!'); return; }
-        if (type === 'email' && !value.includes('@')) { alert('Please enter a valid email address!'); return; }
-        var { error } = await db.from('notification_recipients').insert([{ type: type, value: value, label: label, enabled: true }]);
+        if (!value) { alert('Please enter an email address!'); return; }
+        if (!value.includes('@')) { alert('Please enter a valid email address!'); return; }
+        var { error } = await db.from('notification_recipients').insert([{ type: 'email', value: value, label: label, enabled: true }]);
         if (error) { alert('Error: ' + error.message); return; }
         document.getElementById('notif-value').value = '';
         document.getElementById('notif-label').value = '';
