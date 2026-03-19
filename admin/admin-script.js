@@ -258,15 +258,27 @@
 
     // --- HOUSEKEEPING REQUESTS ---
     window.renderHousekeeping = function(data) {
-        var html = '<table><tr><th>Room</th><th>Code</th><th>Status</th><th>Time</th></tr>';
+        var html = '<table><tr><th>Room</th><th>Code</th><th>Status</th><th>Time</th><th>Actions</th></tr>';
         data.forEach(function(item) {
-            var color = item.status === 'accepted' ? 'green' : 'orange';
+            var currentStatus = (item.status || 'pending').toLowerCase();
+            var color = (currentStatus === 'completed' || currentStatus === 'accepted') ? 'green' : 'orange';
+            var actionBtn = currentStatus !== 'completed' 
+                ? '<button style="background:var(--color-primary); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;" onclick="completeHousekeeping(\'' + item.id + '\')">Complete</button>' 
+                : '';
+                
             html += '<tr><td><b>' + item.room_number + '</b></td><td><code>' + item.code + '</code></td>' +
-                '<td style="color:' + color + '"><b>' + (item.status || 'pending').toUpperCase() + '</b></td>' +
-                '<td>' + (item.created_at ? new Date(item.created_at).toLocaleString() : '-') + '</td></tr>';
+                '<td style="color:' + color + '"><b>' + currentStatus.toUpperCase() + '</b></td>' +
+                '<td>' + (item.created_at ? new Date(item.created_at).toLocaleString() : '-') + '</td>' +
+                '<td>' + actionBtn + ' <button class="btn-danger" onclick="deleteItem(\'housekeeping_requests\',\'' + item.id + '\',renderHousekeeping)">Del</button></td></tr>';
         });
         html += '</table>';
         document.getElementById('hk-table').innerHTML = html;
+    };
+
+    window.completeHousekeeping = async function(id) {
+        var { error } = await db.from('housekeeping_requests').update({ status: 'completed' }).eq('id', id);
+        if (error) { alert('Error updating status: ' + error.message); return; }
+        loadData('housekeeping_requests', renderHousekeeping);
     };
 
     // --- HOUSEKEEPING RATINGS ---
