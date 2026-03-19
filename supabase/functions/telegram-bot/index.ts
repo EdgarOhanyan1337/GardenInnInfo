@@ -170,8 +170,8 @@ serve(async (req: Request) => {
 
     // Already registered, unknown command
     await sendMessage(chatId,
-      `🌿 *Garden Inn Bot*\\n\\n` +
-      `Команды:\\n/status — проверить статус\\n/stop — отключить уведомления\\n/resume — включить уведомления`
+      `🌿 *Garden Inn Bot*\n\n` +
+      `Команды:\n/status — проверить статус\n/stop — отключить уведомления\n/resume — включить уведомления`
     )
     return new Response('OK', { status: 200 })
   }
