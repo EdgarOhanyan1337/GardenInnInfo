@@ -60,13 +60,13 @@ serve(async (req: Request) => {
 
       if (existing && existing.length > 0) {
         await sendMessage(chatId,
-          `✅ *${firstName}*, вы уже зарегистрированы!\\n\\n` +
-          `Вы будете получать уведомления о заявках на уборку.\\n\\n` +
-          `Команды:\\n/status — проверить статус\\n/stop — отключить уведомления\\n/resume — включить`
+          `✅ *${firstName}*, вы уже зарегистрированы!\n\n` +
+          `Вы будете получать уведомления о заявках на уборку.\n\n` +
+          `Команды:\n/status — проверить статус\n/stop — отключить уведомления\n/resume — включить`
         )
       } else {
         await sendMessage(chatId,
-          `🌿 *Garden Inn Resort*\\n\\n` +
+          `🌿 *Garden Inn Resort*\n\n` +
           `Добро пожаловать! Для регистрации введите пароль персонала:`
         )
       }
@@ -85,9 +85,9 @@ serve(async (req: Request) => {
         const r = data[0]
         const status = r.enabled ? '🟢 Активно' : '🔴 Отключено'
         await sendMessage(chatId,
-          `📊 *Ваш статус:* ${status}\\n` +
-          `👤 Имя: ${r.label || firstName}\\n` +
-          (r.username ? `📎 Username: @${r.username}\\n` : '') +
+          `📊 *Ваш статус:* ${status}\n` +
+          `👤 Имя: ${r.label || firstName}\n` +
+          (r.username ? `📎 Username: @${r.username}\n` : '') +
           `🆔 Chat ID: \`${chatId}\``
         )
       } else {
@@ -105,7 +105,7 @@ serve(async (req: Request) => {
         .eq('value', String(chatId))
 
       await sendMessage(chatId,
-        `🔴 Уведомления отключены.\\n\\nЧтобы включить снова, отправьте /resume`
+        `🔴 Уведомления отключены.\n\nЧтобы включить снова, отправьте /resume`
       )
       return new Response('OK', { status: 200 })
     }
@@ -157,10 +157,10 @@ serve(async (req: Request) => {
           }])
 
         await sendMessage(chatId,
-          `✅ *Регистрация успешна!*\\n\\n` +
-          `Добро пожаловать, *${firstName}*! 🎉\\n` +
-          `Теперь вы будете получать уведомления о заявках на уборку.\\n\\n` +
-          `Команды:\\n/status — проверить статус\\n/stop — отключить\\n/resume — включить`
+          `✅ *Регистрация успешна!*\n\n` +
+          `Добро пожаловать, *${firstName}*! 🎉\n` +
+          `Теперь вы будете получать уведомления о заявках на уборку.\n\n` +
+          `Команды:\n/status — проверить статус\n/stop — отключить\n/resume — включить`
         )
       } else {
         await sendMessage(chatId, `❌ Неверный пароль. Попробуйте ещё раз.`)
