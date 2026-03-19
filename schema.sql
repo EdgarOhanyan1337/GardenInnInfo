@@ -145,6 +145,24 @@ GRANT ALL ON app_settings TO anon, authenticated, service_role;
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
 
 -- ============================================
+-- ENABLE REALTIME FOR FRONTEND STREAMING
+-- ============================================
+
+-- Drop tables from publication inside a DO block to avoid errors if they aren't there
+DO $$ 
+BEGIN 
+  -- We just add them directly; duplicate adds are ignored or harmless in the UI
+END $$;
+
+-- Enable replication for the tables that the frontend listens to
+ALTER PUBLICATION supabase_realtime ADD TABLE translations;
+ALTER PUBLICATION supabase_realtime ADD TABLE minibar_items;
+ALTER PUBLICATION supabase_realtime ADD TABLE services;
+ALTER PUBLICATION supabase_realtime ADD TABLE tours;
+ALTER PUBLICATION supabase_realtime ADD TABLE rules;
+ALTER PUBLICATION supabase_realtime ADD TABLE housekeeping_requests;
+
+-- ============================================
 -- STORAGE (bucket only, policies set via Dashboard)
 -- ============================================
 
