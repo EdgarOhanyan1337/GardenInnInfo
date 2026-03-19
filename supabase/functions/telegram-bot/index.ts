@@ -4,10 +4,15 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const STAFF_PASSWORD = Deno.env.get('STAFF_PASSWORD') || 'gardeninn2026'
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 const TG_API = `https://api.telegram.org/bot${BOT_TOKEN}`
+
+// Get staff password from DB
+async function getStaffPassword(): Promise<string> {
+  const { data } = await supabase.from('app_settings').select('value').eq('key', 'staff_password').single()
+  return data?.value || 'gardeninn2026'
+}
 
 // Helper: send a Telegram message
 async function sendMessage(chatId: string | number, text: string, extra: Record<string, unknown> = {}) {
@@ -43,10 +48,10 @@ serve(async (req: Request) => {
     const chatId = body.message.chat.id
     const text = (body.message.text || '').trim()
     const firstName = body.message.from?.first_name || 'Staff'
+    const username = body.message.from?.username || ''
 
     // --- /start command ---
     if (text === '/start') {
-      // Check if already registered
       const { data: existing } = await supabase
         .from('notification_recipients')
         .select('id')
@@ -57,7 +62,7 @@ serve(async (req: Request) => {
         await sendMessage(chatId,
           `✅ *${firstName}*, вы уже зарегистрированы!\\n\\n` +
           `Вы будете получать уведомления о заявках на уборку.\\n\\n` +
-          `Команды:\\n/status — проверить статус\\n/stop — отключить уведомления`
+          `Команды:\\n/status — проверить статус\\n/stop — отключить уведомления\\n/resume — включить`
         )
       } else {
         await sendMessage(chatId,
@@ -77,10 +82,12 @@ serve(async (req: Request) => {
         .eq('value', String(chatId))
 
       if (data && data.length > 0) {
-        const status = data[0].enabled ? '🟢 Активно' : '🔴 Отключено'
+        const r = data[0]
+        const status = r.enabled ? '🟢 Активно' : '🔴 Отключено'
         await sendMessage(chatId,
           `📊 *Ваш статус:* ${status}\\n` +
-          `👤 Имя: ${data[0].label || firstName}\\n` +
+          `👤 Имя: ${r.label || firstName}\\n` +
+          (r.username ? `📎 Username: @${r.username}\\n` : '') +
           `🆔 Chat ID: \`${chatId}\``
         )
       } else {
@@ -105,18 +112,28 @@ serve(async (req: Request) => {
 
     // --- /resume command ---
     if (text === '/resume') {
-      await supabase
+      const { data: rec } = await supabase
         .from('notification_recipients')
-        .update({ enabled: true })
+        .select('enabled')
         .eq('type', 'telegram')
         .eq('value', String(chatId))
 
-      await sendMessage(chatId, `🟢 Уведомления включены! Вы снова будете получать заявки.`)
+      if (rec && rec.length > 0 && !rec[0].enabled) {
+        await supabase
+          .from('notification_recipients')
+          .update({ enabled: true })
+          .eq('type', 'telegram')
+          .eq('value', String(chatId))
+        await sendMessage(chatId, `🟢 Уведомления включены! Вы снова будете получать заявки.`)
+      } else if (rec && rec.length > 0 && rec[0].enabled) {
+        await sendMessage(chatId, `✅ Уведомления уже включены.`)
+      } else {
+        await sendMessage(chatId, `❌ Вы не зарегистрированы. Отправьте /start`)
+      }
       return new Response('OK', { status: 200 })
     }
 
     // --- Password attempt (any other text) ---
-    // Check if user is NOT yet registered (means they're entering a password)
     const { data: existing } = await supabase
       .from('notification_recipients')
       .select('id')
@@ -124,15 +141,18 @@ serve(async (req: Request) => {
       .eq('value', String(chatId))
 
     if (!existing || existing.length === 0) {
-      // They're trying to enter the password
-      if (text === STAFF_PASSWORD) {
-        // Password correct! Register them
+      // Get password from DB
+      const staffPassword = await getStaffPassword()
+
+      if (text === staffPassword) {
+        // Password correct! Register with username
         await supabase
           .from('notification_recipients')
           .insert([{
             type: 'telegram',
             value: String(chatId),
             label: firstName,
+            username: username,
             enabled: true
           }])
 
@@ -140,7 +160,7 @@ serve(async (req: Request) => {
           `✅ *Регистрация успешна!*\\n\\n` +
           `Добро пожаловать, *${firstName}*! 🎉\\n` +
           `Теперь вы будете получать уведомления о заявках на уборку.\\n\\n` +
-          `Команды:\\n/status — проверить статус\\n/stop — отключить уведомления\\n/resume — включить уведомления`
+          `Команды:\\n/status — проверить статус\\n/stop — отключить\\n/resume — включить`
         )
       } else {
         await sendMessage(chatId, `❌ Неверный пароль. Попробуйте ещё раз.`)
@@ -203,7 +223,7 @@ serve(async (req: Request) => {
     const room = body.record.room_number
     const reqId = body.record.id
 
-    // Load recipients from DB instead of env vars
+    // Load recipients from DB
     const { data: recipients } = await supabase
       .from('notification_recipients')
       .select('value')

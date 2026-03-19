@@ -96,9 +96,21 @@ CREATE TABLE notification_recipients (
   type TEXT NOT NULL CHECK (type IN ('telegram', 'email')),
   value TEXT NOT NULL,
   label TEXT DEFAULT '',
+  username TEXT DEFAULT '',
   enabled BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- App settings (staff password, etc.)
+CREATE TABLE app_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL DEFAULT '',
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Insert default staff password
+INSERT INTO app_settings (key, value) VALUES ('staff_password', 'gardeninn2026')
+ON CONFLICT (key) DO NOTHING;
 
 -- ============================================
 -- DISABLE RLS on all tables
@@ -112,6 +124,7 @@ ALTER TABLE translations DISABLE ROW LEVEL SECURITY;
 ALTER TABLE housekeeping_requests DISABLE ROW LEVEL SECURITY;
 ALTER TABLE housekeeping_ratings DISABLE ROW LEVEL SECURITY;
 ALTER TABLE notification_recipients DISABLE ROW LEVEL SECURITY;
+ALTER TABLE app_settings DISABLE ROW LEVEL SECURITY;
 
 -- ============================================
 -- GRANT full access to anon and authenticated roles
@@ -126,6 +139,7 @@ GRANT ALL ON translations TO anon, authenticated;
 GRANT ALL ON housekeeping_requests TO anon, authenticated;
 GRANT ALL ON housekeeping_ratings TO anon, authenticated;
 GRANT ALL ON notification_recipients TO anon, authenticated;
+GRANT ALL ON app_settings TO anon, authenticated;
 
 -- Also grant usage on sequences (needed for inserts)
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;

@@ -672,8 +672,19 @@
 
             <!-- NOTIFICATIONS SECTION -->
             <div class="card" id="notifications-section" style="display:none;">
+                <h3><span class="card-icon">🔑</span> Bot Staff Password</h3>
+                <p>Staff enter this password in the Telegram bot to register for notifications</p>
+                <div class="form-group">
+                    <div class="form-row">
+                        <input type="text" id="staff-password" placeholder="Loading...">
+                        <button onclick="saveStaffPassword()">💾 Save Password</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="notifications-recipients-card" style="display:none;">
                 <h3><span class="card-icon">📨</span> Notification Recipients</h3>
-                <p>Manage who receives housekeeping notifications via Telegram and Email</p>
+                <p>Staff who registered via the Telegram bot or were added manually</p>
                 <div class="form-group">
                     <div class="form-row">
                         <select id="notif-type">

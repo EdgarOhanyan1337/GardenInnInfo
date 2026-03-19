@@ -257,19 +257,57 @@
         loadData('translations', renderTranslations);
     };
     // --- NOTIFICATIONS ---
+
+    // Custom loadData override for notifications - shows both cards
+    var originalLoadData = window.loadData;
+    window.loadData = async function(table, renderCallback) {
+        // Show/hide the recipients card together with notifications section
+        var recipientsCard = document.getElementById('notifications-recipients-card');
+        if (recipientsCard) recipientsCard.style.display = (table === 'notification_recipients') ? 'block' : 'none';
+
+        await originalLoadData(table, renderCallback);
+
+        // Load staff password when entering notifications
+        if (table === 'notification_recipients') {
+            loadStaffPassword();
+        }
+    };
+
+    async function loadStaffPassword() {
+        try {
+            var { data } = await db.from('app_settings').select('value').eq('key', 'staff_password').single();
+            var input = document.getElementById('staff-password');
+            if (input && data) input.value = data.value;
+        } catch (e) { console.error('Password load error:', e); }
+    }
+
+    window.saveStaffPassword = async function() {
+        var pw = document.getElementById('staff-password').value.trim();
+        if (!pw) { alert('Password cannot be empty!'); return; }
+        var { error } = await db.from('app_settings').upsert([{ key: 'staff_password', value: pw, updated_at: new Date().toISOString() }], { onConflict: 'key' });
+        if (error) { alert('Error: ' + error.message); return; }
+        alert('✅ Password saved!');
+    };
+
     window.renderNotifications = function(data) {
-        var html = '<table><tr><th>Type</th><th>Value</th><th>Label</th><th>Status</th><th>Actions</th></tr>';
+        var html = '<table><tr><th>Type</th><th>Username</th><th>Name</th><th>Chat ID / Email</th><th>Status</th><th>Actions</th></tr>';
         data.forEach(function(item) {
             var typeIcon = item.type === 'telegram' ? '📱' : '📧';
-            var statusColor = item.enabled ? '#4ade80' : '#71767b';
-            var statusText = item.enabled ? 'ACTIVE' : 'DISABLED';
-            var toggleText = item.enabled ? 'Disable' : 'Enable';
-            var toggleColor = item.enabled ? '#f87171' : '#4ade80';
-            html += '<tr><td>' + typeIcon + ' ' + item.type + '</td><td>' + item.value + '</td>' +
+            var usernameDisplay = item.username ? '<a href="https://t.me/' + item.username + '" target="_blank" style="color:#4ade80; text-decoration:none;">@' + item.username + '</a>' : '-';
+            var isBlocked = !item.enabled;
+            var statusColor = isBlocked ? '#f87171' : '#4ade80';
+            var statusText = isBlocked ? '🔴 BLOCKED' : '🟢 ACTIVE';
+            var toggleText = isBlocked ? 'Unblock' : 'Block';
+            var toggleColor = isBlocked ? '#4ade80' : '#f87171';
+
+            html += '<tr' + (isBlocked ? ' style="opacity:0.6;"' : '') + '>' +
+                '<td>' + typeIcon + ' ' + item.type + '</td>' +
+                '<td>' + usernameDisplay + '</td>' +
                 '<td>' + (item.label || '-') + '</td>' +
+                '<td><code>' + item.value + '</code></td>' +
                 '<td style="color:' + statusColor + '"><b>' + statusText + '</b></td>' +
-                '<td style="display:flex;gap:6px;">' +
-                '<button style="background:' + toggleColor + '; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;" onclick="toggleRecipient(\'' + item.id + '\',' + !item.enabled + ')">' + toggleText + '</button>' +
+                '<td style="display:flex;gap:6px;flex-wrap:wrap;">' +
+                '<button style="background:' + toggleColor + '; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;" onclick="toggleRecipient(\'' + item.id + '\',' + isBlocked + ')">' + toggleText + '</button>' +
                 '<button class="btn-danger" onclick="deleteItem(\'notification_recipients\',\'' + item.id + '\',renderNotifications)">Delete</button>' +
                 '</td></tr>';
         });
@@ -290,8 +328,8 @@
         loadData('notification_recipients', renderNotifications);
     };
 
-    window.toggleRecipient = async function(id, enabled) {
-        var { error } = await db.from('notification_recipients').update({ enabled: enabled }).eq('id', id);
+    window.toggleRecipient = async function(id, shouldEnable) {
+        var { error } = await db.from('notification_recipients').update({ enabled: shouldEnable }).eq('id', id);
         if (error) { alert('Error: ' + error.message); return; }
         loadData('notification_recipients', renderNotifications);
     };
