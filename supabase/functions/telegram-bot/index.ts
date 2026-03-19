@@ -146,7 +146,7 @@ serve(async (req: Request) => {
 
       if (text === staffPassword) {
         // Password correct! Register with username
-        await supabase
+        const { error: insertError } = await supabase
           .from('notification_recipients')
           .insert([{
             type: 'telegram',
@@ -156,12 +156,17 @@ serve(async (req: Request) => {
             enabled: true
           }])
 
-        await sendMessage(chatId,
-          `✅ *Регистрация успешна!*\n\n` +
-          `Добро пожаловать, *${firstName}*! 🎉\n` +
-          `Теперь вы будете получать уведомления о заявках на уборку.\n\n` +
-          `Команды:\n/status — проверить статус\n/stop — отключить\n/resume — включить`
-        )
+        if (insertError) {
+          console.error('Registration INSERT error:', insertError)
+          await sendMessage(chatId, `⚠️ Ошибка регистрации: ${insertError.message}\n\nПопробуйте снова или обратитесь к администратору.`)
+        } else {
+          await sendMessage(chatId,
+            `✅ *Регистрация успешна!*\n\n` +
+            `Добро пожаловать, *${firstName}*! 🎉\n` +
+            `Теперь вы будете получать уведомления о заявках на уборку.\n\n` +
+            `Команды:\n/status — проверить статус\n/stop — отключить\n/resume — включить`
+          )
+        }
       } else {
         await sendMessage(chatId, `❌ Неверный пароль. Попробуйте ещё раз.`)
       }
