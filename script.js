@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Garden Inn Resort - Frontend JavaScript V4
  * Housekeeping codes, multi-lang content, Telegram notifications
  */
@@ -216,8 +216,16 @@ function openDetail(serviceKey) {
     var title = data['title_' + currentLang] || data.title_en || '';
     var desc = data['description_' + currentLang] || data.description_en || '';
 
+    // Append price info if it exists
+    var priceInfo = '';
+    if (data.price) {
+        // Convert newlines to breaks just in case they typed multiple lines
+        var formattedPrice = data.price.replace(/\n/g, '<br>');
+        priceInfo = '<div class="detail-price-box" style="margin-top: 16px; padding: 12px; background: rgba(245, 158, 11, 0.1); border: 1px dashed #f59e0b; border-radius: 8px; color: #f59e0b;">' + formattedPrice + '</div>';
+    }
+
     if (titleEl) titleEl.textContent = title;
-    if (contentEl) contentEl.innerHTML = desc;
+    if (contentEl) contentEl.innerHTML = desc + priceInfo;
 
     if (galleryEl) {
         galleryEl.innerHTML = '';

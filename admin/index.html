@@ -580,10 +580,14 @@
                         <input type="text" id="svc-key" placeholder="Key (e.g. pool)">
                         <input type="text" id="svc-icon" placeholder="Icon emoji">
                     </div>
-                    <select id="svc-type">
+                    <select id="svc-type" onchange="toggleServicePrice()">
                         <option value="free">Free</option>
                         <option value="paid">Paid</option>
                     </select>
+                    <div id="svc-price-container" style="display:none; margin-top:10px;">
+                        <span class="lang-label">Price / Table (HTML supported):</span>
+                        <textarea id="svc-price" placeholder="e.g. 1 hour - 15,000 AMD"></textarea>
+                    </div>
                     <span class="lang-label">Title (EN):</span>
                     <input type="text" id="svc-title-en" placeholder="Title in English">
                     <span class="lang-label">Title (RU):</span>

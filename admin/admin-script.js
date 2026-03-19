@@ -97,12 +97,19 @@
     };
 
     // --- SERVICES (multi-lang) ---
+    window.toggleServicePrice = function() {
+        var type = document.getElementById('svc-type').value;
+        var container = document.getElementById('svc-price-container');
+        container.style.display = type === 'paid' ? 'block' : 'none';
+    };
+
     window.renderServices = function(data) {
-        var html = '<table><tr><th>Icon</th><th>Key</th><th>Title EN</th><th>Title RU</th><th>Title HY</th><th>Type</th><th>Actions</th></tr>';
+        var html = '<table><tr><th>Icon</th><th>Key</th><th>Title EN</th><th>Title RU</th><th>Title HY</th><th>Type & Price</th><th>Actions</th></tr>';
         data.forEach(function(item) {
+            var priceDisplay = item.status_type === 'paid' && item.price ? ' (' + item.price + ')' : '';
             html += '<tr><td>' + item.icon + '</td><td>' + item.service_key + '</td>' +
                 '<td>' + item.title_en + '</td><td>' + item.title_ru + '</td><td>' + item.title_hy + '</td>' +
-                '<td>' + item.status_type + '</td>' +
+                '<td>' + item.status_type + priceDisplay + '</td>' +
                 '<td><button class="btn-danger" onclick="deleteItem(\'services\',\'' + item.id + '\',renderServices)">Delete</button></td></tr>';
         });
         html += '</table>';
@@ -118,6 +125,7 @@
         var description_ru = document.getElementById('svc-desc-ru').value || description_en;
         var description_hy = document.getElementById('svc-desc-hy').value || description_en;
         var status_type = document.getElementById('svc-type').value;
+        var price = status_type === 'paid' ? document.getElementById('svc-price').value : '';
         var icon = document.getElementById('svc-icon').value;
         if (!service_key || !title_en) { alert('Fill in key and English title!'); return; }
         var files = document.getElementById('svc-file').files;
@@ -129,7 +137,7 @@
         var { error } = await db.from('services').insert([{
             service_key: service_key, title_en: title_en, title_ru: title_ru, title_hy: title_hy,
             description_en: description_en, description_ru: description_ru, description_hy: description_hy,
-            status_type: status_type, icon: icon, images: images
+            status_type: status_type, price: price, icon: icon, images: images
         }]);
         if (error) { alert('Error: ' + error.message); return; }
         
@@ -141,6 +149,7 @@
         document.getElementById('svc-desc-en').value = '';
         document.getElementById('svc-desc-ru').value = '';
         document.getElementById('svc-desc-hy').value = '';
+        document.getElementById('svc-price').value = '';
         document.getElementById('svc-icon').value = '';
         document.getElementById('svc-file').value = '';
 
