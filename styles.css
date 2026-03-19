@@ -1,4 +1,4 @@
-﻿/* ========================================
+/* ========================================
    GARDEN INN RESORT - Premium Styles
    ======================================== */
 
@@ -763,7 +763,7 @@ body {
 /* ==================== CONTACT SECTION ==================== */
 /* Fix Z-index for Detail Modal to appear over Tours */
 #detail-modal.active {
-    z-index: 1010 !important;
+    z-index: 1600 !important;
 }
 
 .contact-section {

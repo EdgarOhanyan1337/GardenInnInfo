@@ -106,7 +106,7 @@ async function loadTours() {
             article.dataset.service = item.tour_key;
             article.innerHTML = '<div class="service-icon">' + item.icon + '</div>' +
                 '<h3>' + title + '</h3>' +
-                '<span class="price">' + item.price + '</span>' +
+                '<span class="status paid" style="text-transform: none;">' + item.price + '</span>' +
                 '<button class="more-btn">' + (translations[currentLang].more || 'More') + '</button>';
             container.appendChild(article);
         });
@@ -221,7 +221,7 @@ function openDetail(serviceKey) {
     if (data.price) {
         // Convert newlines to breaks just in case they typed multiple lines
         var formattedPrice = data.price.replace(/\n/g, '<br>');
-        priceInfo = '<div class="detail-price-box" style="margin-top: 16px; padding: 12px; background: rgba(245, 158, 11, 0.1); border: 1px dashed #f59e0b; border-radius: 8px; color: #f59e0b;">' + formattedPrice + '</div>';
+        priceInfo = '<div class="detail-price-box" style="margin-top: 16px; padding: 12px; background: rgba(26, 188, 156, 0.1); border: 1px dashed var(--color-primary); border-radius: 8px; color: var(--color-primary-light); font-weight: 500;">' + formattedPrice + '</div>';
     }
 
     if (titleEl) titleEl.textContent = title;
