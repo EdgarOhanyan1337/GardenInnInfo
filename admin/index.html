@@ -541,6 +541,9 @@
             <a onclick="navTo('translations', renderTranslations, this)">
                 <span class="nav-emoji">🌐</span> UI Translations
             </a>
+            <a onclick="navTo('notification_recipients', renderNotifications, this)">
+                <span class="nav-emoji">📨</span> Notifications
+            </a>
             <a onclick="navTo('housekeeping_requests', renderHousekeeping, this)">
                 <span class="nav-emoji">🧹</span> Housekeeping Logs
             </a>
@@ -665,6 +668,24 @@
                 </div>
                 <button onclick="addTranslation()">Save / Update</button>
                 <div id="translations-table" class="table-wrapper"></div>
+            </div>
+
+            <!-- NOTIFICATIONS SECTION -->
+            <div class="card" id="notifications-section" style="display:none;">
+                <h3><span class="card-icon">📨</span> Notification Recipients</h3>
+                <p>Manage who receives housekeeping notifications via Telegram and Email</p>
+                <div class="form-group">
+                    <div class="form-row">
+                        <select id="notif-type">
+                            <option value="telegram">📱 Telegram (Chat ID)</option>
+                            <option value="email">📧 Email</option>
+                        </select>
+                        <input type="text" id="notif-value" placeholder="Chat ID or email address">
+                    </div>
+                    <input type="text" id="notif-label" placeholder="Name / label (optional)">
+                </div>
+                <button onclick="addNotificationRecipient()">+ Add Recipient</button>
+                <div id="notifications-table" class="table-wrapper"></div>
             </div>
 
             <!-- HOUSEKEEPING LOGS -->

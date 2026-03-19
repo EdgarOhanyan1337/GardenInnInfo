@@ -45,6 +45,7 @@
         'tours': 'tours-section',
         'rules': 'rules-section',
         'translations': 'translations-section',
+        'notification_recipients': 'notifications-section',
         'housekeeping_requests': 'housekeeping-section',
         'housekeeping_ratings': 'ratings-section'
     };
@@ -254,6 +255,45 @@
         document.getElementById('trans-ru').value = '';
         document.getElementById('trans-hy').value = '';
         loadData('translations', renderTranslations);
+    };
+    // --- NOTIFICATIONS ---
+    window.renderNotifications = function(data) {
+        var html = '<table><tr><th>Type</th><th>Value</th><th>Label</th><th>Status</th><th>Actions</th></tr>';
+        data.forEach(function(item) {
+            var typeIcon = item.type === 'telegram' ? '📱' : '📧';
+            var statusColor = item.enabled ? '#4ade80' : '#71767b';
+            var statusText = item.enabled ? 'ACTIVE' : 'DISABLED';
+            var toggleText = item.enabled ? 'Disable' : 'Enable';
+            var toggleColor = item.enabled ? '#f87171' : '#4ade80';
+            html += '<tr><td>' + typeIcon + ' ' + item.type + '</td><td>' + item.value + '</td>' +
+                '<td>' + (item.label || '-') + '</td>' +
+                '<td style="color:' + statusColor + '"><b>' + statusText + '</b></td>' +
+                '<td style="display:flex;gap:6px;">' +
+                '<button style="background:' + toggleColor + '; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;" onclick="toggleRecipient(\'' + item.id + '\',' + !item.enabled + ')">' + toggleText + '</button>' +
+                '<button class="btn-danger" onclick="deleteItem(\'notification_recipients\',\'' + item.id + '\',renderNotifications)">Delete</button>' +
+                '</td></tr>';
+        });
+        html += '</table>';
+        document.getElementById('notifications-table').innerHTML = html;
+    };
+
+    window.addNotificationRecipient = async function() {
+        var type = document.getElementById('notif-type').value;
+        var value = document.getElementById('notif-value').value.trim();
+        var label = document.getElementById('notif-label').value.trim();
+        if (!value) { alert('Please enter a Chat ID or email address!'); return; }
+        if (type === 'email' && !value.includes('@')) { alert('Please enter a valid email address!'); return; }
+        var { error } = await db.from('notification_recipients').insert([{ type: type, value: value, label: label, enabled: true }]);
+        if (error) { alert('Error: ' + error.message); return; }
+        document.getElementById('notif-value').value = '';
+        document.getElementById('notif-label').value = '';
+        loadData('notification_recipients', renderNotifications);
+    };
+
+    window.toggleRecipient = async function(id, enabled) {
+        var { error } = await db.from('notification_recipients').update({ enabled: enabled }).eq('id', id);
+        if (error) { alert('Error: ' + error.message); return; }
+        loadData('notification_recipients', renderNotifications);
     };
 
     // --- HOUSEKEEPING REQUESTS ---

@@ -10,7 +10,9 @@ const supabaseClient = window.supabase ? window.supabase.createClient(ROOT_SUPAB
 
 // Telegram config (for housekeeping notifications)
 const TG_BOT_TOKEN = '8391061984:AAEwBuzl8vY50jSkorqc2yJ623rvhKr7sG8';
-const TG_CHAT_IDS = ['743938415'];
+
+// Dynamic notification recipients (loaded from DB)
+let notificationRecipients = { telegram: [], email: [] };
 
 // ==================== TRANSLATIONS (UI buttons/labels - hardcoded) ====================
 let translations = {
@@ -385,17 +387,33 @@ window.switchHkTab = function (tab) {
     }
 };
 
-// Send Telegram notification
-async function sendTelegramNotification(room, code) {
-    var text = '\uD83E\uDDF9 *Housekeeping Requested*\n\uD83C\uDFE0 Room: *' + room + '*\n\uD83D\uDD11 Code: `' + code + '`';
+// Load notification recipients from DB
+async function loadNotificationRecipients() {
+    if (!supabaseClient) return;
+    try {
+        var { data } = await supabaseClient.from('notification_recipients').select('*').eq('enabled', true);
+        if (!data) return;
+        notificationRecipients = { telegram: [], email: [] };
+        data.forEach(function(r) {
+            if (r.type === 'telegram') notificationRecipients.telegram.push(r.value);
+            if (r.type === 'email') notificationRecipients.email.push({ address: r.value, label: r.label || '' });
+        });
+    } catch (e) { console.error('Failed to load notification recipients:', e); }
+}
+
+// Send Telegram notification (NO guest code in message)
+async function sendTelegramNotification(room) {
+    var chatIds = notificationRecipients.telegram;
+    if (chatIds.length === 0) return;
+    var text = '\uD83E\uDDF9 *Housekeeping Requested*\n\uD83C\uDFE0 Room: *' + room + '*';
     var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
-    for (var i = 0; i < TG_CHAT_IDS.length; i++) {
+    for (var i = 0; i < chatIds.length; i++) {
         try {
             await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    chat_id: TG_CHAT_IDS[i],
+                    chat_id: chatIds[i],
                     text: text,
                     parse_mode: 'Markdown'
                 })
@@ -403,6 +421,29 @@ async function sendTelegramNotification(room, code) {
         } catch (e) {
             console.error('Telegram error:', e);
         }
+    }
+}
+
+// Send Email notification via Supabase Edge Function
+async function sendEmailNotification(room) {
+    var emails = notificationRecipients.email;
+    if (emails.length === 0) return;
+    var recipients = emails.map(function(e) { return e.address; });
+    try {
+        await fetch(ROOT_SUPABASE_URL + '/functions/v1/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + ROOT_SUPABASE_KEY
+            },
+            body: JSON.stringify({
+                to: recipients,
+                subject: '🧹 Housekeeping Request — Room ' + room,
+                body: 'A guest in Room ' + room + ' has requested housekeeping service.\n\nPlease attend to this request as soon as possible.\n\n— Garden Inn Resort System'
+            })
+        });
+    } catch (e) {
+        console.error('Email notification error:', e);
     }
 }
 
@@ -449,8 +490,9 @@ window.callHousekeeping = async function () {
         var { error } = await supabaseClient.from('housekeeping_requests').insert([{ room_number: room, code: code }]);
         if (error) { alert('Error: ' + error.message); return; }
 
-        // Send Telegram notification
-        await sendTelegramNotification(room, code);
+        // Send notifications (Telegram + Email)
+        await sendTelegramNotification(room);
+        await sendEmailNotification(room);
 
         // Show success + code
         var msgDiv = document.getElementById('hk-msg');
@@ -546,6 +588,7 @@ function initLogoAnimation() {
 async function initSupabaseFeatures() {
     if (!supabaseClient) return;
     await loadTranslations();
+    await loadNotificationRecipients();
     loadMinibar();
     loadServices();
     loadTours();

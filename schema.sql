@@ -88,6 +88,19 @@ CREATE TABLE housekeeping_ratings (
 );
 
 -- ============================================
+-- NOTIFICATION RECIPIENTS (Telegram + Email)
+-- ============================================
+
+CREATE TABLE notification_recipients (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  type TEXT NOT NULL CHECK (type IN ('telegram', 'email')),
+  value TEXT NOT NULL,
+  label TEXT DEFAULT '',
+  enabled BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================
 -- DISABLE RLS on all tables
 -- ============================================
 
@@ -98,6 +111,7 @@ ALTER TABLE rules DISABLE ROW LEVEL SECURITY;
 ALTER TABLE translations DISABLE ROW LEVEL SECURITY;
 ALTER TABLE housekeeping_requests DISABLE ROW LEVEL SECURITY;
 ALTER TABLE housekeeping_ratings DISABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_recipients DISABLE ROW LEVEL SECURITY;
 
 -- ============================================
 -- GRANT full access to anon and authenticated roles
@@ -111,6 +125,7 @@ GRANT ALL ON rules TO anon, authenticated;
 GRANT ALL ON translations TO anon, authenticated;
 GRANT ALL ON housekeeping_requests TO anon, authenticated;
 GRANT ALL ON housekeeping_ratings TO anon, authenticated;
+GRANT ALL ON notification_recipients TO anon, authenticated;
 
 -- Also grant usage on sequences (needed for inserts)
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;

@@ -4,11 +4,22 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const STAFF_PASSWORD = Deno.env.get('STAFF_PASSWORD') || 'gardeninn2026'
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+const TG_API = `https://api.telegram.org/bot${BOT_TOKEN}`
+
+// Helper: send a Telegram message
+async function sendMessage(chatId: string | number, text: string, extra: Record<string, unknown> = {}) {
+  await fetch(`${TG_API}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown', ...extra })
+  })
+}
 
 serve(async (req: Request) => {
-  // Handle CORS
+  // CORS
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
       headers: {
@@ -19,82 +30,199 @@ serve(async (req: Request) => {
     })
   }
 
-  if (req.method === 'POST') {
-    const body = await req.json()
+  if (req.method !== 'POST') {
+    return new Response('OK', { status: 200 })
+  }
 
-    // ==========================================
-    // 1. Telegram Callback (staff clicks button)
-    // ==========================================
-    if (body.callback_query) {
-      const callbackData = body.callback_query.data
-      const messageId = body.callback_query.message.message_id
-      const chatId = body.callback_query.message.chat.id
-      const staffName = body.callback_query.from.first_name || 'Staff'
+  const body = await req.json()
 
-      if (callbackData.startsWith('accept_')) {
-        const reqId = callbackData.replace('accept_', '')
+  // ==========================================
+  // 1. Telegram Message from user
+  // ==========================================
+  if (body.message) {
+    const chatId = body.message.chat.id
+    const text = (body.message.text || '').trim()
+    const firstName = body.message.from?.first_name || 'Staff'
 
-        // Update status in DB to 'accepted'
-        await supabase
-          .from('housekeeping_requests')
-          .update({ status: 'accepted' })
-          .eq('id', reqId)
+    // --- /start command ---
+    if (text === '/start') {
+      // Check if already registered
+      const { data: existing } = await supabase
+        .from('notification_recipients')
+        .select('id')
+        .eq('type', 'telegram')
+        .eq('value', String(chatId))
 
-        // Answer the callback query
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            callback_query_id: body.callback_query.id,
-            text: 'You accepted the request!'
-          })
-        })
-
-        // Edit the original message to show it was accepted
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/editMessageText`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: chatId,
-            message_id: messageId,
-            text: `🧹 *Housekeeping Request*\n✅ *Accepted by ${staffName}*`,
-            parse_mode: 'Markdown'
-          })
-        })
+      if (existing && existing.length > 0) {
+        await sendMessage(chatId,
+          `✅ *${firstName}*, вы уже зарегистрированы!\\n\\n` +
+          `Вы будете получать уведомления о заявках на уборку.\\n\\n` +
+          `Команды:\\n/status — проверить статус\\n/stop — отключить уведомления`
+        )
+      } else {
+        await sendMessage(chatId,
+          `🌿 *Garden Inn Resort*\\n\\n` +
+          `Добро пожаловать! Для регистрации введите пароль персонала:`
+        )
       }
       return new Response('OK', { status: 200 })
     }
 
-    // ==========================================
-    // 2. Database Webhook (INSERT trigger)
-    // ==========================================
-    if (body.type === 'INSERT' && body.table === 'housekeeping_requests') {
-      const room = body.record.room_number
-      const code = body.record.code
-      const reqId = body.record.id
-      const CHAT_IDS = (Deno.env.get('TELEGRAM_CHAT_IDS') || Deno.env.get('TELEGRAM_CHAT_ID') || '').split(',').map(id => id.trim()).filter(id => id)
+    // --- /status command ---
+    if (text === '/status') {
+      const { data } = await supabase
+        .from('notification_recipients')
+        .select('*')
+        .eq('type', 'telegram')
+        .eq('value', String(chatId))
 
-      const message = `🧹 *Housekeeping Requested*\n🏠 Room: *${room}*\n🔑 Code: \`${code}\``
-      const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`
-
-      for (const chatId of CHAT_IDS) {
-        await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: chatId,
-            text: message,
-            parse_mode: 'Markdown',
-            reply_markup: {
-              inline_keyboard: [[
-                { text: '✅ I am coming', callback_data: `accept_${reqId}` }
-              ]]
-            }
-          })
-        })
+      if (data && data.length > 0) {
+        const status = data[0].enabled ? '🟢 Активно' : '🔴 Отключено'
+        await sendMessage(chatId,
+          `📊 *Ваш статус:* ${status}\\n` +
+          `👤 Имя: ${data[0].label || firstName}\\n` +
+          `🆔 Chat ID: \`${chatId}\``
+        )
+      } else {
+        await sendMessage(chatId, `❌ Вы не зарегистрированы. Отправьте /start для регистрации.`)
       }
-      return new Response('Sent', { status: 200 })
+      return new Response('OK', { status: 200 })
     }
+
+    // --- /stop command ---
+    if (text === '/stop') {
+      await supabase
+        .from('notification_recipients')
+        .update({ enabled: false })
+        .eq('type', 'telegram')
+        .eq('value', String(chatId))
+
+      await sendMessage(chatId,
+        `🔴 Уведомления отключены.\\n\\nЧтобы включить снова, отправьте /resume`
+      )
+      return new Response('OK', { status: 200 })
+    }
+
+    // --- /resume command ---
+    if (text === '/resume') {
+      await supabase
+        .from('notification_recipients')
+        .update({ enabled: true })
+        .eq('type', 'telegram')
+        .eq('value', String(chatId))
+
+      await sendMessage(chatId, `🟢 Уведомления включены! Вы снова будете получать заявки.`)
+      return new Response('OK', { status: 200 })
+    }
+
+    // --- Password attempt (any other text) ---
+    // Check if user is NOT yet registered (means they're entering a password)
+    const { data: existing } = await supabase
+      .from('notification_recipients')
+      .select('id')
+      .eq('type', 'telegram')
+      .eq('value', String(chatId))
+
+    if (!existing || existing.length === 0) {
+      // They're trying to enter the password
+      if (text === STAFF_PASSWORD) {
+        // Password correct! Register them
+        await supabase
+          .from('notification_recipients')
+          .insert([{
+            type: 'telegram',
+            value: String(chatId),
+            label: firstName,
+            enabled: true
+          }])
+
+        await sendMessage(chatId,
+          `✅ *Регистрация успешна!*\\n\\n` +
+          `Добро пожаловать, *${firstName}*! 🎉\\n` +
+          `Теперь вы будете получать уведомления о заявках на уборку.\\n\\n` +
+          `Команды:\\n/status — проверить статус\\n/stop — отключить уведомления\\n/resume — включить уведомления`
+        )
+      } else {
+        await sendMessage(chatId, `❌ Неверный пароль. Попробуйте ещё раз.`)
+      }
+      return new Response('OK', { status: 200 })
+    }
+
+    // Already registered, unknown command
+    await sendMessage(chatId,
+      `🌿 *Garden Inn Bot*\\n\\n` +
+      `Команды:\\n/status — проверить статус\\n/stop — отключить уведомления\\n/resume — включить уведомления`
+    )
+    return new Response('OK', { status: 200 })
+  }
+
+  // ==========================================
+  // 2. Telegram Callback (staff clicks button)
+  // ==========================================
+  if (body.callback_query) {
+    const callbackData = body.callback_query.data
+    const messageId = body.callback_query.message.message_id
+    const chatId = body.callback_query.message.chat.id
+    const staffName = body.callback_query.from.first_name || 'Staff'
+
+    if (callbackData.startsWith('accept_')) {
+      const reqId = callbackData.replace('accept_', '')
+
+      await supabase
+        .from('housekeeping_requests')
+        .update({ status: 'accepted' })
+        .eq('id', reqId)
+
+      await fetch(`${TG_API}/answerCallbackQuery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          callback_query_id: body.callback_query.id,
+          text: 'You accepted the request!'
+        })
+      })
+
+      await fetch(`${TG_API}/editMessageText`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          message_id: messageId,
+          text: `🧹 *Housekeeping Request*\n✅ *Accepted by ${staffName}*`,
+          parse_mode: 'Markdown'
+        })
+      })
+    }
+    return new Response('OK', { status: 200 })
+  }
+
+  // ==========================================
+  // 3. Database Webhook (INSERT trigger)
+  // ==========================================
+  if (body.type === 'INSERT' && body.table === 'housekeeping_requests') {
+    const room = body.record.room_number
+    const reqId = body.record.id
+
+    // Load recipients from DB instead of env vars
+    const { data: recipients } = await supabase
+      .from('notification_recipients')
+      .select('value')
+      .eq('type', 'telegram')
+      .eq('enabled', true)
+
+    const chatIds = recipients?.map((r: { value: string }) => r.value) || []
+    const message = `🧹 *Housekeeping Requested*\n🏠 Room: *${room}*`
+
+    for (const chatId of chatIds) {
+      await sendMessage(chatId, message, {
+        reply_markup: {
+          inline_keyboard: [[
+            { text: '✅ I am coming', callback_data: `accept_${reqId}` }
+          ]]
+        }
+      })
+    }
+    return new Response('Sent', { status: 200 })
   }
 
   return new Response('OK', { status: 200 })
