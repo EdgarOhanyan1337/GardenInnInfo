@@ -596,7 +596,8 @@
                     <textarea id="svc-desc-ru" placeholder="Description in Russian"></textarea>
                     <span class="lang-label">Description (HY):</span>
                     <textarea id="svc-desc-hy" placeholder="Description in Armenian"></textarea>
-                    <input type="file" id="svc-file">
+                    <span class="lang-label">Media (Multiple photos/videos allowed):</span>
+                    <input type="file" id="svc-file" multiple accept="image/*,video/*">
                 </div>
                 <button onclick="addService()">+ Add Service</button>
                 <div id="services-table" class="table-wrapper"></div>
@@ -623,7 +624,8 @@
                     <textarea id="tour-desc-ru" placeholder="Description in Russian"></textarea>
                     <span class="lang-label">Description (HY):</span>
                     <textarea id="tour-desc-hy" placeholder="Description in Armenian"></textarea>
-                    <input type="file" id="tour-file">
+                    <span class="lang-label">Media (Multiple photos/videos allowed):</span>
+                    <input type="file" id="tour-file" multiple accept="image/*,video/*">
                 </div>
                 <button onclick="addTour()">+ Add Tour</button>
                 <div id="tours-table" class="table-wrapper"></div>

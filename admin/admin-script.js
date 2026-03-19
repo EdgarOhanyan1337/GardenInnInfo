@@ -120,15 +120,30 @@
         var status_type = document.getElementById('svc-type').value;
         var icon = document.getElementById('svc-icon').value;
         if (!service_key || !title_en) { alert('Fill in key and English title!'); return; }
-        var file = document.getElementById('svc-file').files[0];
+        var files = document.getElementById('svc-file').files;
         var images = [];
-        if (file) { var url = await uploadImage(file); if (url) images = [url]; }
+        for (let i = 0; i < files.length; i++) {
+            var url = await uploadImage(files[i]);
+            if (url) images.push(url);
+        }
         var { error } = await db.from('services').insert([{
             service_key: service_key, title_en: title_en, title_ru: title_ru, title_hy: title_hy,
             description_en: description_en, description_ru: description_ru, description_hy: description_hy,
             status_type: status_type, icon: icon, images: images
         }]);
         if (error) { alert('Error: ' + error.message); return; }
+        
+        // Clear inputs after success
+        document.getElementById('svc-key').value = '';
+        document.getElementById('svc-title-en').value = '';
+        document.getElementById('svc-title-ru').value = '';
+        document.getElementById('svc-title-hy').value = '';
+        document.getElementById('svc-desc-en').value = '';
+        document.getElementById('svc-desc-ru').value = '';
+        document.getElementById('svc-desc-hy').value = '';
+        document.getElementById('svc-icon').value = '';
+        document.getElementById('svc-file').value = '';
+
         loadData('services', renderServices);
     };
 
@@ -156,15 +171,31 @@
         var price = document.getElementById('tour-price').value;
         var icon = document.getElementById('tour-icon').value;
         if (!tour_key || !title_en) { alert('Fill in key and English title!'); return; }
-        var file = document.getElementById('tour-file').files[0];
+        var files = document.getElementById('tour-file').files;
         var images = [];
-        if (file) { var url = await uploadImage(file); if (url) images = [url]; }
+        for (let i = 0; i < files.length; i++) {
+            var url = await uploadImage(files[i]);
+            if (url) images.push(url);
+        }
         var { error } = await db.from('tours').insert([{
             tour_key: tour_key, title_en: title_en, title_ru: title_ru, title_hy: title_hy,
             description_en: description_en, description_ru: description_ru, description_hy: description_hy,
             price: price, icon: icon, images: images
         }]);
         if (error) { alert('Error: ' + error.message); return; }
+
+        // Clear inputs after success
+        document.getElementById('tour-key').value = '';
+        document.getElementById('tour-title-en').value = '';
+        document.getElementById('tour-title-ru').value = '';
+        document.getElementById('tour-title-hy').value = '';
+        document.getElementById('tour-desc-en').value = '';
+        document.getElementById('tour-desc-ru').value = '';
+        document.getElementById('tour-desc-hy').value = '';
+        document.getElementById('tour-price').value = '';
+        document.getElementById('tour-icon').value = '';
+        document.getElementById('tour-file').value = '';
+
         loadData('tours', renderTours);
     };
 
