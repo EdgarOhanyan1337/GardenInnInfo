@@ -401,8 +401,8 @@ async function loadNotificationRecipients() {
     } catch (e) { console.error('Failed to load notification recipients:', e); }
 }
 
-// Send Telegram notification (NO guest code in message)
-async function sendTelegramNotification(room) {
+// Send Telegram notification (includes 'Иду' button)
+async function sendTelegramNotification(room, reqId) {
     var chatIds = notificationRecipients.telegram;
     if (chatIds.length === 0) return;
     var text = '\uD83E\uDDF9 *Housekeeping Requested*\n\uD83C\uDFE0 Room: *' + room + '*';
@@ -415,7 +415,12 @@ async function sendTelegramNotification(room) {
                 body: JSON.stringify({
                     chat_id: chatIds[i],
                     text: text,
-                    parse_mode: 'Markdown'
+                    parse_mode: 'Markdown',
+                    reply_markup: {
+                        inline_keyboard: [[
+                            { text: '✅ Иду', callback_data: 'accept_' + reqId }
+                        ]]
+                    }
                 })
             });
         } catch (e) {
@@ -497,7 +502,7 @@ window.callHousekeeping = async function () {
         localStorage.setItem('hk_pending_id', data.id);
 
         // Send notifications (Telegram + Email)
-        await sendTelegramNotification(room);
+        await sendTelegramNotification(room, data.id);
         await sendEmailNotification(room);
 
         // Show success + code
