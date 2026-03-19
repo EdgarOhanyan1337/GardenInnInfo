@@ -263,13 +263,13 @@
             var currentStatus = (item.status || 'pending').toLowerCase();
             var color = (currentStatus === 'completed' || currentStatus === 'accepted') ? 'green' : 'orange';
             var actionBtn = currentStatus !== 'completed' 
-                ? '<button style="background:var(--color-primary); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;" onclick="completeHousekeeping(\'' + item.id + '\')">Complete</button>' 
-                : '';
+                ? '<button style="background:#22c55e; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; cursor:pointer;" onclick="completeHousekeeping(\'' + item.id + '\')">Complete ✓</button>' 
+                : '<span style="color:#22c55e; font-weight:bold;">COMPLETED</span>';
                 
             html += '<tr><td><b>' + item.room_number + '</b></td><td><code>' + item.code + '</code></td>' +
                 '<td style="color:' + color + '"><b>' + currentStatus.toUpperCase() + '</b></td>' +
                 '<td>' + (item.created_at ? new Date(item.created_at).toLocaleString() : '-') + '</td>' +
-                '<td>' + actionBtn + ' <button class="btn-danger" onclick="deleteItem(\'housekeeping_requests\',\'' + item.id + '\',renderHousekeeping)">Del</button></td></tr>';
+                '<td>' + actionBtn + '</td></tr>';
         });
         html += '</table>';
         document.getElementById('hk-table').innerHTML = html;
