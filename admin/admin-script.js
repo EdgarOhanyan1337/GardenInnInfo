@@ -258,7 +258,7 @@
 
     // --- HOUSEKEEPING REQUESTS ---
     window.renderHousekeeping = function(data) {
-        var html = '<table><tr><th>Room</th><th>Code</th><th>Status</th><th>Time</th><th>Actions</th></tr>';
+        var html = '<table><tr><th>Room</th><th>Code</th><th>Status</th><th>Requested</th><th>Completed</th><th>Actions</th></tr>';
         data.forEach(function(item) {
             var currentStatus = (item.status || 'pending').toLowerCase();
             var color = (currentStatus === 'completed' || currentStatus === 'accepted') ? 'green' : 'orange';
@@ -269,6 +269,7 @@
             html += '<tr><td><b>' + item.room_number + '</b></td><td><code>' + item.code + '</code></td>' +
                 '<td style="color:' + color + '"><b>' + currentStatus.toUpperCase() + '</b></td>' +
                 '<td>' + (item.created_at ? new Date(item.created_at).toLocaleString() : '-') + '</td>' +
+                '<td>' + (item.completed_at ? new Date(item.completed_at).toLocaleString() : '-') + '</td>' +
                 '<td>' + actionBtn + '</td></tr>';
         });
         html += '</table>';
@@ -276,7 +277,10 @@
     };
 
     window.completeHousekeeping = async function(id) {
-        var { error } = await db.from('housekeeping_requests').update({ status: 'completed' }).eq('id', id);
+        var { error } = await db.from('housekeeping_requests').update({ 
+            status: 'completed', 
+            completed_at: new Date().toISOString() 
+        }).eq('id', id);
         if (error) { alert('Error updating status: ' + error.message); return; }
         loadData('housekeeping_requests', renderHousekeeping);
     };
