@@ -203,7 +203,7 @@ serve(async (req: Request) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           callback_query_id: body.callback_query.id,
-          text: 'You accepted the request!'
+          text: 'Вы приняли заявку!'
         })
       })
 
@@ -213,7 +213,7 @@ serve(async (req: Request) => {
         body: JSON.stringify({
           chat_id: chatId,
           message_id: messageId,
-          text: `🧹 *Housekeeping Request*\n✅ *Accepted by ${staffName}*`,
+          text: `🧹 *Заявка на уборку*\n✅ *Принял(а): ${staffName}*`,
           parse_mode: 'Markdown'
         })
       })
@@ -242,7 +242,7 @@ serve(async (req: Request) => {
       await sendMessage(chatId, message, {
         reply_markup: {
           inline_keyboard: [[
-            { text: '✅ I am coming', callback_data: `accept_${reqId}` }
+            { text: '✅ Иду', callback_data: `accept_${reqId}` }
           ]]
         }
       })

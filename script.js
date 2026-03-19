@@ -487,8 +487,14 @@ window.callHousekeeping = async function () {
 
     try {
         // Save to database
-        var { error } = await supabaseClient.from('housekeeping_requests').insert([{ room_number: room, code: code }]);
+        var { error, data } = await supabaseClient.from('housekeeping_requests')
+            .insert([{ room_number: room, code: code }])
+            .select('id').single();
         if (error) { alert('Error: ' + error.message); return; }
+
+        // Save locally to listen for updates later
+        localStorage.setItem('hk_pending_room', room);
+        localStorage.setItem('hk_pending_id', data.id);
 
         // Send notifications (Telegram + Email)
         await sendTelegramNotification(room);
@@ -601,8 +607,122 @@ async function initSupabaseFeatures() {
             if (payload.table === 'services') loadServices();
             if (payload.table === 'tours') loadTours();
             if (payload.table === 'rules') loadRules();
+            
+            // Listen for housekeeping acceptance
+            if (payload.table === 'housekeeping_requests' && payload.eventType === 'UPDATE') {
+                var newRec = payload.new;
+                var pendingId = localStorage.getItem('hk_pending_id');
+                // If this is our request and it just got accepted
+                if (pendingId && pendingId == newRec.id && newRec.status === 'accepted') {
+                    showHousekeepingAcceptedBanner();
+                    // Clear the pending state so we don't trigger again for this specific request
+                    localStorage.removeItem('hk_pending_id');
+                    localStorage.removeItem('hk_pending_room');
+                }
+            }
         })
         .subscribe();
+}
+
+// ==================== REALTIME BANNER LOGIC ====================
+
+let titleFlashInterval = null;
+const originalTitle = document.title;
+
+function playNotificationSound() {
+    try {
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Bell sound synthesis
+        var osc1 = ctx.createOscillator();
+        var osc2 = ctx.createOscillator();
+        var gainNode = ctx.createGain();
+        
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(880, ctx.currentTime); // A5
+        osc1.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 1);
+        
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(1760, ctx.currentTime); // A6
+        osc2.frequency.exponentialRampToValueAtTime(1600, ctx.currentTime + 1);
+        
+        gainNode.gain.setValueAtTime(0, ctx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.5);
+        
+        osc1.connect(gainNode);
+        osc2.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        osc1.start();
+        osc2.start();
+        osc1.stop(ctx.currentTime + 1.5);
+        osc2.stop(ctx.currentTime + 1.5);
+    } catch (e) { console.error("Audio API error:", e); }
+}
+
+function startTitleFlash() {
+    if (titleFlashInterval) clearInterval(titleFlashInterval);
+    var isAlt = false;
+    titleFlashInterval = setInterval(() => {
+        document.title = isAlt ? originalTitle : "🔔 1 Notification";
+        isAlt = !isAlt;
+    }, 1500);
+}
+
+function stopTitleFlash() {
+    if (titleFlashInterval) clearInterval(titleFlashInterval);
+    document.title = originalTitle;
+}
+
+window.dismissHousekeepingBanner = function() {
+    var banner = document.getElementById('hk-realtime-banner');
+    if (banner) {
+        banner.classList.remove('show');
+        setTimeout(() => banner.remove(), 600);
+    }
+    stopTitleFlash();
+    localStorage.removeItem('hk_active_notification');
+};
+
+function showHousekeepingAcceptedBanner() {
+    // Save to local storage so it persists if they reload the page
+    localStorage.setItem('hk_active_notification', 'true');
+    
+    // Check if it already exists
+    if (document.getElementById('hk-realtime-banner')) return;
+    
+    var banner = document.createElement('div');
+    banner.id = 'hk-realtime-banner';
+    banner.className = 'hk-notification-banner';
+    banner.innerHTML = `
+        <div class="hk-banner-icon">🧹</div>
+        <div class="hk-banner-content">
+            <div class="hk-banner-title">Housekeeping</div>
+            <div class="hk-banner-text">Staff has accepted your request and is on the way.</div>
+        </div>
+        <button class="hk-banner-close" onclick="dismissHousekeepingBanner()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+        </button>
+    `;
+    
+    document.body.appendChild(banner);
+    
+    // Animate in
+    setTimeout(() => {
+        banner.classList.add('show');
+        playNotificationSound();
+        startTitleFlash();
+    }, 100);
+}
+
+function checkPersistentNotification() {
+    if (localStorage.getItem('hk_active_notification') === 'true') {
+        // If they reload the page while it's active, show it again but without sound
+        showHousekeepingAcceptedBanner();
+    }
 }
 
 // ==================== STAR RATING ====================
@@ -650,5 +770,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initContactModal();
     initStarRating();
     initSupabaseFeatures();
+    checkPersistentNotification();
 });
 
