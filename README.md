@@ -49,5 +49,9 @@ Since this is a static webpage without a backend, it is incredibly easy to run l
    ```
 3. Enjoy the resort! 🥂
 
+4. To make changes in the content, you need to use the Supabase Dashboard.
+
+5. To make changes in the code, you need to use the Supabase Dashboard.
+
 ## 👤 Author
 Maintained by **[Edgar Ohanyan](https://github.com/EdgarOhanyan1337)**.

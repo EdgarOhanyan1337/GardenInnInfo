@@ -1,54 +1,96 @@
-# 🚀 Final Deployment Instructions
+# 🚀 Garden Inn Resort — Deployment Instructions
 
-The code (HTML, JS, Admin Panel, and Edge Function) has already been fully written to your local files by me! 
+Everything is already written in your local files! Follow these steps to go live.
 
-You are now 4 steps away from launching the full-stack system. Follow these instructions exactly:
+---
 
-## Step 1: Create Supabase Project & Tables
-1. Go to [Supabase.com](https://supabase.com) and create a free project.
-2. In the Supabase sidebar, go to **SQL Editor**.
-3. Open `FULL_STACK_GUIDE.md` in your code editor, copy the entire SQL block under **"4. ✅ DATABASE"**, paste it into Supabase, and click **Run**.
-4. Go to **Authentication** -> **Users** and create an Admin user (Email/Password) to use for your `admin/index.html` login.
+## Step 1: Run the Database Schema
 
-## Step 2: Configure Keys in Your Files
-1. In Supabase, go to **Project Settings** (the gear icon) -> **API**.
-2. Copy your **Project URL** and the **`anon` public key**.
-3. Open `script.js` in your editor. At the very top (lines 7 & 8), replace `YOUR_SUPABASE_PROJECT_URL` and `YOUR_SUPABASE_ANON_KEY`.
-4. Open `admin/script.js` and do the exact same thing for the admin panel.
+1. Go to [Supabase Dashboard](https://supabase.com) → open your project
+2. Click **SQL Editor** → **New Query**
+3. Open `schema.sql` in your code editor, copy **ALL** the content
+4. Paste it into the SQL Editor and click **Run**
+5. You should see "Success. No rows returned" — this means all tables are created
 
-## Step 3: Setup Telegram Bot & Deploy Edge Function
-1. On Telegram, message `@BotFather` and send `/newbot` to create your bot. He will give you a **BOT_TOKEN**.
-2. Send a message to your new bot.
-3. Visit `hhttps://api.telegram.org/bot%3C8391061984:AAEwBuzl8vY50jSkorqc2yJ623rvhKr7sG8%3E/getUpdates` in your browser. Look for the `"chat": {"id": 123456789}` value. Save this **Chat ID**.
-4. Open your computer's terminal and run these commands to deploy the function:
-   ```bash
-   # 1. You don't need to install anything globally! Just use 'npx' before the commands.
+## Step 2: Create an Admin User
 
-   # 2. Login to your Supabase account
-   npx supabase login
-   
-   # 3. Link this folder to your cloud project
-   npx supabase link --project-ref your-supabase-project-id
-   
-   # 4. Save your secret keys to the cloud
-   npx supabase secrets set TELEGRAM_BOT_TOKEN="8391061984:AAEwBuzl8vY50jSkorqc2yJ623rvhKr7sG8"
-   npx supabase secrets set TELEGRAM_CHAT_ID="743938415"
-   npx supabase secrets set SUPABASE_URL="https://klnxybjaaxtlfabnzxcd.supabase.co"
-   npx supabase secrets set SUPABASE_ANON_KEY="sb_secret_CS9wfE_qUfL3MrR2xzrTAQ_kf-z1ciE"
-   
-   # 5. Deploy the backend code we wrote!
-   npx supabase functions deploy telegram-bot
-   ```
+1. In Supabase sidebar → **Authentication** → **Users**
+2. Click **Add user** → **Create new user**
+3. Enter an email (e.g. `admin@gardeninn.am`) and password
+4. This is the login for your `admin/index.html` panel
 
-## Step 4: Connect the Database to the Bot
-1. In the Supabase Dashboard, go to **Database** -> **Webhooks**.
-2. Create a new webhook:
-   - **Name:** Telegram Notification
-   - **Table:** `housekeeping_requests`
-   - **Events:** Select `Insert`
-   - **Type:** HTTP Request
-   - **Method:** POST
-   - **URL:** Paste the Edge Function URL (You can find this in Edge Functions -> telegram-bot -> Details).
-   - **Headers:** Add Authorization header. Name: `Authorization`, Value: `Bearer YOUR_ANON_KEY`
-   
-**Save the webhook and you are done!** Push these files to your GitHub repository and your Full-Stack Website, Admin Panel, and Telegram Bot are fully live. 🚀
+## Step 3: Add Multiple Telegram Chat IDs
+
+The site sends housekeeping notifications to Telegram directly. To add more staff members:
+
+1. Open `script.js` in your editor
+2. On line 13, find `TG_CHAT_IDS`
+3. Add more chat IDs separated by commas:
+```js
+const TG_CHAT_IDS = ['743938415', '123456789', '987654321'];
+```
+
+**How to get someone's Chat ID:**
+1. Tell them to message your bot in Telegram
+2. Open `https://api.telegram.org/bot8391061984:AAEwBuzl8vY50jSkorqc2yJ623rvhKr7sG8/getUpdates`
+3. Find their `"chat": {"id": XXXXXXX}` number
+
+## Step 4: Deploy Edge Function (for "I am coming" button)
+
+> This step is **optional**. Without it, Telegram messages still arrive, but the "I am coming" button won't work.
+
+### Option A: Via Supabase Dashboard (easiest)
+1. Go to **Edge Functions** → **Create a new function**
+2. Name it `telegram-bot`
+3. Copy the code from `supabase/functions/telegram-bot/index.ts`
+4. Deploy it
+5. Go to **Edge Functions** → **Secrets** and add:
+   - `TELEGRAM_BOT_TOKEN` = `8391061984:AAEwBuzl8vY50jSkorqc2yJ623rvhKr7sG8`
+   - `TELEGRAM_CHAT_IDS` = `743938415`
+   - `SUPABASE_SERVICE_ROLE_KEY` = (find in Project Settings → API → service_role secret)
+6. Copy the function URL
+7. Open in browser: `https://api.telegram.org/bot8391061984:AAEwBuzl8vY50jSkorqc2yJ623rvhKr7sG8/setWebhook?url=YOUR_FUNCTION_URL`
+
+### Option B: Via CLI
+```bash
+npx supabase login
+npx supabase link --project-ref klnxybjaaxtlfabnzxcd
+npx supabase secrets set TELEGRAM_BOT_TOKEN="8391061984:AAEwBuzl8vY50jSkorqc2yJ623rvhKr7sG8"
+npx supabase secrets set TELEGRAM_CHAT_IDS="743938415"
+npx supabase functions deploy telegram-bot
+```
+Then set webhook:
+```
+https://api.telegram.org/bot8391061984:AAEwBuzl8vY50jSkorqc2yJ623rvhKr7sG8/setWebhook?url=YOUR_FUNCTION_URL
+```
+
+## Step 5: Publish to GitHub Pages
+
+1. Push all files to your GitHub repository
+2. Enable GitHub Pages in repo Settings → Pages → select branch `main`
+3. Your site will be live at `https://yourusername.github.io/GardenInnInfo/`
+
+---
+
+## How It All Works
+
+| Feature | How |
+|---|---|
+| **Minibar, Services, Tours, Rules** | Content managed via Admin Panel → stored in Supabase → displayed on website |
+| **Multi-language** | UI labels are hardcoded in `script.js`. Content (services, tours, rules) has EN/RU/HY columns in database |
+| **Housekeeping Call** | Guest enters room → gets 6-digit code → Telegram notification sent to staff |
+| **Housekeeping Rating** | Guest enters their code → rates 1-5 stars → visible in Admin Panel |
+| **"I am coming" button** | Staff clicks in Telegram → Edge Function updates DB → guest sees toast notification |
+| **Image uploads** | Admin uploads image → stored in Supabase Storage `images` bucket → URL saved in DB |
+
+## Test Checklist
+
+- [ ] Run `schema.sql` in SQL Editor
+- [ ] Create admin user in Authentication
+- [ ] Login to admin panel (`/admin/index.html`)
+- [ ] Add a minibar item with image
+- [ ] Open main site → Mini Bar → item appears
+- [ ] Press Housekeeping → enter room → Call Now
+- [ ] Check Telegram — message arrived with room number?
+- [ ] Add a service with EN/RU/HY titles
+- [ ] Switch language on site → title changes?

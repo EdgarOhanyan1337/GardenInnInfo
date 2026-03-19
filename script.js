@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Garden Inn Resort - Frontend JavaScript V4
  * Housekeeping codes, multi-lang content, Telegram notifications
  */
@@ -15,8 +15,8 @@ const TG_CHAT_IDS = ['743938415'];
 // ==================== TRANSLATIONS (UI buttons/labels - hardcoded) ====================
 let translations = {
     en: { welcome: "Welcome", tagline: "Garden Inn Resort & Spa", services: "Services", rules: "Rules", minibar: "Mini Bar", tours: "Tours", housekeeping: "Housekeeping", contact: "Get in Touch", contactMenu: "Contact Us", wifiMenu: "WiFi", otherContact: "Other", otherMethodsTitle: "Other Methods", more: "More", gallery: "Gallery", price: "Price", about: "Garden Inn Resort offers luxury in a private paradise.", copied: "Copied!", wifi: "WiFi", network: "Network:", password: "Password:", copy: "Copy", wifiInstructions: "Scan QR or enter password." },
-    ru: { welcome: "Dobro pozhalovat'", tagline: "Garden Inn Resort & Spa", services: "Uslugi", rules: "Pravila", minibar: "Mini-Bar", tours: "Tury", housekeeping: "Uborka", contact: "Svyaz'", contactMenu: "Kontakty", wifiMenu: "WiFi", otherContact: "Drugoe", otherMethodsTitle: "Drugie sposoby", more: "Podrobnee", gallery: "Galereya", price: "Tsena", about: "Garden Inn Resort predlagaet roskosh'.", copied: "Skopirovano!", wifi: "WiFi", network: "Set':", password: "Parol':", copy: "Kopirovat'", wifiInstructions: "Otskanirujte kod." },
-    hy: { welcome: "Bari galust", tagline: "Garden Inn Resort & Spa", services: "Tsarayutyunner", rules: "Kanonner", minibar: "Mini-Bar", tours: "Turer", housekeeping: "Maqrutyun", contact: "Kap", contactMenu: "Kapvel", wifiMenu: "WiFi", otherContact: "Ayl", otherMethodsTitle: "Ayl yeghanaknere", more: "Avelin", gallery: "Patkerasrah", price: "Gine", about: "Garden Inn Resort.", copied: "OK!", wifi: "WiFi", network: "Tsants:", password: "Gaghtnabary:", copy: "Patchenel", wifiInstructions: "Skan QR kody." }
+    ru: { welcome: "\u0414\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c", tagline: "Garden Inn Resort & Spa", services: "\u0423\u0441\u043b\u0443\u0433\u0438", rules: "\u041f\u0440\u0430\u0432\u0438\u043b\u0430", minibar: "\u041c\u0438\u043d\u0438-\u0431\u0430\u0440", tours: "\u0422\u0443\u0440\u044b", housekeeping: "\u0423\u0431\u043e\u0440\u043a\u0430", contact: "\u0421\u0432\u044f\u0437\u0430\u0442\u044c\u0441\u044f", contactMenu: "\u041a\u043e\u043d\u0442\u0430\u043a\u0442\u044b", wifiMenu: "WiFi", otherContact: "\u0414\u0440\u0443\u0433\u043e\u0435", otherMethodsTitle: "\u0414\u0440\u0443\u0433\u0438\u0435 \u0441\u043f\u043e\u0441\u043e\u0431\u044b", more: "\u041f\u043e\u0434\u0440\u043e\u0431\u043d\u0435\u0435", gallery: "\u0413\u0430\u043b\u0435\u0440\u0435\u044f", price: "\u0426\u0435\u043d\u0430", about: "Garden Inn Resort \u2014 \u0440\u043e\u0441\u043a\u043e\u0448\u043d\u044b\u0439 \u043e\u0442\u0434\u044b\u0445 \u0432 \u0440\u0430\u0439\u0441\u043a\u043e\u043c \u0443\u0433\u043e\u043b\u043a\u0435 \u0441 \u0436\u0438\u0432\u043e\u043f\u0438\u0441\u043d\u044b\u043c\u0438 \u0441\u0430\u0434\u0430\u043c\u0438.", copied: "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u043e!", wifi: "WiFi", network: "\u0421\u0435\u0442\u044c:", password: "\u041f\u0430\u0440\u043e\u043b\u044c:", copy: "\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c", wifiInstructions: "\u041e\u0442\u0441\u043a\u0430\u043d\u0438\u0440\u0443\u0439\u0442\u0435 QR-\u043a\u043e\u0434 \u0438\u043b\u0438 \u0432\u0432\u0435\u0434\u0438\u0442\u0435 \u043f\u0430\u0440\u043e\u043b\u044c \u0432\u0440\u0443\u0447\u043d\u0443\u044e." },
+    hy: { welcome: "\u0532\u0561\u0580\u056b \u0563\u0561\u056c\u0578\u0582\u057d\u057f", tagline: "Garden Inn Resort & Spa", services: "\u053e\u0561\u057c\u0561\u0575\u0578\u0582\u0569\u0575\u0578\u0582\u0576\u0576\u0565\u0580", rules: "\u053f\u0561\u0576\u0578\u0576\u0576\u0565\u0580", minibar: "\u0544\u056b\u0576\u056b-\u0562\u0561\u0580", tours: "\u054f\u0578\u0582\u0580\u0565\u0580", housekeeping: "\u0544\u0561\u0584\u0580\u0578\u0582\u0569\u0575\u0578\u0582\u0576", contact: "\u053f\u0561\u057a", contactMenu: "\u053f\u0561\u057a \u0574\u0565\u0566 \u0570\u0565\u057f", wifiMenu: "WiFi", otherContact: "\u0531\u0575\u056c", otherMethodsTitle: "\u0531\u0575\u056c \u0565\u0572\u0561\u0576\u0561\u056f\u0576\u0565\u0580", more: "\u0531\u057e\u0565\u056c\u056b\u0576", gallery: "\u054a\u0561\u057f\u056f\u0565\u0580\u0561\u057d\u0580\u0561\u0570", price: "\u0533\u056b\u0576", about: "Garden Inn Resort \u2014 \u0577\u0584\u0565\u0572 \u0570\u0561\u0576\u0563\u056b\u057d\u057f \u0563\u0565\u0572\u0565\u0581\u056b\u056f \u0561\u0575\u0563\u056b\u0576\u0565\u0580\u0578\u057e\u0589", copied: "\u054a\u0561\u057f\u0573\u0565\u0576\u057e\u0565\u0581!", wifi: "WiFi", network: "\u0551\u0561\u0576\u0581\u055d", password: "\u0533\u0561\u0572\u057f\u0576\u0561\u0562\u0561\u057c\u055d", copy: "\u054a\u0561\u057f\u0573\u0565\u0576\u0565\u056c", wifiInstructions: "\u054d\u056f\u0561\u0576\u0561\u057e\u0578\u0580\u0565\u0584 QR \u056f\u0578\u0564\u0568 \u056f\u0561\u0574 \u0574\u0578\u0582\u057f\u0584\u0561\u0563\u0580\u0565\u0584 \u0563\u0561\u0572\u057f\u0576\u0561\u0562\u0561\u057c\u0568\u0589" }
 };
 
 // ==================== STATE ====================
@@ -222,7 +222,7 @@ function openDetail(serviceKey) {
     if (galleryEl) {
         galleryEl.innerHTML = '';
         var imgs = data.images || [];
-        if (typeof imgs === 'string') { try { imgs = JSON.parse(imgs); } catch(e) { imgs = []; } }
+        if (typeof imgs === 'string') { try { imgs = JSON.parse(imgs); } catch (e) { imgs = []; } }
         imgs.forEach((src, i) => {
             var img = document.createElement('img');
             img.src = src;
@@ -279,7 +279,7 @@ function initLightboxTriggers() {
             try {
                 var imgs = JSON.parse(card.dataset.images);
                 openLightbox(imgs, 0);
-            } catch(e) {}
+            } catch (e) { }
         };
     });
 }
@@ -317,9 +317,26 @@ function initWiFi() {
                     span.textContent = (translations[currentLang] && translations[currentLang].copied) || 'Copied!';
                     setTimeout(() => { span.textContent = original; }, 2000);
                 }
-            }).catch(() => {});
+            }).catch(() => { });
         };
     }
+}
+
+// ==================== QR CODE ====================
+
+function initQRCode() {
+    var container = document.getElementById('wifi-qr-container');
+    if (!container || typeof QRCode === 'undefined') return;
+    container.innerHTML = '';
+    var wifiString = 'WIFI:T:WPA;S:Rostelecom_23488;P:094146454;;';
+    new QRCode(container, {
+        text: wifiString,
+        width: 180,
+        height: 180,
+        colorDark: '#1b3323',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+    });
 }
 
 // ==================== CONTACT ====================
@@ -342,7 +359,7 @@ function generateCode() {
 }
 
 // Switch between Call and Rate tabs
-window.switchHkTab = function(tab) {
+window.switchHkTab = function (tab) {
     var callView = document.getElementById('hk-call-view');
     var rateView = document.getElementById('hk-rate-view');
     var tabCall = document.getElementById('hk-tab-call');
@@ -350,27 +367,19 @@ window.switchHkTab = function(tab) {
     if (tab === 'call') {
         callView.style.display = 'flex';
         rateView.style.display = 'none';
-        tabCall.style.background = 'var(--color-primary)';
-        tabCall.style.color = 'white';
-        tabCall.style.border = 'none';
-        tabRate.style.background = 'var(--color-glass)';
-        tabRate.style.color = 'var(--color-text)';
-        tabRate.style.border = '1px solid var(--color-glass-border)';
+        tabCall.classList.add('active');
+        tabRate.classList.remove('active');
     } else {
         callView.style.display = 'none';
         rateView.style.display = 'flex';
-        tabRate.style.background = 'var(--color-primary)';
-        tabRate.style.color = 'white';
-        tabRate.style.border = 'none';
-        tabCall.style.background = 'var(--color-glass)';
-        tabCall.style.color = 'var(--color-text)';
-        tabCall.style.border = '1px solid var(--color-glass-border)';
+        tabRate.classList.add('active');
+        tabCall.classList.remove('active');
     }
 };
 
-// Send Telegram notification with "I am coming" button
-async function sendTelegramNotification(room, code, requestId) {
-    var text = '🧹 *Housekeeping Requested*\n🏠 Room: *' + room + '*\n🔑 Code: `' + code + '`';
+// Send Telegram notification
+async function sendTelegramNotification(room, code) {
+    var text = '\uD83E\uDDF9 *Housekeeping Requested*\n\uD83C\uDFE0 Room: *' + room + '*\n\uD83D\uDD11 Code: `' + code + '`';
     var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
     for (var i = 0; i < TG_CHAT_IDS.length; i++) {
         try {
@@ -380,12 +389,7 @@ async function sendTelegramNotification(room, code, requestId) {
                 body: JSON.stringify({
                     chat_id: TG_CHAT_IDS[i],
                     text: text,
-                    parse_mode: 'Markdown',
-                    reply_markup: {
-                        inline_keyboard: [[
-                            { text: '✅ I am coming', callback_data: 'accept_' + requestId }
-                        ]]
-                    }
+                    parse_mode: 'Markdown'
                 })
             });
         } catch (e) {
@@ -415,14 +419,14 @@ function showToast(message) {
     document.body.appendChild(toast);
 
     // Auto-remove after 8 seconds
-    setTimeout(function() {
+    setTimeout(function () {
         toast.style.animation = 'slideUp 0.5s ease';
-        setTimeout(function() { toast.remove(); }, 500);
+        setTimeout(function () { toast.remove(); }, 500);
     }, 8000);
 }
 
 // Call Housekeeping
-window.callHousekeeping = async function() {
+window.callHousekeeping = async function () {
     var roomInput = document.getElementById('hk-room');
     var room = roomInput ? roomInput.value.trim() : '';
     if (!room) { alert('Please enter your room number!'); return; }
@@ -434,13 +438,11 @@ window.callHousekeeping = async function() {
 
     try {
         // Save to database
-        var { data: inserted, error } = await supabaseClient.from('housekeeping_requests').insert([{ room_number: room, code: code }]).select();
+        var { error } = await supabaseClient.from('housekeeping_requests').insert([{ room_number: room, code: code }]);
         if (error) { alert('Error: ' + error.message); return; }
 
-        var requestId = inserted && inserted[0] ? inserted[0].id : '';
-
-        // Send Telegram notification with button
-        await sendTelegramNotification(room, code, requestId);
+        // Send Telegram notification
+        await sendTelegramNotification(room, code);
 
         // Show success + code
         var msgDiv = document.getElementById('hk-msg');
@@ -449,28 +451,6 @@ window.callHousekeeping = async function() {
         if (msgDiv) msgDiv.style.display = 'block';
         if (roomInput) roomInput.style.display = 'none';
         if (submitBtn) submitBtn.style.display = 'none';
-
-        // Listen for real-time updates (staff clicks "I am coming")
-        if (requestId && supabaseClient) {
-            supabaseClient.channel('hk_' + requestId)
-                .on('postgres_changes', {
-                    event: 'UPDATE',
-                    schema: 'public',
-                    table: 'housekeeping_requests',
-                    filter: 'id=eq.' + requestId
-                }, function(payload) {
-                    if (payload.new && payload.new.status === 'accepted') {
-                        showToast('✅ Staff is on the way to Room ' + room + '!');
-                        // Update the message in the modal
-                        if (msgDiv) {
-                            msgDiv.innerHTML = '<p style="color:var(--color-primary-light); font-weight:bold; font-size:18px;">✅ Staff is on the way!</p>' +
-                                '<p style="margin-top:8px;">Your code: <strong style="font-size:24px; color:var(--color-primary-light); letter-spacing:4px;">' + code + '</strong></p>' +
-                                '<p style="font-size:12px; opacity:0.7; margin-top:4px;">Save this code to rate our housekeeping service later.</p>';
-                        }
-                    }
-                })
-                .subscribe();
-        }
     } catch (e) {
         console.error('Housekeeping error:', e);
         alert('Error sending request. Please try again.');
@@ -480,7 +460,7 @@ window.callHousekeeping = async function() {
 };
 
 // Rate Housekeeping
-window.rateHousekeeping = async function() {
+window.rateHousekeeping = async function () {
     var codeInput = document.getElementById('hk-rate-code');
     var starsSelect = document.getElementById('hk-rate-stars');
     var commentInput = document.getElementById('hk-rate-comment');
@@ -530,13 +510,20 @@ window.rateHousekeeping = async function() {
 function initVideo() {
     var video = document.getElementById('bg-video');
     if (!video) return;
-    video.play().catch(() => {});
+    video.play().catch(() => { });
     video.onerror = () => { video.style.display = 'none'; };
 }
 
 // ==================== LOGO ANIMATION ====================
 
 function initLogoAnimation() {
+    // Animate leaf petals sequentially from bottom
+    var leaves = document.querySelectorAll('#logo-img .leaf');
+    leaves.forEach(function(leaf, i) {
+        leaf.style.animationDelay = (i * 0.4) + 's';
+    });
+
+    // Animate text letters
     var letters = document.querySelectorAll('.logo-svg-text .logo-letter');
     if (!letters.length) return;
     setTimeout(() => {
@@ -567,17 +554,50 @@ async function initSupabaseFeatures() {
         .subscribe();
 }
 
+// ==================== STAR RATING ====================
+
+function initStarRating() {
+    var container = document.getElementById('hk-star-rating');
+    var hiddenInput = document.getElementById('hk-rate-stars');
+    if (!container || !hiddenInput) return;
+
+    var stars = container.querySelectorAll('.hk-star');
+    stars.forEach(function(star) {
+        star.addEventListener('click', function() {
+            var val = parseInt(star.dataset.value);
+            hiddenInput.value = val;
+            stars.forEach(function(s) {
+                s.classList.toggle('active', parseInt(s.dataset.value) <= val);
+            });
+        });
+        star.addEventListener('mouseenter', function() {
+            var val = parseInt(star.dataset.value);
+            stars.forEach(function(s) {
+                s.classList.toggle('active', parseInt(s.dataset.value) <= val);
+            });
+        });
+    });
+    container.addEventListener('mouseleave', function() {
+        var currentVal = parseInt(hiddenInput.value);
+        stars.forEach(function(s) {
+            s.classList.toggle('active', parseInt(s.dataset.value) <= currentVal);
+        });
+    });
+}
 // ==================== INIT ====================
 
 document.addEventListener('DOMContentLoaded', () => {
     initLanguage();
     initTheme();
     initWiFi();
+    initQRCode();
     initModals();
     initLightbox();
     initKeyboard();
     initVideo();
     initLogoAnimation();
     initContactModal();
+    initStarRating();
     initSupabaseFeatures();
 });
+

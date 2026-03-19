@@ -75,7 +75,7 @@
         data.forEach(function(item) {
             html += '<tr><td><img src="' + item.image_url + '" width="50" onerror="this.src=\'https://placehold.co/50x50?text=No+Image\'"></td>' +
                 '<td>' + item.name + '</td><td>' + item.price + ' AMD</td>' +
-                '<td><button style="background:red;" onclick="deleteItem(\'minibar_items\',\'' + item.id + '\',renderMinibar)">Delete</button></td></tr>';
+                '<td><button class="btn-danger" onclick="deleteItem(\'minibar_items\',\'' + item.id + '\',renderMinibar)">Delete</button></td></tr>';
         });
         html += '</table>';
         document.getElementById('minibar-table').innerHTML = html;
@@ -103,7 +103,7 @@
             html += '<tr><td>' + item.icon + '</td><td>' + item.service_key + '</td>' +
                 '<td>' + item.title_en + '</td><td>' + item.title_ru + '</td><td>' + item.title_hy + '</td>' +
                 '<td>' + item.status_type + '</td>' +
-                '<td><button style="background:red;" onclick="deleteItem(\'services\',\'' + item.id + '\',renderServices)">Delete</button></td></tr>';
+                '<td><button class="btn-danger" onclick="deleteItem(\'services\',\'' + item.id + '\',renderServices)">Delete</button></td></tr>';
         });
         html += '</table>';
         document.getElementById('services-table').innerHTML = html;
@@ -139,7 +139,7 @@
             html += '<tr><td>' + item.icon + '</td><td>' + item.tour_key + '</td>' +
                 '<td>' + item.title_en + '</td><td>' + item.title_ru + '</td><td>' + item.title_hy + '</td>' +
                 '<td>' + item.price + '</td>' +
-                '<td><button style="background:red;" onclick="deleteItem(\'tours\',\'' + item.id + '\',renderTours)">Delete</button></td></tr>';
+                '<td><button class="btn-danger" onclick="deleteItem(\'tours\',\'' + item.id + '\',renderTours)">Delete</button></td></tr>';
         });
         html += '</table>';
         document.getElementById('tours-table').innerHTML = html;
@@ -173,7 +173,7 @@
         var html = '<table><tr><th>Icon</th><th>Text EN</th><th>Text RU</th><th>Text HY</th><th>Actions</th></tr>';
         data.forEach(function(item) {
             html += '<tr><td>' + item.icon + '</td><td>' + item.text_en + '</td><td>' + item.text_ru + '</td><td>' + item.text_hy + '</td>' +
-                '<td><button style="background:red;" onclick="deleteItem(\'rules\',\'' + item.id + '\',renderRules)">Delete</button></td></tr>';
+                '<td><button class="btn-danger" onclick="deleteItem(\'rules\',\'' + item.id + '\',renderRules)">Delete</button></td></tr>';
         });
         html += '</table>';
         document.getElementById('rules-table').innerHTML = html;
@@ -195,7 +195,7 @@
         var html = '<table><tr><th>Key</th><th>EN</th><th>RU</th><th>HY</th><th>Actions</th></tr>';
         data.forEach(function(item) {
             html += '<tr><td><b>' + item.key + '</b></td><td>' + item.en + '</td><td>' + item.ru + '</td><td>' + item.hy + '</td>' +
-                '<td><button style="background:red;" onclick="deleteItem(\'translations\',\'' + item.id + '\',renderTranslations)">Delete</button></td></tr>';
+                '<td><button class="btn-danger" onclick="deleteItem(\'translations\',\'' + item.id + '\',renderTranslations)">Delete</button></td></tr>';
         });
         html += '</table>';
         document.getElementById('translations-table').innerHTML = html;

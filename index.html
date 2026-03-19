@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 
 <head>
@@ -26,11 +26,11 @@
             <!-- Premium Garden / Forest Geometric Vector Logo Icon (Overlapping Leaves) -->
             <svg id="logo-img" width="46" height="46" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="transition: transform var(--transition-bounce);">
                 <!-- Left leaf -->
-                <path d="M48 85 C 10 80, 5 35, 30 20 C 40 40, 55 60, 48 85 Z" fill="url(#leaf-light)" fill-opacity="0.9"/>
+                <path class="leaf" d="M48 85 C 10 80, 5 35, 30 20 C 40 40, 55 60, 48 85 Z" fill="url(#leaf-light)" fill-opacity="0.9"/>
                 <!-- Right leaf -->
-                <path d="M52 85 C 90 80, 95 35, 70 20 C 60 40, 45 60, 52 85 Z" fill="url(#leaf-dark)" fill-opacity="0.9"/>
+                <path class="leaf" d="M52 85 C 90 80, 95 35, 70 20 C 60 40, 45 60, 52 85 Z" fill="url(#leaf-dark)" fill-opacity="0.9"/>
                 <!-- Center top leaf -->
-                <path d="M50 85 C 30 70, 30 25, 50 10 C 70 25, 70 70, 50 85 Z" fill="url(#leaf-accent)" fill-opacity="0.95"/>
+                <path class="leaf" d="M50 85 C 30 70, 30 25, 50 10 C 70 25, 70 70, 50 85 Z" fill="url(#leaf-accent)" fill-opacity="0.95"/>
                 
                 <defs>
                     <linearGradient id="leaf-light" x1="5" y1="20" x2="48" y2="85" gradientUnits="userSpaceOnUse">
@@ -115,7 +115,7 @@
                         <span data-key="tours">Tours</span>
                     </button>
                     <!-- NEW FULL-STACK BUTTONS -->
-                    <button class="nav-btn" data-modal="housekeeping">
+                    <button class="nav-btn wide-btn" data-modal="housekeeping">
                         <span class="nav-icon">🧹</span>
                         <span data-key="housekeeping">Housekeeping</span>
                     </button>
@@ -450,6 +450,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Housekeeping Modal (Call + Rate) -->
+    <!-- Housekeeping Modal (Call + Rate) -->
     <section id="housekeeping-modal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content glass">
             <button class="modal-close" data-modal="housekeeping" aria-label="Close">
@@ -460,36 +461,67 @@
             <h2 data-key="housekeeping">Housekeeping</h2>
 
             <!-- Tab Buttons -->
-            <div style="display:flex; gap:8px; margin-top:16px;">
-                <button id="hk-tab-call" onclick="switchHkTab('call')" class="nav-btn wide-btn" style="flex:1; background:var(--color-primary); color:white; border:none; font-size:14px;">Call Housekeeping</button>
-                <button id="hk-tab-rate" onclick="switchHkTab('rate')" class="nav-btn wide-btn" style="flex:1; background:var(--color-glass); color:var(--color-text); border:1px solid var(--color-glass-border); font-size:14px;">Rate Housekeeping</button>
+            <div class="hk-tabs">
+                <button id="hk-tab-call" onclick="switchHkTab('call')" class="hk-tab active">
+                    <span>&#x1F6CE;&#xFE0F;</span> Call
+                </button>
+                <button id="hk-tab-rate" onclick="switchHkTab('rate')" class="hk-tab">
+                    <span>&#x2B50;</span> Rate
+                </button>
             </div>
 
             <!-- CALL TAB -->
-            <div id="hk-call-view" style="display:flex; flex-direction:column; gap:16px; margin-top:20px;">
-                <input type="text" id="hk-room" placeholder="Enter Room Number" style="padding:12px; border-radius:8px; border:1px solid var(--color-glass-border); background:var(--color-glass); color:var(--color-text); font-family:var(--font-body); outline:none;">
-                <button id="hk-submit-btn" class="nav-btn wide-btn" style="background:var(--color-primary); color:white; border:none; margin-top:10px;" onclick="callHousekeeping()">Call Now</button>
-                <div id="hk-msg" style="display:none; text-align:center; margin-top:10px;">
-                    <p style="color:var(--color-primary-light); font-weight:bold;">Request sent! Staff notified.</p>
-                    <p style="margin-top:8px;">Your code: <strong id="hk-code-display" style="font-size:24px; color:var(--color-primary-light); letter-spacing:4px;"></strong></p>
-                    <p style="font-size:12px; opacity:0.7; margin-top:4px;">Save this code to rate our housekeeping service later.</p>
+            <div id="hk-call-view" class="hk-view">
+                <div class="hk-input-group">
+                    <label class="hk-label">&#x1F3E0; Room Number</label>
+                    <input type="text" id="hk-room" class="hk-input" placeholder="Enter your room number">
+                </div>
+                <button id="hk-submit-btn" class="hk-submit-btn" onclick="callHousekeeping()">
+                    <span>&#x1F9F9;</span> Call Now
+                </button>
+                <div id="hk-msg" class="hk-success-msg">
+                    <div class="hk-success-icon">&#x2705;</div>
+                    <p class="hk-success-title">Request sent! Staff notified.</p>
+                    <div class="hk-code-box">
+                        <span class="hk-code-label">Your code:</span>
+                        <strong id="hk-code-display" class="hk-code-value"></strong>
+                    </div>
+                    <p class="hk-code-hint">Save this code to rate our housekeeping service later.</p>
                 </div>
             </div>
 
             <!-- RATE TAB -->
-            <div id="hk-rate-view" style="display:none; flex-direction:column; gap:16px; margin-top:20px;">
-                <input type="text" id="hk-rate-code" placeholder="Enter your code (e.g. 483291)" maxlength="6" style="padding:12px; border-radius:8px; border:1px solid var(--color-glass-border); background:var(--color-glass); color:var(--color-text); font-family:var(--font-body); outline:none; text-align:center; font-size:20px; letter-spacing:6px;">
-                <select id="hk-rate-stars" style="padding:12px; border-radius:8px; border:1px solid var(--color-glass-border); background:var(--color-glass); color:black; font-family:var(--font-body); outline:none;">
-                    <option value="5" style="color:black;">5 - Excellent</option>
-                    <option value="4" style="color:black;">4 - Good</option>
-                    <option value="3" style="color:black;">3 - Average</option>
-                    <option value="2" style="color:black;">2 - Poor</option>
-                    <option value="1" style="color:black;">1 - Terrible</option>
-                </select>
-                <textarea id="hk-rate-comment" placeholder="Optional comments..." rows="3" style="padding:12px; border-radius:8px; border:1px solid var(--color-glass-border); background:var(--color-glass); color:var(--color-text); font-family:var(--font-body); outline:none; resize:none;"></textarea>
-                <button class="nav-btn wide-btn" style="background:var(--color-primary); color:white; border:none;" onclick="rateHousekeeping()">Submit Rating</button>
-                <div id="hk-rate-msg" style="display:none; color:var(--color-primary-light); text-align:center; font-weight:bold; margin-top:10px;">Thank you for your feedback!</div>
-                <div id="hk-rate-err" style="display:none; color:#e74c3c; text-align:center; font-weight:bold; margin-top:10px;"></div>
+            <div id="hk-rate-view" class="hk-view" style="display:none;">
+                <div class="hk-input-group">
+                    <label class="hk-label">&#x1F511; Enter your 6-digit code</label>
+                    <input type="text" id="hk-rate-code" class="hk-input hk-code-input" placeholder="&#x2022; &#x2022; &#x2022; &#x2022; &#x2022; &#x2022;" maxlength="6">
+                </div>
+
+                <div class="hk-input-group">
+                    <label class="hk-label">&#x2B50; How was the cleaning?</label>
+                    <div class="hk-star-rating" id="hk-star-rating">
+                        <span class="hk-star active" data-value="1">&#x2605;</span>
+                        <span class="hk-star active" data-value="2">&#x2605;</span>
+                        <span class="hk-star active" data-value="3">&#x2605;</span>
+                        <span class="hk-star active" data-value="4">&#x2605;</span>
+                        <span class="hk-star active" data-value="5">&#x2605;</span>
+                    </div>
+                    <input type="hidden" id="hk-rate-stars" value="5">
+                </div>
+
+                <div class="hk-input-group">
+                    <label class="hk-label">&#x1F4AC; Comments (optional)</label>
+                    <textarea id="hk-rate-comment" class="hk-input hk-textarea" placeholder="Tell us about your experience..." rows="3"></textarea>
+                </div>
+
+                <button class="hk-submit-btn" onclick="rateHousekeeping()">
+                    <span>&#x1F4E8;</span> Submit Rating
+                </button>
+                <div id="hk-rate-msg" class="hk-success-msg">
+                    <div class="hk-success-icon">&#x1F389;</div>
+                    <p class="hk-success-title">Thank you for your feedback!</p>
+                </div>
+                <div id="hk-rate-err" class="hk-error-msg"></div>
             </div>
         </div>
     </section>

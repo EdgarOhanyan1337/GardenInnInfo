@@ -1,4 +1,4 @@
-/* ========================================
+﻿/* ========================================
    GARDEN INN RESORT - Premium Styles
    ======================================== */
 
@@ -194,10 +194,20 @@ body {
     z-index: 1000;
     padding: var(--space-lg) 5%;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
     transition: background var(--transition-normal);
+}
+
+.header-controls {
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
 }
 
 .header:hover {
@@ -278,6 +288,51 @@ body {
 @keyframes fadeInSubline {
     0% { opacity: 0; transform: translateY(4px); }
     100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Leaf Petal Animation - Rise from bottom sequentially */
+#logo-img .leaf {
+    opacity: 0;
+    transform-origin: 50% 85%;
+    transform: translateY(30px) scale(0.3);
+    animation: leafRiseIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+#logo-img .leaf:nth-child(1) {
+    animation-delay: 0.2s;
+}
+
+#logo-img .leaf:nth-child(2) {
+    animation-delay: 0.6s;
+}
+
+#logo-img .leaf:nth-child(3) {
+    animation-delay: 1.0s;
+}
+
+@keyframes leafRiseIn {
+    0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.3);
+    }
+    60% {
+        opacity: 1;
+        transform: translateY(-4px) scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Subtle glow pulse after all leaves are in */
+#logo-img {
+    animation: logoGlow 3s ease-in-out 2s infinite alternate;
+}
+
+@keyframes logoGlow {
+    0% { filter: drop-shadow(0 0 0px transparent); }
+    100% { filter: drop-shadow(0 0 8px rgba(168, 224, 99, 0.5)); }
 }
 
 /* Language Switcher */
@@ -425,16 +480,11 @@ body {
     transform: translateY(-1px) scale(0.98);
 }
 
-/* Prominent Wide Navigation Buttons (Universal) */
+/* Wide navigation buttons - same style, just span full row */
 .wide-btn {
     flex-direction: row;
     justify-content: center;
     gap: var(--space-md);
-    padding: var(--space-md) var(--space-xl);
-    background: var(--color-glass);
-    border: 2px solid var(--color-primary);
-    box-shadow: 0 8px 32px rgba(46, 139, 87, 0.15);
-    color: var(--color-text);
 }
 
 @media (min-width: 480px) {
@@ -443,14 +493,270 @@ body {
     }
 }
 
-.wide-btn:hover {
-    background: var(--color-glass-hover);
-    border-color: var(--color-primary-light);
-    box-shadow: 0 10px 40px rgba(46, 139, 87, 0.3);
+/* ==================== MOBILE HEADER LAYOUT ==================== */
+@media (max-width: 600px) {
+    .header {
+        justify-content: center;
+        padding: var(--space-sm) 4%;
+        min-height: 56px;
+    }
+
+    .logo {
+        gap: var(--space-sm);
+    }
+
+    /* Text "Garden Inn" goes left, smaller */
+    .logo .logo-svg-animation {
+        height: 32px;
+        position: absolute;
+        left: 4%;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    /* Leaf icon stays centered */
+    .logo #logo-img {
+        width: 34px;
+        height: 34px;
+    }
+
+    .header-controls {
+        position: absolute;
+        right: 4%;
+        top: 50%;
+        transform: translateY(-50%);
+        gap: 2px;
+    }
+
+    /* Smaller language buttons on mobile */
+    .lang-btn {
+        padding: var(--space-xs) var(--space-sm);
+        font-size: 0.7rem;
+    }
+
+    .theme-toggle {
+        padding: 4px;
+    }
+
+    .theme-icon {
+        font-size: 14px;
+    }
 }
 
-.wide-btn .nav-icon {
-    font-size: 1.6rem;
+
+/* ==================== HOUSEKEEPING MODAL ==================== */
+.hk-tabs {
+    display: flex;
+    gap: 6px;
+    margin-top: 16px;
+    background: rgba(255,255,255,0.04);
+    border-radius: var(--radius-md);
+    padding: 4px;
+}
+
+.hk-tab {
+    flex: 1;
+    padding: 12px 8px;
+    border: none;
+    border-radius: calc(var(--radius-md) - 2px);
+    background: transparent;
+    color: var(--color-text-muted);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.hk-tab.active {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 2px 12px rgba(46, 139, 87, 0.35);
+}
+
+.hk-tab:not(.active):hover {
+    background: rgba(255,255,255,0.06);
+    color: var(--color-text);
+}
+
+.hk-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.hk-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.hk-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    letter-spacing: 0.3px;
+}
+
+.hk-input {
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-glass-border);
+    background: var(--color-glass);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.25s ease;
+    -webkit-appearance: none;
+}
+
+.hk-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15);
+    background: rgba(255,255,255,0.06);
+}
+
+.hk-input::placeholder {
+    color: rgba(255,255,255,0.25);
+}
+
+.hk-code-input {
+    text-align: center;
+    font-size: 1.5rem;
+    letter-spacing: 8px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.hk-textarea {
+    resize: none;
+    min-height: 80px;
+    line-height: 1.5;
+}
+
+/* Star Rating */
+.hk-star-rating {
+    display: flex;
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.hk-star {
+    font-size: 2rem;
+    color: rgba(255,255,255,0.15);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.hk-star.active {
+    color: #f59e0b;
+    text-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+}
+
+.hk-star:hover {
+    transform: scale(1.25);
+}
+
+/* Submit Button */
+.hk-submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    color: white;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 16px rgba(46, 139, 87, 0.3);
+    margin-top: 4px;
+}
+
+.hk-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(46, 139, 87, 0.45);
+}
+
+.hk-submit-btn:active {
+    transform: translateY(0);
+}
+
+/* Success Message */
+.hk-success-msg {
+    display: none;
+    text-align: center;
+    padding: 20px;
+    background: rgba(46, 139, 87, 0.1);
+    border: 1px solid rgba(46, 139, 87, 0.2);
+    border-radius: var(--radius-md);
+    animation: fadeInUp 0.5s ease;
+}
+
+.hk-success-icon {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+}
+
+.hk-success-title {
+    color: var(--color-primary-light);
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.hk-code-box {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255,255,255,0.04);
+    border-radius: var(--radius-sm);
+    border: 1px dashed var(--color-primary);
+}
+
+.hk-code-label {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    display: block;
+    margin-bottom: 4px;
+}
+
+.hk-code-value {
+    font-size: 1.8rem;
+    color: var(--color-primary-light);
+    letter-spacing: 6px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.hk-code-hint {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-top: 8px;
+    opacity: 0.7;
+}
+
+/* Error Message */
+.hk-error-msg {
+    display: none;
+    text-align: center;
+    padding: 12px;
+    background: rgba(231, 76, 60, 0.1);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    border-radius: var(--radius-md);
+    color: #e74c3c;
+    font-weight: 600;
+    font-size: 0.9rem;
 }
 
 /* ==================== CONTACT SECTION ==================== */
@@ -1715,3 +2021,4 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--color-primary-light);
 }
+
