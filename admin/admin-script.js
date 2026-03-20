@@ -436,10 +436,57 @@
     };
 
     // --- DELETE ---
+    function getFilePathFromUrl(url) {
+        if (!url || typeof url !== 'string') return null;
+        var splitStr = '/public/images/';
+        if (url.includes(splitStr)) {
+            var path = url.split(splitStr)[1];
+            if (path.includes('?')) path = path.split('?')[0];
+            return path;
+        }
+        return null;
+    }
+
     window.deleteItem = async function(table, id, renderCallback) {
-        if (!confirm('Delete this item?')) return;
+        if (!confirm('Delete this item? (Associated images will also be removed from storage)')) return;
+        
+        // 1. Fetch item to see if it has images
+        try {
+            var { data: itemData } = await db.from(table).select('*').eq('id', id).single();
+            if (itemData) {
+                var pathsToDelete = [];
+                // Minibar uses image_url
+                if (itemData.image_url) {
+                    var path = getFilePathFromUrl(itemData.image_url);
+                    if (path) pathsToDelete.push(path);
+                }
+                // Services/Tours use images array
+                if (itemData.images) {
+                    var imgs = itemData.images;
+                    if (typeof imgs === 'string') {
+                        try { imgs = JSON.parse(imgs); } catch(e) { imgs = []; }
+                    }
+                    if (Array.isArray(imgs)) {
+                        imgs.forEach(function(url) {
+                            var p = getFilePathFromUrl(url);
+                            if (p) pathsToDelete.push(p);
+                        });
+                    }
+                }
+                // 2. Delete files from storage
+                if (pathsToDelete.length > 0) {
+                    var { error: storageError } = await db.storage.from('images').remove(pathsToDelete);
+                    if (storageError) console.error('Storage deletion error:', storageError);
+                }
+            }
+        } catch (e) {
+            console.error('Error fetching item for image deletion:', e);
+        }
+
+        // 3. Delete row from database
         var { error } = await db.from(table).delete().eq('id', id);
         if (error) { alert('Delete error: ' + error.message); return; }
+        
         loadData(table, renderCallback);
     };
 
