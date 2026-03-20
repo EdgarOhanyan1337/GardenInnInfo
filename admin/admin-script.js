@@ -264,12 +264,15 @@
         // Show/hide the recipients card together with notifications section
         var recipientsCard = document.getElementById('notifications-recipients-card');
         if (recipientsCard) recipientsCard.style.display = (table === 'notification_recipients') ? 'block' : 'none';
+        var tgWorkersCard = document.getElementById('telegram-workers-card');
+        if (tgWorkersCard) tgWorkersCard.style.display = (table === 'notification_recipients') ? 'block' : 'none';
 
         await originalLoadData(table, renderCallback);
 
         // Load staff password when entering notifications
         if (table === 'notification_recipients') {
             loadStaffPassword();
+            loadTelegramWorkers();
         }
     };
 
@@ -328,6 +331,60 @@
     window.toggleRecipient = async function(id, shouldEnable) {
         var { error } = await db.from('notification_recipients').update({ enabled: shouldEnable }).eq('id', id);
         if (error) { alert('Error: ' + error.message); return; }
+        loadData('notification_recipients', renderNotifications);
+    };
+
+    // --- TELEGRAM WORKERS ---
+    async function loadTelegramWorkers() {
+        try {
+            var { data, error } = await db.from('notification_recipients').select('*').eq('type', 'telegram');
+            if (error) { console.error('TG workers load error:', error); return; }
+            renderTelegramWorkers(data || []);
+        } catch (e) { console.error('TG workers error:', e); }
+    }
+
+    function renderTelegramWorkers(data) {
+        var container = document.getElementById('telegram-workers-table');
+        if (!container) return;
+        if (data.length === 0) {
+            container.innerHTML = '<p style="color:#71767b; padding:16px; text-align:center;">No workers registered yet. Staff can register via the Telegram bot.</p>';
+            return;
+        }
+        var html = '<table><tr><th>Name</th><th>Username</th><th>Chat ID</th><th>Status</th><th>Actions</th></tr>';
+        data.forEach(function(item) {
+            var isBlocked = !item.enabled;
+            var statusColor = isBlocked ? '#f87171' : '#4ade80';
+            var statusText = isBlocked ? '🔴 BLOCKED' : '🟢 ACTIVE';
+            var toggleText = isBlocked ? 'Unblock' : 'Block';
+            var toggleColor = isBlocked ? '#4ade80' : '#f87171';
+            var usernameDisplay = item.username ? '<a href="https://t.me/' + item.username + '" target="_blank" style="color:#4ade80; text-decoration:none;">@' + item.username + '</a>' : '-';
+
+            html += '<tr' + (isBlocked ? ' style="opacity:0.6;"' : '') + '>' +
+                '<td><b>' + (item.label || '-') + '</b></td>' +
+                '<td>' + usernameDisplay + '</td>' +
+                '<td><code>' + item.value + '</code></td>' +
+                '<td style="color:' + statusColor + '"><b>' + statusText + '</b></td>' +
+                '<td style="display:flex;gap:6px;flex-wrap:wrap;">' +
+                '<button style="background:' + toggleColor + '; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;" onclick="toggleTgWorker(\'' + item.id + '\',' + isBlocked + ')">' + toggleText + '</button>' +
+                '<button class="btn-danger" onclick="deleteTgWorker(\'' + item.id + '\')">' + 'Delete' + '</button>' +
+                '</td></tr>';
+        });
+        html += '</table>';
+        container.innerHTML = html;
+    }
+
+    window.toggleTgWorker = async function(id, shouldEnable) {
+        var { error } = await db.from('notification_recipients').update({ enabled: shouldEnable }).eq('id', id);
+        if (error) { alert('Error: ' + error.message); return; }
+        loadTelegramWorkers();
+        loadData('notification_recipients', renderNotifications);
+    };
+
+    window.deleteTgWorker = async function(id) {
+        if (!confirm('Remove this worker? They will need to re-register via the Telegram bot.')) return;
+        var { error } = await db.from('notification_recipients').delete().eq('id', id);
+        if (error) { alert('Delete error: ' + error.message); return; }
+        loadTelegramWorkers();
         loadData('notification_recipients', renderNotifications);
     };
 
