@@ -463,42 +463,42 @@
             <!-- Tab Buttons -->
             <div class="hk-tabs">
                 <button id="hk-tab-call" onclick="switchHkTab('call')" class="hk-tab active">
-                    <span>&#x1F6CE;&#xFE0F;</span> Call
+                    <span>&#x1F6CE;&#xFE0F;</span> <span data-key="hkTabCall">Call</span>
                 </button>
                 <button id="hk-tab-rate" onclick="switchHkTab('rate')" class="hk-tab">
-                    <span>&#x2B50;</span> Rate
+                    <span>&#x2B50;</span> <span data-key="hkTabRate">Rate</span>
                 </button>
             </div>
 
             <!-- CALL TAB -->
             <div id="hk-call-view" class="hk-view">
                 <div class="hk-input-group">
-                    <label class="hk-label">&#x1F3E0; Room Number</label>
-                    <input type="text" id="hk-room" class="hk-input" placeholder="Enter your room number">
+                    <label class="hk-label">&#x1F3E0; <span data-key="hkRoomLabel">Room Number</span></label>
+                    <input type="text" id="hk-room" class="hk-input" placeholder="Enter your room number" data-placeholder-key="hkRoomPlaceholder">
                 </div>
                 <button id="hk-submit-btn" class="hk-submit-btn" onclick="callHousekeeping()">
-                    <span>&#x1F9F9;</span> Call Now
+                    <span>&#x1F9F9;</span> <span data-key="hkCallNow">Call Now</span>
                 </button>
                 <div id="hk-msg" class="hk-success-msg">
                     <div class="hk-success-icon">&#x2705;</div>
-                    <p class="hk-success-title">Request sent! Staff notified.</p>
+                    <p class="hk-success-title" data-key="hkSuccessTitle">Request sent! Staff notified.</p>
                     <div class="hk-code-box">
-                        <span class="hk-code-label">Your code:</span>
+                        <span class="hk-code-label" data-key="hkYourCode">Your code:</span>
                         <strong id="hk-code-display" class="hk-code-value"></strong>
                     </div>
-                    <p class="hk-code-hint">Save this code to rate our housekeeping service later.</p>
+                    <p class="hk-code-hint" data-key="hkCodeHint">Save this code to rate our housekeeping service later.</p>
                 </div>
             </div>
 
             <!-- RATE TAB -->
             <div id="hk-rate-view" class="hk-view" style="display:none;">
                 <div class="hk-input-group">
-                    <label class="hk-label">&#x1F511; Enter your 6-digit code</label>
+                    <label class="hk-label">&#x1F511; <span data-key="hkEnterCode">Enter your 6-digit code</span></label>
                     <input type="text" id="hk-rate-code" class="hk-input hk-code-input" placeholder="&#x2022; &#x2022; &#x2022; &#x2022; &#x2022; &#x2022;" maxlength="6">
                 </div>
 
                 <div class="hk-input-group">
-                    <label class="hk-label">&#x2B50; How was the cleaning?</label>
+                    <label class="hk-label">&#x2B50; <span data-key="hkHowWas">How was the cleaning?</span></label>
                     <div class="hk-star-rating" id="hk-star-rating">
                         <span class="hk-star active" data-value="1">&#x2605;</span>
                         <span class="hk-star active" data-value="2">&#x2605;</span>
@@ -510,16 +510,16 @@
                 </div>
 
                 <div class="hk-input-group">
-                    <label class="hk-label">&#x1F4AC; Comments (optional)</label>
-                    <textarea id="hk-rate-comment" class="hk-input hk-textarea" placeholder="Tell us about your experience..." rows="3"></textarea>
+                    <label class="hk-label">&#x1F4AC; <span data-key="hkCommentLabel">Comments (optional)</span></label>
+                    <textarea id="hk-rate-comment" class="hk-input hk-textarea" placeholder="Tell us about your experience..." data-placeholder-key="hkCommentPlaceholder" rows="3"></textarea>
                 </div>
 
                 <button class="hk-submit-btn" onclick="rateHousekeeping()">
-                    <span>&#x1F4E8;</span> Submit Rating
+                    <span>&#x1F4E8;</span> <span data-key="hkSubmitRating">Submit Rating</span>
                 </button>
                 <div id="hk-rate-msg" class="hk-success-msg">
                     <div class="hk-success-icon">&#x1F389;</div>
-                    <p class="hk-success-title">Thank you for your feedback!</p>
+                    <p class="hk-success-title" data-key="hkThanks">Thank you for your feedback!</p>
                 </div>
                 <div id="hk-rate-err" class="hk-error-msg"></div>
             </div>
