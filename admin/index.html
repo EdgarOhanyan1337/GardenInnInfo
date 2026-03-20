@@ -346,6 +346,28 @@
             box-shadow: 0 4px 16px rgba(248, 113, 113, 0.25) !important;
         }
 
+        .btn-edit {
+            background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+            color: white !important;
+            padding: 8px 14px !important;
+            font-size: 12px !important;
+            border-radius: 8px !important;
+        }
+
+        .btn-edit:hover {
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25) !important;
+        }
+
+        .btn-cancel {
+            background: rgba(255,255,255,0.1) !important;
+            color: #8b98a5 !important;
+            width: auto;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255,255,255,0.15) !important;
+        }
+
         /* ==================== LOGIN ==================== */
         #login-screen {
             position: fixed;
@@ -571,7 +593,10 @@
                     </div>
                     <input type="file" id="mb-file">
                 </div>
-                <button onclick="addMinibarItem()">+ Add Item</button>
+                <div style="display:flex; gap:10px;">
+                    <button id="mb-submit-btn" onclick="addMinibarItem()">+ Add Item</button>
+                    <button id="mb-cancel-btn" class="btn-cancel" style="display:none;" onclick="cancelEditMinibar()">Cancel</button>
+                </div>
                 <div id="minibar-table" class="table-wrapper"></div>
             </div>
 
@@ -606,7 +631,10 @@
                     <span class="lang-label">Media (Multiple photos/videos allowed):</span>
                     <input type="file" id="svc-file" multiple accept="image/*,video/*">
                 </div>
-                <button onclick="addService()">+ Add Service</button>
+                <div style="display:flex; gap:10px;">
+                    <button id="svc-submit-btn" onclick="addService()">+ Add Service</button>
+                    <button id="svc-cancel-btn" class="btn-cancel" style="display:none;" onclick="cancelEditService()">Cancel</button>
+                </div>
                 <div id="services-table" class="table-wrapper"></div>
             </div>
 
@@ -634,7 +662,10 @@
                     <span class="lang-label">Media (Multiple photos/videos allowed):</span>
                     <input type="file" id="tour-file" multiple accept="image/*,video/*">
                 </div>
-                <button onclick="addTour()">+ Add Tour</button>
+                <div style="display:flex; gap:10px;">
+                    <button id="tour-submit-btn" onclick="addTour()">+ Add Tour</button>
+                    <button id="tour-cancel-btn" class="btn-cancel" style="display:none;" onclick="cancelEditTour()">Cancel</button>
+                </div>
                 <div id="tours-table" class="table-wrapper"></div>
             </div>
 
@@ -650,7 +681,10 @@
                     <span class="lang-label">Text (HY):</span>
                     <input type="text" id="rule-text-hy" placeholder="Rule text in Armenian">
                 </div>
-                <button onclick="addRule()">+ Add Rule</button>
+                <div style="display:flex; gap:10px;">
+                    <button id="rule-submit-btn" onclick="addRule()">+ Add Rule</button>
+                    <button id="rule-cancel-btn" class="btn-cancel" style="display:none;" onclick="cancelEditRule()">Cancel</button>
+                </div>
                 <div id="rules-table" class="table-wrapper"></div>
             </div>
 
@@ -666,7 +700,10 @@
                     </div>
                     <input type="text" id="trans-hy" placeholder="Armenian">
                 </div>
-                <button onclick="addTranslation()">Save / Update</button>
+                <div style="display:flex; gap:10px;">
+                    <button id="trans-submit-btn" onclick="addTranslation()">Save / Update</button>
+                    <button id="trans-cancel-btn" class="btn-cancel" style="display:none;" onclick="cancelEditTranslation()">Cancel</button>
+                </div>
                 <div id="translations-table" class="table-wrapper"></div>
             </div>
 

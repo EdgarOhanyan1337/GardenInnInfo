@@ -3,6 +3,15 @@
     var ADM_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtsbnh5YmphYXh0bGZhYm56eGNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjA2MjksImV4cCI6MjA4OTQzNjYyOX0.uUAxzL-8nBkgqoYkQg74Ych0BzKFBVcN_IJlqoZ8tQM';
     var db = window.supabase.createClient(ADM_URL, ADM_KEY);
 
+    window.currentTableData = {};
+    window.editState = {
+        minibar_items: null,
+        services: null,
+        tours: null,
+        rules: null,
+        translations: null
+    };
+
     // --- IMAGE UPLOAD ---
     async function uploadImage(file) {
         if (!file) return null;
@@ -61,8 +70,9 @@
             if (el) el.style.display = 'block';
         }
         try {
-            var { data, error } = await db.from(table).select('*');
+            var { data, error } = await db.from(table).select('*').order('id', { ascending: false });
             if (error) { console.error('Load error:', error); renderCallback([]); return; }
+            window.currentTableData[table] = data || [];
             renderCallback(data || []);
         } catch (e) {
             console.error('Fatal load error:', e);
@@ -76,24 +86,59 @@
         data.forEach(function(item) {
             html += '<tr><td><img src="' + item.image_url + '" width="50" onerror="this.src=\'https://placehold.co/50x50?text=No+Image\'"></td>' +
                 '<td>' + item.name + '</td><td>' + item.price + ' AMD</td>' +
-                '<td><button class="btn-danger" onclick="deleteItem(\'minibar_items\',\'' + item.id + '\',renderMinibar)">Delete</button></td></tr>';
+                '<td style="display:flex;gap:6px;">' +
+                '<button class="btn-edit" onclick="startEditMinibar(\'' + item.id + '\')">Edit</button>' +
+                '<button class="btn-danger" onclick="deleteItem(\'minibar_items\',\'' + item.id + '\',renderMinibar)">Delete</button></td></tr>';
         });
         html += '</table>';
         document.getElementById('minibar-table').innerHTML = html;
+    };
+
+    window.startEditMinibar = function(id) {
+        var item = window.currentTableData['minibar_items'].find(function(i) { return i.id === id; });
+        if (!item) return;
+        window.editState.minibar_items = id;
+        document.getElementById('mb-name').value = item.name || '';
+        document.getElementById('mb-price').value = item.price || '';
+        document.getElementById('mb-submit-btn').textContent = 'Update Item';
+        document.getElementById('mb-cancel-btn').style.display = 'inline-flex';
+        document.getElementById('minibar-section').scrollIntoView({behavior: "smooth"});
+    };
+
+    window.cancelEditMinibar = function() {
+        window.editState.minibar_items = null;
+        document.getElementById('mb-name').value = '';
+        document.getElementById('mb-price').value = '';
+        document.getElementById('mb-file').value = '';
+        document.getElementById('mb-submit-btn').textContent = '+ Add Item';
+        document.getElementById('mb-cancel-btn').style.display = 'none';
     };
 
     window.addMinibarItem = async function() {
         var name = document.getElementById('mb-name').value;
         var price = document.getElementById('mb-price').value;
         if (!name || !price) { alert('Fill in name and price!'); return; }
+        
         var file = document.getElementById('mb-file').files[0];
-        var imageUrl = '';
-        if (file) { imageUrl = await uploadImage(file); if (!imageUrl) return; }
-        var { error } = await db.from('minibar_items').insert([{ name: name, price: parseInt(price), image_url: imageUrl }]);
+        var isEditing = window.editState.minibar_items !== null;
+        var uploadUrl = null;
+        if (file) { uploadUrl = await uploadImage(file); if (!uploadUrl) return; }
+        
+        var updateData = { name: name, price: parseInt(price) };
+        if (uploadUrl) updateData.image_url = uploadUrl;
+
+        var error;
+        if (isEditing) {
+            var res = await db.from('minibar_items').update(updateData).eq('id', window.editState.minibar_items);
+            error = res.error;
+        } else {
+            updateData.image_url = uploadUrl || '';
+            var res = await db.from('minibar_items').insert([updateData]);
+            error = res.error;
+        }
+
         if (error) { alert('Error: ' + error.message); return; }
-        document.getElementById('mb-name').value = '';
-        document.getElementById('mb-price').value = '';
-        document.getElementById('mb-file').value = '';
+        window.cancelEditMinibar();
         loadData('minibar_items', renderMinibar);
     };
 
@@ -111,10 +156,50 @@
             html += '<tr><td>' + item.icon + '</td><td>' + item.service_key + '</td>' +
                 '<td>' + item.title_en + '</td><td>' + item.title_ru + '</td><td>' + item.title_hy + '</td>' +
                 '<td>' + item.status_type + priceDisplay + '</td>' +
-                '<td><button class="btn-danger" onclick="deleteItem(\'services\',\'' + item.id + '\',renderServices)">Delete</button></td></tr>';
+                '<td style="display:flex;gap:6px;">' +
+                '<button class="btn-edit" onclick="startEditService(\'' + item.id + '\')">Edit</button>' +
+                '<button class="btn-danger" onclick="deleteItem(\'services\',\'' + item.id + '\',renderServices)">Delete</button></td></tr>';
         });
         html += '</table>';
         document.getElementById('services-table').innerHTML = html;
+    };
+
+    window.startEditService = function(id) {
+        var item = window.currentTableData['services'].find(function(i) { return i.id === id; });
+        if (!item) return;
+        window.editState.services = id;
+        document.getElementById('svc-key').value = item.service_key || '';
+        document.getElementById('svc-title-en').value = item.title_en || '';
+        document.getElementById('svc-title-ru').value = item.title_ru || '';
+        document.getElementById('svc-title-hy').value = item.title_hy || '';
+        document.getElementById('svc-desc-en').value = item.description_en || '';
+        document.getElementById('svc-desc-ru').value = item.description_ru || '';
+        document.getElementById('svc-desc-hy').value = item.description_hy || '';
+        document.getElementById('svc-type').value = item.status_type || 'free';
+        document.getElementById('svc-price').value = item.price || '';
+        document.getElementById('svc-icon').value = item.icon || '';
+        window.toggleServicePrice();
+        document.getElementById('svc-submit-btn').textContent = 'Update Service';
+        document.getElementById('svc-cancel-btn').style.display = 'inline-flex';
+        document.getElementById('services-section').scrollIntoView({behavior: "smooth"});
+    };
+
+    window.cancelEditService = function() {
+        window.editState.services = null;
+        document.getElementById('svc-key').value = '';
+        document.getElementById('svc-title-en').value = '';
+        document.getElementById('svc-title-ru').value = '';
+        document.getElementById('svc-title-hy').value = '';
+        document.getElementById('svc-desc-en').value = '';
+        document.getElementById('svc-desc-ru').value = '';
+        document.getElementById('svc-desc-hy').value = '';
+        document.getElementById('svc-type').value = 'free';
+        document.getElementById('svc-price').value = '';
+        document.getElementById('svc-icon').value = '';
+        document.getElementById('svc-file').value = '';
+        window.toggleServicePrice();
+        document.getElementById('svc-submit-btn').textContent = '+ Add Service';
+        document.getElementById('svc-cancel-btn').style.display = 'none';
     };
 
     window.addService = async function() {
@@ -129,31 +214,36 @@
         var price = status_type === 'paid' ? document.getElementById('svc-price').value : '';
         var icon = document.getElementById('svc-icon').value;
         if (!service_key || !title_en) { alert('Fill in key and English title!'); return; }
+        
         var files = document.getElementById('svc-file').files;
-        var images = [];
-        for (let i = 0; i < files.length; i++) {
-            var url = await uploadImage(files[i]);
-            if (url) images.push(url);
-        }
-        var { error } = await db.from('services').insert([{
+        var isEditing = window.editState.services !== null;
+        var updateData = {
             service_key: service_key, title_en: title_en, title_ru: title_ru, title_hy: title_hy,
             description_en: description_en, description_ru: description_ru, description_hy: description_hy,
-            status_type: status_type, price: price, icon: icon, images: images
-        }]);
-        if (error) { alert('Error: ' + error.message); return; }
-        
-        // Clear inputs after success
-        document.getElementById('svc-key').value = '';
-        document.getElementById('svc-title-en').value = '';
-        document.getElementById('svc-title-ru').value = '';
-        document.getElementById('svc-title-hy').value = '';
-        document.getElementById('svc-desc-en').value = '';
-        document.getElementById('svc-desc-ru').value = '';
-        document.getElementById('svc-desc-hy').value = '';
-        document.getElementById('svc-price').value = '';
-        document.getElementById('svc-icon').value = '';
-        document.getElementById('svc-file').value = '';
+            status_type: status_type, price: price, icon: icon
+        };
 
+        if (files.length > 0) {
+            var images = [];
+            for (let i = 0; i < files.length; i++) {
+                var url = await uploadImage(files[i]);
+                if (url) images.push(url);
+            }
+            updateData.images = images;
+        }
+
+        var error;
+        if (isEditing) {
+            var res = await db.from('services').update(updateData).eq('id', window.editState.services);
+            error = res.error;
+        } else {
+            if (!updateData.images) updateData.images = [];
+            var res = await db.from('services').insert([updateData]);
+            error = res.error;
+        }
+
+        if (error) { alert('Error: ' + error.message); return; }
+        window.cancelEditService();
         loadData('services', renderServices);
     };
 
@@ -164,10 +254,46 @@
             html += '<tr><td>' + item.icon + '</td><td>' + item.tour_key + '</td>' +
                 '<td>' + item.title_en + '</td><td>' + item.title_ru + '</td><td>' + item.title_hy + '</td>' +
                 '<td>' + item.price + '</td>' +
-                '<td><button class="btn-danger" onclick="deleteItem(\'tours\',\'' + item.id + '\',renderTours)">Delete</button></td></tr>';
+                '<td style="display:flex;gap:6px;">' +
+                '<button class="btn-edit" onclick="startEditTour(\'' + item.id + '\')">Edit</button>' +
+                '<button class="btn-danger" onclick="deleteItem(\'tours\',\'' + item.id + '\',renderTours)">Delete</button></td></tr>';
         });
         html += '</table>';
         document.getElementById('tours-table').innerHTML = html;
+    };
+
+    window.startEditTour = function(id) {
+        var item = window.currentTableData['tours'].find(function(i) { return i.id === id; });
+        if (!item) return;
+        window.editState.tours = id;
+        document.getElementById('tour-key').value = item.tour_key || '';
+        document.getElementById('tour-title-en').value = item.title_en || '';
+        document.getElementById('tour-title-ru').value = item.title_ru || '';
+        document.getElementById('tour-title-hy').value = item.title_hy || '';
+        document.getElementById('tour-desc-en').value = item.description_en || '';
+        document.getElementById('tour-desc-ru').value = item.description_ru || '';
+        document.getElementById('tour-desc-hy').value = item.description_hy || '';
+        document.getElementById('tour-price').value = item.price || '';
+        document.getElementById('tour-icon').value = item.icon || '';
+        document.getElementById('tour-submit-btn').textContent = 'Update Tour';
+        document.getElementById('tour-cancel-btn').style.display = 'inline-flex';
+        document.getElementById('tours-section').scrollIntoView({behavior: "smooth"});
+    };
+
+    window.cancelEditTour = function() {
+        window.editState.tours = null;
+        document.getElementById('tour-key').value = '';
+        document.getElementById('tour-title-en').value = '';
+        document.getElementById('tour-title-ru').value = '';
+        document.getElementById('tour-title-hy').value = '';
+        document.getElementById('tour-desc-en').value = '';
+        document.getElementById('tour-desc-ru').value = '';
+        document.getElementById('tour-desc-hy').value = '';
+        document.getElementById('tour-price').value = '';
+        document.getElementById('tour-icon').value = '';
+        document.getElementById('tour-file').value = '';
+        document.getElementById('tour-submit-btn').textContent = '+ Add Tour';
+        document.getElementById('tour-cancel-btn').style.display = 'none';
     };
 
     window.addTour = async function() {
@@ -181,31 +307,36 @@
         var price = document.getElementById('tour-price').value;
         var icon = document.getElementById('tour-icon').value;
         if (!tour_key || !title_en) { alert('Fill in key and English title!'); return; }
+        
         var files = document.getElementById('tour-file').files;
-        var images = [];
-        for (let i = 0; i < files.length; i++) {
-            var url = await uploadImage(files[i]);
-            if (url) images.push(url);
-        }
-        var { error } = await db.from('tours').insert([{
+        var isEditing = window.editState.tours !== null;
+        var updateData = {
             tour_key: tour_key, title_en: title_en, title_ru: title_ru, title_hy: title_hy,
             description_en: description_en, description_ru: description_ru, description_hy: description_hy,
-            price: price, icon: icon, images: images
-        }]);
+            price: price, icon: icon
+        };
+
+        if (files.length > 0) {
+            var images = [];
+            for (let i = 0; i < files.length; i++) {
+                var url = await uploadImage(files[i]);
+                if (url) images.push(url);
+            }
+            updateData.images = images;
+        }
+
+        var error;
+        if (isEditing) {
+            var res = await db.from('tours').update(updateData).eq('id', window.editState.tours);
+            error = res.error;
+        } else {
+            if (!updateData.images) updateData.images = [];
+            var res = await db.from('tours').insert([updateData]);
+            error = res.error;
+        }
+
         if (error) { alert('Error: ' + error.message); return; }
-
-        // Clear inputs after success
-        document.getElementById('tour-key').value = '';
-        document.getElementById('tour-title-en').value = '';
-        document.getElementById('tour-title-ru').value = '';
-        document.getElementById('tour-title-hy').value = '';
-        document.getElementById('tour-desc-en').value = '';
-        document.getElementById('tour-desc-ru').value = '';
-        document.getElementById('tour-desc-hy').value = '';
-        document.getElementById('tour-price').value = '';
-        document.getElementById('tour-icon').value = '';
-        document.getElementById('tour-file').value = '';
-
+        window.cancelEditTour();
         loadData('tours', renderTours);
     };
 
@@ -214,10 +345,35 @@
         var html = '<table><tr><th>Icon</th><th>Text EN</th><th>Text RU</th><th>Text HY</th><th>Actions</th></tr>';
         data.forEach(function(item) {
             html += '<tr><td>' + item.icon + '</td><td>' + item.text_en + '</td><td>' + item.text_ru + '</td><td>' + item.text_hy + '</td>' +
-                '<td><button class="btn-danger" onclick="deleteItem(\'rules\',\'' + item.id + '\',renderRules)">Delete</button></td></tr>';
+                '<td style="display:flex;gap:6px;">' +
+                '<button class="btn-edit" onclick="startEditRule(\'' + item.id + '\')">Edit</button>' +
+                '<button class="btn-danger" onclick="deleteItem(\'rules\',\'' + item.id + '\',renderRules)">Delete</button></td></tr>';
         });
         html += '</table>';
         document.getElementById('rules-table').innerHTML = html;
+    };
+
+    window.startEditRule = function(id) {
+        var item = window.currentTableData['rules'].find(function(i) { return i.id === id; });
+        if (!item) return;
+        window.editState.rules = id;
+        document.getElementById('rule-icon').value = item.icon || '';
+        document.getElementById('rule-text-en').value = item.text_en || '';
+        document.getElementById('rule-text-ru').value = item.text_ru || '';
+        document.getElementById('rule-text-hy').value = item.text_hy || '';
+        document.getElementById('rule-submit-btn').textContent = 'Update Rule';
+        document.getElementById('rule-cancel-btn').style.display = 'inline-flex';
+        document.getElementById('rules-section').scrollIntoView({behavior: "smooth"});
+    };
+
+    window.cancelEditRule = function() {
+        window.editState.rules = null;
+        document.getElementById('rule-icon').value = '';
+        document.getElementById('rule-text-en').value = '';
+        document.getElementById('rule-text-ru').value = '';
+        document.getElementById('rule-text-hy').value = '';
+        document.getElementById('rule-submit-btn').textContent = '+ Add Rule';
+        document.getElementById('rule-cancel-btn').style.display = 'none';
     };
 
     window.addRule = async function() {
@@ -226,8 +382,21 @@
         var text_ru = document.getElementById('rule-text-ru').value || text_en;
         var text_hy = document.getElementById('rule-text-hy').value || text_en;
         if (!text_en) { alert('Fill in English text!'); return; }
-        var { error } = await db.from('rules').insert([{ icon: icon || '', text_en: text_en, text_ru: text_ru, text_hy: text_hy }]);
+        
+        var isEditing = window.editState.rules !== null;
+        var updateData = { icon: icon || '', text_en: text_en, text_ru: text_ru, text_hy: text_hy };
+        var error;
+
+        if (isEditing) {
+            var res = await db.from('rules').update(updateData).eq('id', window.editState.rules);
+            error = res.error;
+        } else {
+            var res = await db.from('rules').insert([updateData]);
+            error = res.error;
+        }
+
         if (error) { alert('Error: ' + error.message); return; }
+        window.cancelEditRule();
         loadData('rules', renderRules);
     };
 
@@ -236,10 +405,35 @@
         var html = '<table><tr><th>Key</th><th>EN</th><th>RU</th><th>HY</th><th>Actions</th></tr>';
         data.forEach(function(item) {
             html += '<tr><td><b>' + item.key + '</b></td><td>' + item.en + '</td><td>' + item.ru + '</td><td>' + item.hy + '</td>' +
-                '<td><button class="btn-danger" onclick="deleteItem(\'translations\',\'' + item.id + '\',renderTranslations)">Delete</button></td></tr>';
+                '<td style="display:flex;gap:6px;">' +
+                '<button class="btn-edit" onclick="startEditTranslation(\'' + item.id + '\')">Edit</button>' +
+                '<button class="btn-danger" onclick="deleteItem(\'translations\',\'' + item.id + '\',renderTranslations)">Delete</button></td></tr>';
         });
         html += '</table>';
         document.getElementById('translations-table').innerHTML = html;
+    };
+
+    window.startEditTranslation = function(id) {
+        var item = window.currentTableData['translations'].find(function(i) { return i.id === id; });
+        if (!item) return;
+        window.editState.translations = id;
+        document.getElementById('trans-key').value = item.key || '';
+        document.getElementById('trans-en').value = item.en || '';
+        document.getElementById('trans-ru').value = item.ru || '';
+        document.getElementById('trans-hy').value = item.hy || '';
+        document.getElementById('trans-submit-btn').textContent = 'Update Translation';
+        document.getElementById('trans-cancel-btn').style.display = 'inline-flex';
+        document.getElementById('translations-section').scrollIntoView({behavior: "smooth"});
+    };
+
+    window.cancelEditTranslation = function() {
+        window.editState.translations = null;
+        document.getElementById('trans-key').value = '';
+        document.getElementById('trans-en').value = '';
+        document.getElementById('trans-ru').value = '';
+        document.getElementById('trans-hy').value = '';
+        document.getElementById('trans-submit-btn').textContent = 'Save / Update';
+        document.getElementById('trans-cancel-btn').style.display = 'none';
     };
 
     window.addTranslation = async function() {
@@ -248,12 +442,21 @@
         var ru = document.getElementById('trans-ru').value;
         var hy = document.getElementById('trans-hy').value;
         if (!key) { alert('Fill in the key!'); return; }
-        var { error } = await db.from('translations').upsert([{ key: key, en: en, ru: ru, hy: hy }], { onConflict: 'key' });
+        
+        var isEditing = window.editState.translations !== null;
+        var updateData = { key: key, en: en, ru: ru, hy: hy };
+        var error;
+        
+        if (isEditing) {
+            var res = await db.from('translations').update(updateData).eq('id', window.editState.translations);
+            error = res.error;
+        } else {
+            var res = await db.from('translations').upsert([updateData], { onConflict: 'key' });
+            error = res.error;
+        }
+
         if (error) { alert('Error: ' + error.message); return; }
-        document.getElementById('trans-key').value = '';
-        document.getElementById('trans-en').value = '';
-        document.getElementById('trans-ru').value = '';
-        document.getElementById('trans-hy').value = '';
+        window.cancelEditTranslation();
         loadData('translations', renderTranslations);
     };
     // --- NOTIFICATIONS ---
