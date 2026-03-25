@@ -16,12 +16,17 @@ async function getStaffPassword(): Promise<string> {
 
 // Helper: send a Telegram message
 async function sendMessage(chatId: string | number, text: string, extra: Record<string, unknown> = {}) {
-  const res = await fetch(`${TG_API}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown', ...extra })
-  })
-  try { return await res.json() } catch { return null }
+  try {
+    const res = await fetch(`${TG_API}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown', ...extra })
+    })
+    return await res.json()
+  } catch (err) {
+    console.error('Telegram API error:', err)
+    return null
+  }
 }
 
 serve(async (req: Request) => {
@@ -40,11 +45,17 @@ serve(async (req: Request) => {
     return new Response('OK', { status: 200 })
   }
 
-  const body = await req.json()
+  let body;
+  try {
+    body = await req.json();
+  } catch (e) {
+    return new Response('Invalid JSON', { status: 400 });
+  }
 
-  // ==========================================
-  // 1. Telegram Message from user
-  // ==========================================
+  try {
+    // ==========================================
+    // 1. Telegram Message from user
+    // ==========================================
   if (body.message) {
     const chatId = body.message.chat.id
     const text = (body.message.text || '').trim()
@@ -363,4 +374,8 @@ serve(async (req: Request) => {
   }
 
   return new Response('OK', { status: 200 })
+  } catch (err) {
+    console.error("Fatal error inside booking function:", err)
+    return new Response('Internal Server Error', { status: 500 })
+  }
 })
