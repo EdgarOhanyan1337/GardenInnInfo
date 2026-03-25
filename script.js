@@ -86,17 +86,7 @@ async function loadServices() {
             container.appendChild(article);
         });
         container.querySelectorAll('.more-btn').forEach(btn => {
-            btn.onclick = () => {
-                var card = btn.closest('.service-card');
-                var sKey = card.dataset.service;
-                var sData = dynamicServices.find(s => s.service_key === sKey);
-                if (sData && sData.is_paid) {
-                    var sName = sData['title_' + currentLang] || sData.title_en || '';
-                    if (window.showBookingConfirm) window.showBookingConfirm(sData.id, sName, sData.has_calendar);
-                } else {
-                    openDetail(sKey);
-                }
-            };
+            btn.onclick = () => openDetail(btn.closest('.service-card').dataset.service);
         });
     } catch (e) { console.error('Services error:', e); }
 }
@@ -241,7 +231,24 @@ function openDetail(serviceKey) {
     }
 
     if (titleEl) titleEl.textContent = title;
-    if (contentEl) contentEl.innerHTML = desc + priceInfo;
+    if (contentEl) {
+        contentEl.innerHTML = desc + priceInfo;
+        
+        // Add booking button if service is paid
+        if (data.is_paid) {
+            var sName = data['title_' + currentLang] || data.title_en || '';
+            var bookBtn = document.createElement('button');
+            bookBtn.className = 'hk-submit-btn';
+            bookBtn.style.marginTop = '24px';
+            var t = translations[currentLang] || translations.en;
+            bookBtn.innerHTML = '<span>📅</span> <span>' + (t.bookingSubmit || 'Book Now') + '</span>';
+            bookBtn.onclick = () => {
+                closeModal(document.getElementById('detail-modal'));
+                if (window.showBookingConfirm) window.showBookingConfirm(data.id, sName, data.has_calendar);
+            };
+            contentEl.appendChild(bookBtn);
+        }
+    }
 
     if (galleryEl) {
         galleryEl.innerHTML = '';
