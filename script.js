@@ -8,9 +8,6 @@ const ROOT_SUPABASE_URL = 'https://klnxybjaaxtlfabnzxcd.supabase.co';
 const ROOT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtsbnh5YmphYXh0bGZhYm56eGNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjA2MjksImV4cCI6MjA4OTQzNjYyOX0.uUAxzL-8nBkgqoYkQg74Ych0BzKFBVcN_IJlqoZ8tQM';
 const supabaseClient = window.supabase ? window.supabase.createClient(ROOT_SUPABASE_URL, ROOT_SUPABASE_KEY) : null;
 
-// Telegram config (for housekeeping notifications)
-const TG_BOT_TOKEN = '8391061984:AAEwBuzl8vY50jSkorqc2yJ623rvhKr7sG8';
-
 // Dynamic notification recipients (loaded from DB)
 let notificationRecipients = { telegram: [], email: [] };
 
@@ -80,6 +77,8 @@ async function loadServices() {
             var article = document.createElement('article');
             article.className = 'service-card';
             article.dataset.service = item.service_key;
+            if (item.is_paid) article.dataset.isPaid = 'true';
+            
             article.innerHTML = '<div class="service-icon">' + item.icon + '</div>' +
                 '<h3>' + title + '</h3>' +
                 '<span class="status ' + item.status_type + '">' + item.status_type.toUpperCase() + '</span>' +
@@ -87,7 +86,17 @@ async function loadServices() {
             container.appendChild(article);
         });
         container.querySelectorAll('.more-btn').forEach(btn => {
-            btn.onclick = () => openDetail(btn.closest('.service-card').dataset.service);
+            btn.onclick = () => {
+                var card = btn.closest('.service-card');
+                var sKey = card.dataset.service;
+                var sData = dynamicServices.find(s => s.service_key === sKey);
+                if (sData && sData.is_paid) {
+                    var sName = sData['title_' + currentLang] || sData.title_en || '';
+                    if (window.showBookingConfirm) window.showBookingConfirm(sData.id, sName, sData.has_calendar);
+                } else {
+                    openDetail(sKey);
+                }
+            };
         });
     } catch (e) { console.error('Services error:', e); }
 }
@@ -406,33 +415,6 @@ async function loadNotificationRecipients() {
     } catch (e) { console.error('Failed to load notification recipients:', e); }
 }
 
-// Send Telegram notification (includes 'Иду' button)
-async function sendTelegramNotification(room, reqId) {
-    var chatIds = notificationRecipients.telegram;
-    if (chatIds.length === 0) return;
-    var text = '\uD83E\uDDF9 *Housekeeping Requested*\n\uD83C\uDFE0 Room: *' + room + '*';
-    var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
-    for (var i = 0; i < chatIds.length; i++) {
-        try {
-            await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: chatIds[i],
-                    text: text,
-                    parse_mode: 'Markdown',
-                    reply_markup: {
-                        inline_keyboard: [[
-                            { text: '✅ Иду', callback_data: 'accept_' + reqId }
-                        ]]
-                    }
-                })
-            });
-        } catch (e) {
-            console.error('Telegram error:', e);
-        }
-    }
-}
 
 // Send Email notification via Supabase Edge Function
 async function sendEmailNotification(room) {
@@ -507,8 +489,7 @@ window.callHousekeeping = async function () {
         localStorage.setItem('hk_pending_room', room);
         localStorage.setItem('hk_pending_id', data.id);
 
-        // Send notifications (Telegram + Email)
-        await sendTelegramNotification(room, data.id);
+        // Send notifications (Email)
         await sendEmailNotification(room);
 
         // Show success + code
@@ -784,5 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initStarRating();
     initSupabaseFeatures();
     checkPersistentNotification();
+    if (window.initNotifications) initNotifications();
+    if (window.initBookingRealtime) initBookingRealtime();
 });
 

@@ -56,7 +56,8 @@
         'translations': 'translations-section',
         'notification_recipients': 'notifications-section',
         'housekeeping_requests': 'housekeeping-section',
-        'housekeeping_ratings': 'ratings-section'
+        'housekeeping_ratings': 'ratings-section',
+        'bookings': 'bookings-section'
     };
 
     window.loadData = async function(table, renderCallback) {
@@ -178,6 +179,7 @@
         document.getElementById('svc-type').value = item.status_type || 'free';
         document.getElementById('svc-price').value = item.price || '';
         document.getElementById('svc-icon').value = item.icon || '';
+        document.getElementById('svc-has-calendar').checked = item.has_calendar || false;
         window.toggleServicePrice();
         document.getElementById('svc-submit-btn').textContent = 'Update Service';
         document.getElementById('svc-cancel-btn').style.display = 'inline-flex';
@@ -196,6 +198,7 @@
         document.getElementById('svc-type').value = 'free';
         document.getElementById('svc-price').value = '';
         document.getElementById('svc-icon').value = '';
+        document.getElementById('svc-has-calendar').checked = false;
         document.getElementById('svc-file').value = '';
         window.toggleServicePrice();
         document.getElementById('svc-submit-btn').textContent = '+ Add Service';
@@ -213,6 +216,8 @@
         var status_type = document.getElementById('svc-type').value;
         var price = status_type === 'paid' ? document.getElementById('svc-price').value : '';
         var icon = document.getElementById('svc-icon').value;
+        var has_calendar = document.getElementById('svc-has-calendar').checked;
+        var is_paid = status_type === 'paid';
         if (!service_key || !title_en) { alert('Fill in key and English title!'); return; }
         
         var files = document.getElementById('svc-file').files;
@@ -220,7 +225,8 @@
         var updateData = {
             service_key: service_key, title_en: title_en, title_ru: title_ru, title_hy: title_hy,
             description_en: description_en, description_ru: description_ru, description_hy: description_hy,
-            status_type: status_type, price: price, icon: icon
+            status_type: status_type, price: price, icon: icon,
+            has_calendar: has_calendar, is_paid: is_paid
         };
 
         if (files.length > 0) {
@@ -636,6 +642,67 @@
         });
         html += '</table>';
         document.getElementById('ratings-table').innerHTML = html;
+    };
+
+    // --- BOOKINGS ---
+    window.currentBookingFilter = 'all';
+
+    window.filterBookings = function(status) {
+        window.currentBookingFilter = status;
+        if (window.currentTableData['bookings']) {
+            renderBookings(window.currentTableData['bookings']);
+        }
+    };
+
+    window.renderBookings = function(data) {
+        var filteredData = data;
+        if (window.currentBookingFilter !== 'all') {
+            filteredData = data.filter(function(b) { return b.status === window.currentBookingFilter; });
+        }
+
+        var html = '<table><tr><th>Date/Time</th><th>Service ID</th><th>Guest</th><th>Room</th><th>Date Selected</th><th>Status</th><th>Actions</th></tr>';
+        filteredData.forEach(function(item) {
+            var rowColor = '';
+            if (item.status === 'approved') rowColor = 'style="background: rgba(74, 222, 128, 0.05);"';
+            if (item.status === 'rejected') rowColor = 'style="background: rgba(248, 113, 113, 0.05);"';
+
+            var actions = '';
+            if (item.status === 'pending') {
+                actions = '<button onclick="approveBooking(\'' + item.id + '\')" style="background:#4ade80; color:#000; padding:6px; border:none; border-radius:4px; margin-right:4px;">Approve</button>' +
+                          '<button onclick="rejectBooking(\'' + item.id + '\')" style="background:#f87171; color:#fff; padding:6px; border:none; border-radius:4px;">Reject</button>';
+            } else if (item.status === 'rejected') {
+                actions = '<span style="color:#f87171; font-size:12px;">' + (item.reject_reason || 'Rejected') + '</span>';
+            }
+
+            var serviceDisplay = item.service_id.substring(0,8) + '...'; // Basic display
+
+            html += '<tr ' + rowColor + '>' +
+                '<td>' + new Date(item.created_at).toLocaleString() + '</td>' +
+                '<td title="' + item.service_id + '">' + serviceDisplay + '</td>' +
+                '<td>' + item.guest_name + '</td>' +
+                '<td>' + item.room_number + '</td>' +
+                '<td>' + (item.date || '-') + '</td>' +
+                '<td><b>' + item.status.toUpperCase() + '</b></td>' +
+                '<td>' + actions + '</td></tr>';
+        });
+        html += '</table>';
+        var container = document.getElementById('bookings-table-container');
+        if (container) container.innerHTML = html;
+    };
+
+    window.approveBooking = async function(id) {
+        if (!confirm('Approve this booking?')) return;
+        var { error } = await db.from('bookings').update({ status: 'approved' }).eq('id', id);
+        if (error) alert('Error: ' + error.message);
+        else loadData('bookings', renderBookings);
+    };
+
+    window.rejectBooking = async function(id) {
+        var reason = prompt('Enter rejection reason:');
+        if (reason === null) return; // cancelled
+        var { error } = await db.from('bookings').update({ status: 'rejected', reject_reason: reason }).eq('id', id);
+        if (error) alert('Error: ' + error.message);
+        else loadData('bookings', renderBookings);
     };
 
     // --- DELETE ---

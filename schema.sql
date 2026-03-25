@@ -170,4 +170,28 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('images', 'images', true)
 ON CONFLICT (id) DO NOTHING;
 
+-- ============================================
+-- BOOKING SYSTEM EXTENSION
+-- ============================================
+
+-- Add booking-related columns to services
+ALTER TABLE services ADD COLUMN IF NOT EXISTS is_paid BOOLEAN DEFAULT false;
+ALTER TABLE services ADD COLUMN IF NOT EXISTS has_calendar BOOLEAN DEFAULT false;
+
+-- Bookings table
+CREATE TABLE IF NOT EXISTS bookings (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  guest_name TEXT NOT NULL,
+  room_number TEXT NOT NULL DEFAULT '',
+  service_id UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
+  date DATE,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  reject_reason TEXT DEFAULT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE bookings DISABLE ROW LEVEL SECURITY;
+GRANT ALL ON bookings TO anon, authenticated, service_role;
+ALTER PUBLICATION supabase_realtime ADD TABLE bookings;
+
 -- DONE! Tables created + RLS disabled + GRANT permissions given.

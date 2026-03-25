@@ -448,6 +448,9 @@
 
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Booking System -->
+    <script src="notifications.js?v=1"></script>
+    <script src="bookings.js?v=1"></script>
     
     <!-- Housekeeping Modal (Call + Rate) -->
     <!-- Housekeeping Modal (Call + Rate) -->
@@ -526,7 +529,67 @@
         </div>
     </section>
 
-    <script src="script.js?v=6"></script>
+    <!-- Booking Confirm Modal -->
+    <section id="booking-confirm-modal" class="modal" role="dialog" aria-modal="true">
+        <div class="modal-content glass booking-confirm-glass">
+            <button class="modal-close" onclick="closeBookingConfirm()" aria-label="Close">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="booking-confirm-icon">📅</div>
+            <h2 class="booking-confirm-title" data-key="bookingConfirmTitle">Do you want to book this service?</h2>
+            <p class="booking-service-name"></p>
+            <div class="booking-confirm-buttons">
+                <button class="booking-btn booking-btn-yes" onclick="onBookingConfirmYes()">
+                    <span>✅</span> <span data-key="bookingYes">Yes, Book</span>
+                </button>
+                <button class="booking-btn booking-btn-no" onclick="closeBookingConfirm()">
+                    <span>❌</span> <span data-key="bookingNo">No</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Form Modal -->
+    <section id="booking-form-modal" class="modal" role="dialog" aria-modal="true">
+        <div class="modal-content glass booking-form-glass">
+            <button class="modal-close" onclick="closeBookingForm()" aria-label="Close">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="booking-form-header">
+                <div class="booking-form-icon">🗓️</div>
+                <h2 data-key="bookingFormTitle">Book Service</h2>
+                <p class="booking-form-service-name"></p>
+            </div>
+            <div class="booking-form-body">
+                <div class="booking-form-group">
+                    <label class="booking-form-label" data-key="bookingGuestName">👤 Your Name</label>
+                    <input type="text" id="booking-guest-name" class="hk-input" placeholder="Enter your name" data-placeholder-key="bookingNamePlaceholder">
+                </div>
+                <div class="booking-form-group">
+                    <label class="booking-form-label" data-key="bookingRoomNumber">🏠 Room Number</label>
+                    <input type="text" id="booking-room-number" class="hk-input" placeholder="Enter your room number" data-placeholder-key="bookingRoomPlaceholder">
+                </div>
+                <div class="booking-form-group" id="booking-date-group">
+                    <label class="booking-form-label" data-key="bookingDate">📅 Select Date</label>
+                    <input type="date" id="booking-date" class="hk-input booking-date-input">
+                </div>
+                <button id="booking-submit-btn" class="hk-submit-btn" onclick="submitBooking()">
+                    <span>📨</span> <span data-key="bookingSubmit">Book Now</span>
+                </button>
+                <div id="booking-msg" class="hk-success-msg">
+                    <div class="hk-success-icon">🎉</div>
+                    <p class="hk-success-title" data-key="bookingSuccess">Booking submitted! We will notify you once it's reviewed.</p>
+                </div>
+                <div id="booking-err" class="hk-error-msg"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js?v=7"></script>
 </body>
 
 </html>

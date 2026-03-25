@@ -557,6 +557,9 @@
             <a onclick="navTo('tours', renderTours, this)">
                 <span class="nav-emoji">🗺️</span> Tours
             </a>
+            <a onclick="navTo('bookings', renderBookings, this)">
+                <span class="nav-emoji">📅</span> Bookings
+            </a>
             <a onclick="navTo('rules', renderRules, this)">
                 <span class="nav-emoji">📋</span> Rules
             </a>
@@ -612,6 +615,10 @@
                         <option value="free">Free</option>
                         <option value="paid">Paid</option>
                     </select>
+                    <div style="margin-top: 10px; display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="svc-has-calendar" style="width: auto;">
+                        <label for="svc-has-calendar" class="lang-label" style="margin: 0;">Require Date (Calendar Picker)</label>
+                    </div>
                     <div id="svc-price-container" style="display:none; margin-top:10px;">
                         <span class="lang-label">Price / Table (HTML supported):</span>
                         <textarea id="svc-price" placeholder="e.g. 1 hour - 15,000 AMD"></textarea>
@@ -743,6 +750,18 @@
             <div class="card" id="housekeeping-section" style="display:none;">
                 <h3><span class="card-icon">🧹</span> Housekeeping Requests</h3>
                 <div id="hk-table" class="table-wrapper"></div>
+            </div>
+
+            <!-- BOOKINGS SECTION -->
+            <div class="card" id="bookings-section" style="display:none;">
+                <h3><span class="card-icon">📅</span> Manage Bookings</h3>
+                <div style="display:flex; gap:10px; margin-bottom: 16px;">
+                    <button onclick="filterBookings('all')" style="background: rgba(255,255,255,0.1); color: #8b98a5;">All</button>
+                    <button onclick="filterBookings('pending')" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">Pending</button>
+                    <button onclick="filterBookings('approved')" style="background: rgba(74, 222, 128, 0.2); color: #4ade80;">Approved</button>
+                    <button onclick="filterBookings('rejected')" style="background: rgba(248, 113, 113, 0.2); color: #f87171;">Rejected</button>
+                </div>
+                <div id="bookings-table-container" class="table-wrapper"></div>
             </div>
 
             <!-- HK RATINGS -->
