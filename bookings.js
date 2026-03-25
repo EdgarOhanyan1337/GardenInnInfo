@@ -225,6 +225,26 @@
             myBookingIds.push(data.id);
             saveMyBookings();
 
+            // Send notification to Telegram Bot manually
+            try {
+                if (typeof ROOT_SUPABASE_URL !== 'undefined') {
+                    await fetch(ROOT_SUPABASE_URL + '/functions/v1/booking-telegram-bot', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + ROOT_SUPABASE_KEY
+                        },
+                        body: JSON.stringify({
+                            type: 'INSERT',
+                            table: 'bookings',
+                            record: Object.assign({}, insertData, { id: data.id })
+                        })
+                    });
+                }
+            } catch (tgErr) {
+                console.error('Telegram notification error:', tgErr);
+            }
+
             // Show success
             if (msgDiv) msgDiv.style.display = 'block';
             if (nameInput) nameInput.style.display = 'none';

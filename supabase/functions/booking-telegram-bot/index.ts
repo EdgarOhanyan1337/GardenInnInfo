@@ -29,27 +29,27 @@ async function sendMessage(chatId: string | number, text: string, extra: Record<
   }
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-client-info, apikey',
+}
+
 serve(async (req: Request) => {
   // CORS
   if (req.method === 'OPTIONS') {
-    return new Response('ok', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      }
-    })
+    return new Response('ok', { headers: corsHeaders })
   }
 
   if (req.method !== 'POST') {
-    return new Response('OK', { status: 200 })
+    return new Response('OK', { status: 200, headers: corsHeaders })
   }
 
   let body;
   try {
     body = await req.json();
   } catch (e) {
-    return new Response('Invalid JSON', { status: 400 });
+    return new Response('Invalid JSON', { status: 400, headers: corsHeaders });
   }
 
   try {
@@ -82,7 +82,7 @@ serve(async (req: Request) => {
           `Добро пожаловать! Для регистрации введите пароль персонала:`
         )
       }
-      return new Response('OK', { status: 200 })
+      return new Response('OK', { status: 200, headers: corsHeaders })
     }
 
     // --- /status command ---
@@ -105,7 +105,7 @@ serve(async (req: Request) => {
       } else {
         await sendMessage(chatId, `❌ Вы не зарегистрированы. Отправьте /start для регистрации.`)
       }
-      return new Response('OK', { status: 200 })
+      return new Response('OK', { status: 200, headers: corsHeaders })
     }
 
     // --- /stop command ---
@@ -119,7 +119,7 @@ serve(async (req: Request) => {
       await sendMessage(chatId,
         `🔴 Уведомления отключены.\n\nЧтобы включить снова, отправьте /resume`
       )
-      return new Response('OK', { status: 200 })
+      return new Response('OK', { status: 200, headers: corsHeaders })
     }
 
     // --- /resume command ---
@@ -142,7 +142,7 @@ serve(async (req: Request) => {
       } else {
         await sendMessage(chatId, `❌ Вы не зарегистрированы. Отправьте /start`)
       }
-      return new Response('OK', { status: 200 })
+      return new Response('OK', { status: 200, headers: corsHeaders })
     }
 
     // --- Password attempt (any other text) ---
@@ -182,7 +182,7 @@ serve(async (req: Request) => {
       } else {
         await sendMessage(chatId, `❌ Неверный пароль. Попробуйте ещё раз.`)
       }
-      return new Response('OK', { status: 200 })
+      return new Response('OK', { status: 200, headers: corsHeaders })
     }
 
     // --- Force reply handling for Rejections ---
@@ -231,7 +231,7 @@ serve(async (req: Request) => {
             }
         }
         await sendMessage(chatId, `✅ Причина отказа отправлена гостю.`)
-        return new Response('OK', { status: 200 })
+        return new Response('OK', { status: 200, headers: corsHeaders })
       }
     }
 
@@ -240,7 +240,7 @@ serve(async (req: Request) => {
       `📅 *Booking Bot*\n\n` +
       `Команды:\n/status — проверить статус\n/stop — отключить уведомления\n/resume — включить уведомления`
     )
-    return new Response('OK', { status: 200 })
+    return new Response('OK', { status: 200, headers: corsHeaders })
   }
 
   // ==========================================
@@ -319,7 +319,7 @@ serve(async (req: Request) => {
         })
       }
     }
-    return new Response('OK', { status: 200 })
+    return new Response('OK', { status: 200, headers: corsHeaders })
   }
 
   // ==========================================
@@ -366,16 +366,15 @@ serve(async (req: Request) => {
       }
     }
     
-    // Save generated message IDs back to database
     if (tgMessages.length > 0) {
       await supabase.from('bookings').update({ tg_messages: tgMessages }).eq('id', reqId)
     }
-    return new Response('Sent', { status: 200 })
+    return new Response('Sent', { status: 200, headers: corsHeaders })
   }
 
-  return new Response('OK', { status: 200 })
+  return new Response('OK', { status: 200, headers: corsHeaders })
   } catch (err) {
     console.error("Fatal error inside booking function:", err)
-    return new Response('Internal Server Error', { status: 500 })
+    return new Response('Internal Server Error', { status: 500, headers: corsHeaders })
   }
 })

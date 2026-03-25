@@ -447,6 +447,31 @@ async function sendEmailNotification(room) {
     }
 }
 
+// Send Telegram notification via Supabase Edge Function
+async function sendTelegramNotification(room, id) {
+    var telegrams = notificationRecipients.telegram;
+    if (telegrams.length === 0) return;
+    try {
+        await fetch(ROOT_SUPABASE_URL + '/functions/v1/telegram-bot', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + ROOT_SUPABASE_KEY
+            },
+            body: JSON.stringify({
+                type: 'INSERT',
+                table: 'housekeeping_requests',
+                record: {
+                    id: id,
+                    room_number: room
+                }
+            })
+        });
+    } catch (e) {
+        console.error('Telegram notification error:', e);
+    }
+}
+
 // Show toast notification on website
 function showToast(message) {
     var existing = document.getElementById('hk-toast');
@@ -499,6 +524,9 @@ window.callHousekeeping = async function () {
 
         // Send notifications (Email)
         await sendEmailNotification(room);
+
+        // Send notifications (Telegram)
+        await sendTelegramNotification(room, data.id);
 
         // Show success + code
         var msgDiv = document.getElementById('hk-msg');
