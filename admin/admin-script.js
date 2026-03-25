@@ -71,7 +71,7 @@
             if (el) el.style.display = 'block';
         }
         try {
-            var { data, error } = await db.from(table).select('*').order('id', { ascending: false });
+            var { data, error } = await db.from(table).select('*').order('created_at', { ascending: false });
             if (error) { console.error('Load error:', error); renderCallback([]); return; }
             window.currentTableData[table] = data || [];
             renderCallback(data || []);
@@ -599,7 +599,7 @@
 
     // --- HOUSEKEEPING REQUESTS ---
     window.renderHousekeeping = function(data) {
-        var html = '<table><tr><th>Room</th><th>Code</th><th>Status</th><th>Requested</th><th>Completed</th><th>Actions</th></tr>';
+        var html = '<table><tr><th>Room</th><th>Code</th><th>Status</th><th>Requested</th><th>Accepted By</th><th>Completed</th><th>Actions</th></tr>';
         data.forEach(function(item) {
             var currentStatus = (item.status || 'pending').toLowerCase();
             var color = (currentStatus === 'completed' || currentStatus === 'accepted') ? 'green' : 'orange';
@@ -607,9 +607,14 @@
                 ? '<button style="background:#22c55e; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; cursor:pointer;" onclick="completeHousekeeping(\'' + item.id + '\')">Complete ✓</button>' 
                 : '<span style="color:#22c55e; font-weight:bold;">COMPLETED</span>';
                 
+            var acceptedInfo = item.accepted_by 
+                ? (item.accepted_by + '<br><small>' + new Date(item.accepted_at).toLocaleString() + '</small>') 
+                : '-';
+
             html += '<tr><td><b>' + item.room_number + '</b></td><td><code>' + item.code + '</code></td>' +
                 '<td style="color:' + color + '"><b>' + currentStatus.toUpperCase() + '</b></td>' +
                 '<td>' + (item.created_at ? new Date(item.created_at).toLocaleString() : '-') + '</td>' +
+                '<td>' + acceptedInfo + '</td>' +
                 '<td>' + (item.completed_at ? new Date(item.completed_at).toLocaleString() : '-') + '</td>' +
                 '<td>' + actionBtn + '</td></tr>';
         });
@@ -672,6 +677,8 @@
                           '<button onclick="rejectBooking(\'' + item.id + '\')" style="background:#f87171; color:#fff; padding:6px; border:none; border-radius:4px;">Reject</button>';
             } else if (item.status === 'rejected') {
                 actions = '<span style="color:#f87171; font-size:12px;">' + (item.reject_reason || 'Rejected') + '</span>';
+            } else if (item.status === 'approved') {
+                actions = '<button onclick="cancelBooking(\'' + item.id + '\')" style="background:#f87171; color:#fff; padding:6px; border:none; border-radius:4px;">Cancel</button>';
             }
 
             var serviceDisplay = item.service_id.substring(0,8) + '...'; // Basic display
@@ -699,6 +706,14 @@
 
     window.rejectBooking = async function(id) {
         var reason = prompt('Enter rejection reason:');
+        if (reason === null) return; // cancelled
+        var { error } = await db.from('bookings').update({ status: 'rejected', reject_reason: reason }).eq('id', id);
+        if (error) alert('Error: ' + error.message);
+        else loadData('bookings', renderBookings);
+    };
+
+    window.cancelBooking = async function(id) {
+        var reason = prompt('Enter cancellation reason (sent to user):');
         if (reason === null) return; // cancelled
         var { error } = await db.from('bookings').update({ status: 'rejected', reject_reason: reason }).eq('id', id);
         if (error) alert('Error: ' + error.message);

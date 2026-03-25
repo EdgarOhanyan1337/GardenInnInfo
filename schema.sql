@@ -76,6 +76,9 @@ CREATE TABLE housekeeping_requests (
   room_number TEXT NOT NULL,
   code TEXT NOT NULL,
   status TEXT DEFAULT 'pending',
+  accepted_by TEXT DEFAULT NULL,
+  accepted_at TIMESTAMPTZ DEFAULT NULL,
+  tg_messages JSONB DEFAULT '[]'::JSONB,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -187,8 +190,11 @@ CREATE TABLE IF NOT EXISTS bookings (
   date DATE,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
   reject_reason TEXT DEFAULT NULL,
+  tg_messages JSONB DEFAULT '[]'::JSONB,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS tg_messages JSONB DEFAULT '[]'::JSONB;
 
 ALTER TABLE bookings DISABLE ROW LEVEL SECURITY;
 GRANT ALL ON bookings TO anon, authenticated, service_role;

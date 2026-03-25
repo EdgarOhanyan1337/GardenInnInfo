@@ -16,11 +16,12 @@ async function getStaffPassword(): Promise<string> {
 
 // Helper: send a Telegram message
 async function sendMessage(chatId: string | number, text: string, extra: Record<string, unknown> = {}) {
-  await fetch(`${TG_API}/sendMessage`, {
+  const res = await fetch(`${TG_API}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown', ...extra })
   })
+  try { return await res.json() } catch { return null }
 }
 
 serve(async (req: Request) => {
@@ -173,6 +174,56 @@ serve(async (req: Request) => {
       return new Response('OK', { status: 200 })
     }
 
+    // --- Force reply handling for Rejections ---
+    if (body.message.reply_to_message && body.message.reply_to_message.text) {
+      const replyText = body.message.reply_to_message.text
+      const match = replyText.match(/Напишите причину отказа для брони (.+):/)
+      if (match && match[1]) {
+        const reqId = match[1]
+        const reason = text
+
+        const { data: bData } = await supabase.from('bookings').select('*, services(title_ru, title_en)').eq('id', reqId).single()
+        
+        await supabase
+          .from('bookings')
+          .update({ status: 'rejected', reject_reason: reason })
+          .eq('id', reqId)
+
+        if (bData) {
+            const guestName = bData.guest_name || 'Гость'
+            const room = bData.room_number || 'Н/Д'
+            const date = bData.date || 'Без даты'
+            const serviceName = Array.isArray(bData.services) ? bData.services[0]?.title_ru : (bData.services?.title_ru || bData.services?.title_en || 'Услуга')
+            
+            const baseMessage = `📅 *Бронирование (ОТКЛОНЕНО)*\n\n` +
+                    `🛠 Услуга: *${serviceName}*\n` +
+                    `👤 Гость: *${guestName}*\n` +
+                    `🏠 Номер: *${room}*\n` +
+                    `🗓 Дата: *${date}*`
+
+            const statusText = `❌ *Отклонил(а): ${firstName}*\n📝 Причина: ${reason}`
+
+            if (bData.tg_messages && Array.isArray(bData.tg_messages)) {
+              for (const msg of bData.tg_messages) {
+                 await fetch(`${TG_API}/editMessageText`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      chat_id: msg.chat_id,
+                      message_id: msg.message_id,
+                      text: `${baseMessage}\n\n${statusText}`,
+                      parse_mode: 'Markdown',
+                      reply_markup: { inline_keyboard: [] }
+                    })
+                 })
+              }
+            }
+        }
+        await sendMessage(chatId, `✅ Причина отказа отправлена гостю.`)
+        return new Response('OK', { status: 200 })
+      }
+    }
+
     // Already registered, unknown command
     await sendMessage(chatId,
       `📅 *Booking Bot*\n\n` +
@@ -194,32 +245,68 @@ serve(async (req: Request) => {
       const action = callbackData.startsWith('approve_') ? 'approved' : 'rejected'
       const reqId = action === 'approved' ? callbackData.replace('approve_', '') : callbackData.replace('reject_', '')
 
-      await supabase
-        .from('bookings')
-        .update({ status: action })
-        .eq('id', reqId)
+      if (action === 'approved') {
+        const { data: bData } = await supabase.from('bookings').select('*, services(title_ru, title_en)').eq('id', reqId).single()
+        
+        await supabase
+          .from('bookings')
+          .update({ status: 'approved' })
+          .eq('id', reqId)
 
-      await fetch(`${TG_API}/answerCallbackQuery`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          callback_query_id: body.callback_query.id,
-          text: action === 'approved' ? '✅ Бронирование одобрено!' : '❌ Бронирование отклонено!'
+        await fetch(`${TG_API}/answerCallbackQuery`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            callback_query_id: body.callback_query.id,
+            text: '✅ Бронирование одобрено!'
+          })
         })
-      })
 
-      const statusText = action === 'approved' ? `✅ *Одобрил(а): ${staffName}*` : `❌ *Отклонил(а): ${staffName}*`
-
-      await fetch(`${TG_API}/editMessageText`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: chatId,
-          message_id: messageId,
-          text: `${body.callback_query.message.text}\n\n${statusText}`,
-          parse_mode: 'Markdown'
+        const statusText = `✅ *Одобрил(а): ${staffName}*`
+        
+        if (bData) {
+          const guestName = bData.guest_name || 'Гость'
+          const room = bData.room_number || 'Н/Д'
+          const date = bData.date || 'Без даты'
+          const serviceName = Array.isArray(bData.services) ? bData.services[0]?.title_ru : (bData.services?.title_ru || bData.services?.title_en || 'Услуга')
+          
+          const baseMessage = `📅 *Бронирование*\n\n` +
+                  `🛠 Услуга: *${serviceName}*\n` +
+                  `👤 Гость: *${guestName}*\n` +
+                  `🏠 Номер: *${room}*\n` +
+                  `🗓 Дата: *${date}*`
+                  
+          if (bData.tg_messages && Array.isArray(bData.tg_messages)) {
+            for (const msg of bData.tg_messages) {
+               await fetch(`${TG_API}/editMessageText`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    chat_id: msg.chat_id,
+                    message_id: msg.message_id,
+                    text: `${baseMessage}\n\n${statusText}`,
+                    parse_mode: 'Markdown',
+                    reply_markup: { inline_keyboard: [] }
+                  })
+               })
+            }
+          }
+        }
+      } else {
+        // reject action -> asking for reason
+        await fetch(`${TG_API}/answerCallbackQuery`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            callback_query_id: body.callback_query.id,
+            text: 'Пожалуйста, укажите причину отказа'
+          })
         })
-      })
+
+        await sendMessage(chatId, `Напишите причину отказа для брони ${reqId}:`, {
+          reply_markup: { force_reply: true, selective: true }
+        })
+      }
     }
     return new Response('OK', { status: 200 })
   }
@@ -253,8 +340,9 @@ serve(async (req: Request) => {
                     `🏠 Номер: *${room}*\n` +
                     `🗓 Дата: *${date}*`
 
+    const tgMessages = []
     for (const chatId of chatIds) {
-      await sendMessage(chatId, message, {
+      const resp = await sendMessage(chatId, message, {
         reply_markup: {
           inline_keyboard: [[
             { text: '✅ Одобрить', callback_data: `approve_${reqId}` },
@@ -262,6 +350,14 @@ serve(async (req: Request) => {
           ]]
         }
       })
+      if (resp && resp.ok && resp.result) {
+        tgMessages.push({ chat_id: chatId, message_id: resp.result.message_id })
+      }
+    }
+    
+    // Save generated message IDs back to database
+    if (tgMessages.length > 0) {
+      await supabase.from('bookings').update({ tg_messages: tgMessages }).eq('id', reqId)
     }
     return new Response('Sent', { status: 200 })
   }

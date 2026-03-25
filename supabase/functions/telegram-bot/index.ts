@@ -16,11 +16,12 @@ async function getStaffPassword(): Promise<string> {
 
 // Helper: send a Telegram message
 async function sendMessage(chatId: string | number, text: string, extra: Record<string, unknown> = {}) {
-  await fetch(`${TG_API}/sendMessage`, {
+  const res = await fetch(`${TG_API}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown', ...extra })
   })
+  try { return await res.json() } catch { return null }
 }
 
 serve(async (req: Request) => {
@@ -193,9 +194,15 @@ serve(async (req: Request) => {
     if (callbackData.startsWith('accept_')) {
       const reqId = callbackData.replace('accept_', '')
 
+      const { data: bData } = await supabase.from('housekeeping_requests').select('tg_messages, room_number').eq('id', reqId).single()
+
       await supabase
         .from('housekeeping_requests')
-        .update({ status: 'accepted' })
+        .update({ 
+          status: 'accepted',
+          accepted_by: staffName,
+          accepted_at: new Date().toISOString()
+        })
         .eq('id', reqId)
 
       await fetch(`${TG_API}/answerCallbackQuery`, {
@@ -207,16 +214,35 @@ serve(async (req: Request) => {
         })
       })
 
-      await fetch(`${TG_API}/editMessageText`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: chatId,
-          message_id: messageId,
-          text: `🧹 *Заявка на уборку*\n✅ *Принял(а): ${staffName}*`,
-          parse_mode: 'Markdown'
+      const room = bData?.room_number || 'Н/Д'
+      const statusText = `✅ *Принял(а): ${staffName}*`
+
+      if (bData && bData.tg_messages && Array.isArray(bData.tg_messages)) {
+        for (const msg of bData.tg_messages) {
+           await fetch(`${TG_API}/editMessageText`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: msg.chat_id,
+                message_id: msg.message_id,
+                text: `🧹 *Заявка на уборку*\n🏠 Room: *${room}*\n\n${statusText}`,
+                parse_mode: 'Markdown',
+                reply_markup: { inline_keyboard: [] }
+              })
+           })
+        }
+      } else {
+        await fetch(`${TG_API}/editMessageText`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            message_id: messageId,
+            text: `🧹 *Заявка на уборку*\n✅ *Принял(а): ${staffName}*`,
+            parse_mode: 'Markdown'
+          })
         })
-      })
+      }
     }
     return new Response('OK', { status: 200 })
   }
@@ -238,14 +264,22 @@ serve(async (req: Request) => {
     const chatIds = recipients?.map((r: { value: string }) => r.value) || []
     const message = `🧹 *Housekeeping Requested*\n🏠 Room: *${room}*`
 
+    const tgMessages = []
     for (const chatId of chatIds) {
-      await sendMessage(chatId, message, {
+      const resp = await sendMessage(chatId, message, {
         reply_markup: {
           inline_keyboard: [[
             { text: '✅ Иду', callback_data: `accept_${reqId}` }
           ]]
         }
       })
+      if (resp && resp.ok && resp.result) {
+        tgMessages.push({ chat_id: chatId, message_id: resp.result.message_id })
+      }
+    }
+    
+    if (tgMessages.length > 0) {
+      await supabase.from('housekeeping_requests').update({ tg_messages: tgMessages }).eq('id', reqId)
     }
     return new Response('Sent', { status: 200 })
   }
