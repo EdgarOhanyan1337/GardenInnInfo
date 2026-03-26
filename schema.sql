@@ -221,3 +221,33 @@ ON CONFLICT (room_number) DO NOTHING;
 
 ALTER TABLE rooms DISABLE ROW LEVEL SECURITY;
 GRANT ALL ON rooms TO anon, authenticated, service_role;
+
+-- ============================================
+-- AUTO-REGISTER ROOM ACCOUNTS
+-- ============================================
+
+DO $$
+DECLARE
+  i INTEGER;
+BEGIN
+  FOR i IN 1..17 LOOP
+    INSERT INTO auth.users (
+      instance_id, id, aud, role, email, encrypted_password,
+      email_confirmed_at, created_at, updated_at, confirmation_token,
+      raw_user_meta_data, raw_app_meta_data
+    ) VALUES (
+      '00000000-0000-0000-0000-000000000000',
+      gen_random_uuid(),
+      'authenticated',
+      'authenticated',
+      'gardeninn' || i || '@hotel.local',
+      crypt('gardeninnpassword' || i, gen_salt('bf')),
+      NOW(),
+      NOW(),
+      NOW(),
+      '',
+      jsonb_build_object('room_number', i::text),
+      '{"provider": "email", "providers": ["email"]}'::jsonb
+    ) ON CONFLICT (email) DO NOTHING;
+  END LOOP;
+END $$;

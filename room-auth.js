@@ -8,8 +8,8 @@
 
     var ROOM_MIN = 1;
     var ROOM_MAX = 17;
-    var EMAIL_DOMAIN = 'gardeninn.local';
-    var PASSWORD_SUFFIX = '_secure_2026';
+    var EMAIL_DOMAIN = '@hotel.local'; // internal — users see 'gardeninnN'
+    var PASSWORD_PREFIX = 'gardeninnpassword';
     var LS_ROOM_KEY = 'gi_room_number';
 
     // Expose globally
@@ -20,11 +20,11 @@
     };
 
     function makeEmail(room) {
-        return 'room' + room + '@' + EMAIL_DOMAIN;
+        return 'gardeninn' + room + EMAIL_DOMAIN;
     }
 
     function makePassword(room) {
-        return 'room' + room + PASSWORD_SUFFIX;
+        return PASSWORD_PREFIX + room;
     }
 
     function isValidRoom(num) {
@@ -157,7 +157,7 @@
         var passwordInput = document.getElementById('room-login-password');
         if (!emailInput || !passwordInput) return;
 
-        var email = emailInput.value.trim();
+        var email = emailInput.value.trim().toLowerCase();
         var password = passwordInput.value.trim();
         hideLoginError();
 
@@ -168,15 +168,21 @@
 
         showLoginLoading(true);
 
+        // If user just typed "gardeninn5", append the domain
+        var loginEmail = email;
+        if (loginEmail.indexOf('@') === -1) {
+            loginEmail += EMAIL_DOMAIN;
+        }
+
         // Try sign in directly with provided credentials
         var { data, error } = await window.supabaseClient.auth.signInWithPassword({
-            email: email,
+            email: loginEmail,
             password: password
         });
 
         if (data && data.session) {
-            // Extract room number from email (room5@gardeninn.local → 5)
-            var match = email.match(/^room(\d+)@/);
+            // Extract room number from email (gardeninn5@hotel.local → 5)
+            var match = loginEmail.match(/^gardeninn(\d+)@/);
             var room = match ? match[1] : (data.session.user.user_metadata && data.session.user.user_metadata.room_number) || '';
 
             if (room) {
