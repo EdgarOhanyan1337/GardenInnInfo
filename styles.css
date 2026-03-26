@@ -2508,6 +2508,7 @@ body {
     font-family: var(--font-body) !important;
     padding: 10px 14px !important;
     overflow: hidden !important;
+    min-width: 300px !important;
 }
 
 .flatpickr-calendar::before,
@@ -2681,10 +2682,10 @@ body {
 span.flatpickr-weekday {
     color: var(--color-primary-light) !important;
     background: transparent !important;
-    font-size: 0.7rem !important;
+    font-size: 0.6rem !important;
     font-weight: 700 !important;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0px;
 }
 
 [data-theme="light"] span.flatpickr-weekday {
