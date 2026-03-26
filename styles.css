@@ -1467,12 +1467,12 @@ body {
 }
 
 .product-image img {
-    width: 100px;
-    margin: 0 auto;
+    width: 100%;
     height: 150px;
-    object-fit: cover;
+    object-fit: contain;
     cursor: pointer;
     transition: transform var(--transition-normal);
+    padding: var(--space-sm);
 }
 
 .product-card:hover .product-image img {
