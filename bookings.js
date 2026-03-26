@@ -94,11 +94,17 @@
             timeGroup.style.display = hasCalendar ? 'flex' : 'none';
         }
 
-        // Set min date to today
+        // Set min date and initial value to today (Armenia time)
         if (dateInput) {
-            var today = new Date().toISOString().split('T')[0];
-            dateInput.min = today;
-            dateInput.value = '';
+            var armeniaTimeStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Yerevan" });
+            var armeniaNow = new Date(armeniaTimeStr);
+            var armYear = armeniaNow.getFullYear();
+            var armMonth = String(armeniaNow.getMonth() + 1).padStart(2, '0');
+            var armDay = String(armeniaNow.getDate()).padStart(2, '0');
+            var armTodayStr = armYear + '-' + armMonth + '-' + armDay;
+
+            dateInput.min = armTodayStr;
+            dateInput.value = armTodayStr;
         }
 
         // Set service name
