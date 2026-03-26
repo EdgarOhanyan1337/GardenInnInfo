@@ -31,11 +31,11 @@
         modal.dataset.serviceName = serviceName;
         modal.dataset.hasCalendar = hasCalendar ? 'true' : 'false';
 
-        // Check for active modals before opening
+        // Close any currently active modals before opening
         var activeModals = document.querySelectorAll('.modal.active');
-        if (activeModals.length > 0 && !modal.classList.contains('active')) {
-            modal.classList.add('nested-modal');
-        }
+        activeModals.forEach(function(m) {
+            if (m !== modal) m.classList.remove('active');
+        });
 
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -45,13 +45,7 @@
         var modal = document.getElementById('booking-confirm-modal');
         if (modal) {
             modal.classList.remove('active');
-            modal.classList.remove('nested-modal');
-            
-            // If there are no other active modals, restore scroll
-            var activeModals = document.querySelectorAll('.modal.active');
-            if (activeModals.length === 0) {
-                document.body.style.overflow = '';
-            }
+            document.body.style.overflow = '';
         }
     };
 
@@ -120,11 +114,11 @@
             await loadAndDisableBookedDates(serviceId, dateInput);
         }
 
-        // Check for active modals before opening
+        // Close any currently active modals before opening
         var activeModals = document.querySelectorAll('.modal.active');
-        if (activeModals.length > 0 && !modal.classList.contains('active')) {
-            modal.classList.add('nested-modal');
-        }
+        activeModals.forEach(function(m) {
+            if (m !== modal) m.classList.remove('active');
+        });
 
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -134,13 +128,7 @@
         var modal = document.getElementById('booking-form-modal');
         if (modal) {
             modal.classList.remove('active');
-            modal.classList.remove('nested-modal');
-            
-            // If there are no other active modals, restore scroll
-            var activeModals = document.querySelectorAll('.modal.active');
-            if (activeModals.length === 0) {
-                document.body.style.overflow = '';
-            }
+            document.body.style.overflow = '';
         }
     };
 
@@ -222,6 +210,35 @@
             return;
         }
 
+        var timeFromInput = document.getElementById('booking-time-from');
+        var timeToInput = document.getElementById('booking-time-to');
+        var timeFrom = timeFromInput ? timeFromInput.value : '';
+        var timeTo = timeToInput ? timeToInput.value : '';
+
+        // Armenian Time validation
+        if (hasCalendar && date && timeFrom) {
+            var armeniaTimeStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Yerevan" });
+            var armeniaNow = new Date(armeniaTimeStr);
+            
+            var armYear = armeniaNow.getFullYear();
+            var armMonth = String(armeniaNow.getMonth() + 1).padStart(2, '0');
+            var armDay = String(armeniaNow.getDate()).padStart(2, '0');
+            var armTodayStr = armYear + '-' + armMonth + '-' + armDay;
+
+            if (date === armTodayStr) {
+                var timeParts = timeFrom.split(':');
+                var hours = parseInt(timeParts[0], 10);
+                var minutes = parseInt(timeParts[1], 10);
+                var armHours = armeniaNow.getHours();
+                var armMinutes = armeniaNow.getMinutes();
+                
+                if (hours < armHours || (hours === armHours && minutes <= armMinutes)) {
+                    if (errDiv) { errDiv.textContent = t.bookingTimePast || 'Cannot book a time that has already passed.'; errDiv.style.display = 'block'; }
+                    return;
+                }
+            }
+        }
+
         if (!window.supabaseClient) {
             if (errDiv) { errDiv.textContent = 'Connection error'; errDiv.style.display = 'block'; }
             return;
@@ -240,10 +257,6 @@
             };
             if (hasCalendar && date) {
                 insertData.date = date;
-                var timeFromInput = document.getElementById('booking-time-from');
-                var timeToInput = document.getElementById('booking-time-to');
-                var timeFrom = timeFromInput ? timeFromInput.value : '';
-                var timeTo = timeToInput ? timeToInput.value : '';
                 if (timeFrom) insertData.time_from = timeFrom;
                 if (timeTo) insertData.time_to = timeTo;
             }

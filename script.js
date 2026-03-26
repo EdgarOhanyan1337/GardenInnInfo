@@ -195,11 +195,12 @@ function setTheme(theme) {
 function openModal(id) {
     var modal = document.getElementById(id + '-modal');
     if (modal) { 
-        // If there's already an active modal, mark this one as a nested modal to avoid stacking dark backgrounds
+        // If there's already an active modal, close it first
         var activeModals = document.querySelectorAll('.modal.active');
-        if (activeModals.length > 0 && !modal.classList.contains('active')) {
-            modal.classList.add('nested-modal');
-        }
+        activeModals.forEach(function(m) {
+            if (m !== modal) closeModal(m);
+        });
+
         modal.classList.add('active'); 
         document.body.style.overflow = 'hidden'; 
     }
@@ -208,13 +209,7 @@ function openModal(id) {
 function closeModal(modal) {
     if (modal) { 
         modal.classList.remove('active');
-        modal.classList.remove('nested-modal');
-        
-        // If there are no active modals left, restore scroll
-        var activeModals = document.querySelectorAll('.modal.active');
-        if (activeModals.length === 0) {
-            document.body.style.overflow = ''; 
-        }
+        document.body.style.overflow = ''; 
     }
 }
 
