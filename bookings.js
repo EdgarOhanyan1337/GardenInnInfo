@@ -227,12 +227,12 @@
 
             // Send notification to Telegram Bot manually
             try {
-                if (typeof ROOT_SUPABASE_URL !== 'undefined') {
-                    await fetch(ROOT_SUPABASE_URL + '/functions/v1/booking-telegram-bot', {
+                if (window.ROOT_SUPABASE_URL) {
+                    await fetch(window.ROOT_SUPABASE_URL + '/functions/v1/booking-telegram-bot', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + ROOT_SUPABASE_KEY
+                            'Authorization': 'Bearer ' + window.ROOT_SUPABASE_KEY
                         },
                         body: JSON.stringify({
                             type: 'INSERT',

@@ -6,6 +6,9 @@
 // ==================== SUPABASE ====================
 const ROOT_SUPABASE_URL = 'https://klnxybjaaxtlfabnzxcd.supabase.co';
 const ROOT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtsbnh5YmphYXh0bGZhYm56eGNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjA2MjksImV4cCI6MjA4OTQzNjYyOX0.uUAxzL-8nBkgqoYkQg74Ych0BzKFBVcN_IJlqoZ8tQM';
+// Expose globally so bookings.js (IIFE) can access them
+window.ROOT_SUPABASE_URL = ROOT_SUPABASE_URL;
+window.ROOT_SUPABASE_KEY = ROOT_SUPABASE_KEY;
 const supabaseClient = window.supabase ? window.supabase.createClient(ROOT_SUPABASE_URL, ROOT_SUPABASE_KEY) : null;
 window.supabaseClient = supabaseClient;
 
@@ -449,8 +452,6 @@ async function sendEmailNotification(room) {
 
 // Send Telegram notification via Supabase Edge Function
 async function sendTelegramNotification(room, id) {
-    var telegrams = notificationRecipients.telegram;
-    if (telegrams.length === 0) return;
     try {
         await fetch(ROOT_SUPABASE_URL + '/functions/v1/telegram-bot', {
             method: 'POST',
