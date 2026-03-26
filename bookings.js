@@ -340,9 +340,6 @@
                     var title = t.bookingApprovedTitle || '✅ Booking Approved';
                     var body = (t.bookingApprovedBody || 'Your booking has been approved!') + '\n' + (t.bookingReceptionMsg || '🏨 Please approach the reception.');
                     showBookingToast(title, body, 'approved');
-                    if (window.showBrowserNotification) {
-                        window.showBrowserNotification(title, body);
-                    }
                     playBookingNotificationSound();
 
                     // Schedule 30-minute reminder if booking has date and time
@@ -354,9 +351,6 @@
                     var title = t.bookingRejectedTitle || '❌ Booking Rejected';
                     var body = (t.bookingRejectedBody || 'Your booking was rejected') + (reason ? ': ' + reason : '');
                     showBookingToast(title, body, 'rejected');
-                    if (window.showBrowserNotification) {
-                        window.showBrowserNotification(title, body);
-                    }
                     playBookingNotificationSound();
                 }
             })

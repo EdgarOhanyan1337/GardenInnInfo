@@ -656,13 +656,6 @@ async function initSupabaseFeatures() {
                 // If this is our request and it just got accepted
                 if (pendingId && pendingId == newRec.id && newRec.status === 'accepted') {
                     showHousekeepingAcceptedBanner();
-                    // Browser push notification
-                    if (window.showBrowserNotification) {
-                        window.showBrowserNotification(
-                            t.hkBannerTitle || 'Housekeeping',
-                            t.hkBannerText || 'Staff has accepted your request and is on the way.'
-                        );
-                    }
                     // Save id for completion tracking, but remove pending state
                     localStorage.setItem('hk_accepted_id', pendingId);
                     localStorage.removeItem('hk_pending_id');
@@ -672,12 +665,6 @@ async function initSupabaseFeatures() {
                 var acceptedId = localStorage.getItem('hk_accepted_id');
                 if (acceptedId && acceptedId == newRec.id && newRec.status === 'completed') {
                     showHousekeepingCompletedBanner();
-                    if (window.showBrowserNotification) {
-                        window.showBrowserNotification(
-                            t.hkCompletedTitle || '✨ Housekeeping',
-                            t.hkCompletedText || 'Cleaning is complete! Enjoy your stay.'
-                        );
-                    }
                     localStorage.removeItem('hk_accepted_id');
                 }
             }
@@ -693,32 +680,18 @@ const originalTitle = document.title;
 function playNotificationSound() {
     try {
         var ctx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        // Bell sound synthesis
-        var osc1 = ctx.createOscillator();
-        var osc2 = ctx.createOscillator();
-        var gainNode = ctx.createGain();
-        
-        osc1.type = 'sine';
-        osc1.frequency.setValueAtTime(880, ctx.currentTime); // A5
-        osc1.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 1);
-        
-        osc2.type = 'triangle';
-        osc2.frequency.setValueAtTime(1760, ctx.currentTime); // A6
-        osc2.frequency.exponentialRampToValueAtTime(1600, ctx.currentTime + 1);
-        
-        gainNode.gain.setValueAtTime(0, ctx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.5);
-        
-        osc1.connect(gainNode);
-        osc2.connect(gainNode);
-        gainNode.connect(ctx.destination);
-        
-        osc1.start();
-        osc2.start();
-        osc1.stop(ctx.currentTime + 1.5);
-        osc2.stop(ctx.currentTime + 1.5);
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.15); // G5
+        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.3); // A5
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 1);
     } catch (e) { console.error("Audio API error:", e); }
 }
 
