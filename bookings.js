@@ -95,16 +95,51 @@
         }
 
         // Set min date and initial value to today (Armenia time)
+        var armTodayStr = '';
         if (dateInput) {
             var armeniaTimeStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Yerevan" });
             var armeniaNow = new Date(armeniaTimeStr);
             var armYear = armeniaNow.getFullYear();
             var armMonth = String(armeniaNow.getMonth() + 1).padStart(2, '0');
             var armDay = String(armeniaNow.getDate()).padStart(2, '0');
-            var armTodayStr = armYear + '-' + armMonth + '-' + armDay;
+            armTodayStr = armYear + '-' + armMonth + '-' + armDay;
+            
+            // Initialize Flatpickr for date
+            if (window.flatpickr) {
+                flatpickr(dateInput, {
+                    minDate: armTodayStr,
+                    defaultDate: armTodayStr,
+                    dateFormat: "Y-m-d",
+                    disableMobile: "true"
+                });
+            } else {
+                dateInput.min = armTodayStr;
+                dateInput.value = armTodayStr;
+            }
+        }
 
-            dateInput.min = armTodayStr;
-            dateInput.value = armTodayStr;
+        // Initialize Flatpickr for time inputs
+        if (window.flatpickr) {
+            if (timeFromInput) {
+                flatpickr(timeFromInput, {
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: "H:i",
+                    time_24hr: true,
+                    defaultDate: "10:00",
+                    disableMobile: "true"
+                });
+            }
+            if (timeToInput) {
+                flatpickr(timeToInput, {
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: "H:i",
+                    time_24hr: true,
+                    defaultDate: "12:00",
+                    disableMobile: "true"
+                });
+            }
         }
 
         // Set service name
