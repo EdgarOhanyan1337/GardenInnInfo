@@ -2,6 +2,8 @@
     var ADM_URL = 'https://klnxybjaaxtlfabnzxcd.supabase.co';
     var ADM_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtsbnh5YmphYXh0bGZhYm56eGNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjA2MjksImV4cCI6MjA4OTQzNjYyOX0.uUAxzL-8nBkgqoYkQg74Ych0BzKFBVcN_IJlqoZ8tQM';
     var db = window.supabase.createClient(ADM_URL, ADM_KEY);
+    var ADM_LOGIN_TIME_KEY = 'gi_admin_login_timestamp';
+    var ADM_SESSION_MAX_AGE_MS = 10 * 60 * 60 * 1000; // 10 hours
 
     window.currentTableData = {};
     window.editState = {
@@ -29,6 +31,7 @@
         var pass = document.getElementById('password').value;
         var { error } = await db.auth.signInWithPassword({ email: email, password: pass });
         if (error) { alert('Login Failed: ' + error.message); return; }
+        localStorage.setItem(ADM_LOGIN_TIME_KEY, String(Date.now()));
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         loadData('minibar_items', renderMinibar);
@@ -36,11 +39,21 @@
 
     window.logout = async function() {
         await db.auth.signOut();
+        localStorage.removeItem(ADM_LOGIN_TIME_KEY);
         location.reload();
     };
 
-    db.auth.getSession().then(function(result) {
+    db.auth.getSession().then(async function(result) {
         if (result.data.session) {
+            // Check 10-hour expiry
+            var loginTime = localStorage.getItem(ADM_LOGIN_TIME_KEY);
+            var elapsed = loginTime ? (Date.now() - parseInt(loginTime, 10)) : Infinity;
+            if (elapsed >= ADM_SESSION_MAX_AGE_MS) {
+                console.log('Admin: Session expired (10h). Signing out.');
+                await db.auth.signOut();
+                localStorage.removeItem(ADM_LOGIN_TIME_KEY);
+                return; // stays on login screen
+            }
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
             loadData('minibar_items', renderMinibar);

@@ -10,9 +10,31 @@
     var ROOM_MAX = 17;
     var EMAIL_DOMAIN = '@hotel.local'; // internal — users see 'gardeninnN'
     var LS_ROOM_KEY = 'gi_room_number';
+    var LS_LOGIN_TIME_KEY = 'gi_login_timestamp';
+    var SESSION_MAX_AGE_MS = 10 * 60 * 60 * 1000; // 10 hours in milliseconds
 
     // Expose globally
     window.currentRoom = null;
+
+    // Check if session has expired (10 hours)
+    function isSessionExpired() {
+        var loginTime = localStorage.getItem(LS_LOGIN_TIME_KEY);
+        if (!loginTime) return true;
+        var elapsed = Date.now() - parseInt(loginTime, 10);
+        return elapsed >= SESSION_MAX_AGE_MS;
+    }
+
+    // Clear all project-related localStorage keys
+    function clearAllProjectData() {
+        localStorage.removeItem(LS_ROOM_KEY);
+        localStorage.removeItem(LS_LOGIN_TIME_KEY);
+        localStorage.removeItem('gi_my_bookings');
+        localStorage.removeItem('hk_pending_room');
+        localStorage.removeItem('hk_pending_id');
+        localStorage.removeItem('hk_accepted_id');
+        localStorage.removeItem('hk_active_notification');
+        window.currentRoom = null;
+    }
 
     window.getRoomNumber = function () {
         return window.currentRoom || localStorage.getItem(LS_ROOM_KEY) || null;
@@ -87,11 +109,11 @@
     function setRoom(roomNumber) {
         window.currentRoom = String(roomNumber);
         localStorage.setItem(LS_ROOM_KEY, String(roomNumber));
+        localStorage.setItem(LS_LOGIN_TIME_KEY, String(Date.now()));
     }
 
     function clearRoom() {
-        window.currentRoom = null;
-        localStorage.removeItem(LS_ROOM_KEY);
+        clearAllProjectData();
     }
 
     // ==================== UI: ROOM BADGE ====================
@@ -223,6 +245,15 @@
     // ==================== INIT ====================
 
     window.initRoomAuth = async function () {
+        // 0. Check session expiry (10 hours)
+        if (isSessionExpired() && localStorage.getItem(LS_ROOM_KEY)) {
+            console.log('RoomAuth: Session expired (10h). Clearing all data.');
+            if (window.supabaseClient) {
+                await window.supabaseClient.auth.signOut();
+            }
+            clearAllProjectData();
+        }
+
         // 1. Check URL params
         var urlParams = new URLSearchParams(window.location.search);
         var roomParam = urlParams.get('room');
