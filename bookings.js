@@ -110,7 +110,8 @@
                     minDate: armTodayStr,
                     defaultDate: armTodayStr,
                     dateFormat: "Y-m-d",
-                    disableMobile: "true"
+                    disableMobile: true,
+                    allowInput: false
                 });
             } else {
                 dateInput.min = armTodayStr;
@@ -127,7 +128,8 @@
                     dateFormat: "H:i",
                     time_24hr: true,
                     defaultDate: "10:00",
-                    disableMobile: "true"
+                    disableMobile: true,
+                    allowInput: false
                 });
             }
             if (timeToInput) {
@@ -137,7 +139,8 @@
                     dateFormat: "H:i",
                     time_24hr: true,
                     defaultDate: "12:00",
-                    disableMobile: "true"
+                    disableMobile: true,
+                    allowInput: false
                 });
             }
         }
@@ -258,6 +261,17 @@
         var timeToInput = document.getElementById('booking-time-to');
         var timeFrom = timeFromInput ? timeFromInput.value : '';
         var timeTo = timeToInput ? timeToInput.value : '';
+
+        // Strict time format validation
+        var timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+        if (hasCalendar && timeFrom && !timeRegex.test(timeFrom)) {
+            if (errDiv) { errDiv.textContent = t.bookingInvalidTime || 'Invalid start time format. Use HH:MM.'; errDiv.style.display = 'block'; }
+            return;
+        }
+        if (hasCalendar && timeTo && !timeRegex.test(timeTo)) {
+            if (errDiv) { errDiv.textContent = t.bookingInvalidTime || 'Invalid end time format. Use HH:MM.'; errDiv.style.display = 'block'; }
+            return;
+        }
 
         // Validate time ordering: time_from must be before time_to
         if (hasCalendar && timeFrom && timeTo) {
