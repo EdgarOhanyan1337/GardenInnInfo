@@ -209,32 +209,43 @@
     // ==================== INIT ====================
 
     window.initRoomAuth = async function () {
-        // 1. Check URL param
+        // 1. Check URL params
         var params = new URLSearchParams(window.location.search);
         var roomParam = params.get('room');
+        var isQR = params.get('qr') === '1';
 
         // 2. Check existing session
         var existingRoom = localStorage.getItem(LS_ROOM_KEY);
 
-        if (roomParam && isValidRoom(roomParam)) {
-            // QR scan flow
+        if (roomParam && isValidRoom(roomParam) && isQR) {
+            // === QR SCAN: auto-login immediately ===
             var roomNum = parseInt(roomParam, 10);
+            showLoginOverlay();
             showLoginLoading(true);
+
+            var input = document.getElementById('room-login-input');
+            if (input) input.value = roomNum;
 
             var success = await authenticateRoom(roomNum);
             if (success) {
                 setRoom(roomNum);
+                hideLoginOverlay();
                 showRoomBadge(roomNum);
                 // Clean URL
                 var url = new URL(window.location);
                 url.searchParams.delete('room');
+                url.searchParams.delete('qr');
                 window.history.replaceState({}, '', url.pathname + url.search);
             } else {
-                showLoginOverlay();
                 showLoginError('Failed to authenticate room ' + roomNum + '. Please try manually.');
             }
 
             showLoginLoading(false);
+        } else if (roomParam && isValidRoom(roomParam) && !isQR) {
+            // === MANUAL URL: show login with room pre-filled, wait for user ===
+            showLoginOverlay();
+            var input = document.getElementById('room-login-input');
+            if (input) input.value = parseInt(roomParam, 10);
         } else if (roomParam && !isValidRoom(roomParam)) {
             // Invalid room in URL
             showLoginOverlay();
@@ -246,7 +257,7 @@
                 window.currentRoom = existingRoom;
                 showRoomBadge(existingRoom);
             } else {
-                // Session expired, re-auth
+                // Session expired, re-auth silently
                 var success = await authenticateRoom(parseInt(existingRoom, 10));
                 if (success) {
                     showRoomBadge(existingRoom);
