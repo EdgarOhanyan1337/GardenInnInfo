@@ -115,6 +115,11 @@
     background-size: 200% 100%;
 }
 
+[data-theme="light"] .logo-subline {
+    fill: url(#logo-dark-grad);
+    font-weight: 700;
+}
+
 [data-theme="light"] .modal {
     background: rgba(240, 245, 240, 0.5);
     backdrop-filter: blur(8px);
@@ -2348,6 +2353,62 @@ body {
     font-size: 0.7rem;
     font-weight: 800;
     flex-shrink: 0;
+}
+
+.social-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-md);
+    background: var(--color-glass);
+    border: 1px solid var(--color-glass-border);
+    position: relative;
+    overflow: hidden;
+}
+
+.social-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    z-index: 1;
+}
+
+.social-icon.instagram::before {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+}
+.social-icon.facebook::before {
+    background: #1877F2;
+}
+.social-icon.booking::before {
+    background: #003580;
+}
+
+.social-icon svg {
+    width: 28px;
+    height: 28px;
+    transition: transform var(--transition-bounce), filter var(--transition-normal);
+    position: relative;
+    z-index: 2;
+}
+
+.social-icon:hover {
+    transform: translateX(-5px) scale(1.1);
+    border-color: transparent;
+}
+
+.social-icon:hover::before {
+    opacity: 1;
+}
+
+.social-icon:hover svg {
+    transform: scale(1.15);
+    filter: brightness(0) invert(1);
 }
 
 .booking-form-body {
