@@ -2540,6 +2540,22 @@ body {
     gap: 14px;
 }
 
+.room-login-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+}
+
+.room-login-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--color-primary-light);
+    font-weight: 600;
+    padding-left: 4px;
+}
+
 .room-login-input {
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.12);

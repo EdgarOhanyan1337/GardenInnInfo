@@ -153,33 +153,47 @@
     // ==================== MANUAL LOGIN HANDLER ====================
 
     window.handleRoomLogin = async function () {
-        var input = document.getElementById('room-login-input');
-        if (!input) return;
+        var emailInput = document.getElementById('room-login-email');
+        var passwordInput = document.getElementById('room-login-password');
+        if (!emailInput || !passwordInput) return;
 
-        var room = input.value.trim();
+        var email = emailInput.value.trim();
+        var password = passwordInput.value.trim();
         hideLoginError();
 
-        if (!isValidRoom(room)) {
-            showLoginError('Please enter a valid room number (1–17)');
+        if (!email || !password) {
+            showLoginError('Please enter both login and password.');
             return;
         }
 
         showLoginLoading(true);
 
-        var success = await authenticateRoom(parseInt(room, 10));
+        // Try sign in directly with provided credentials
+        var { data, error } = await window.supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
 
-        if (success) {
-            setRoom(parseInt(room, 10));
-            hideLoginOverlay();
-            showRoomBadge(room);
-            // Auto-fill any existing room fields
-            autoFillRoomFields();
-            // Clean URL
-            var url = new URL(window.location);
-            url.searchParams.delete('room');
-            window.history.replaceState({}, '', url.pathname + url.search);
+        if (data && data.session) {
+            // Extract room number from email (room5@gardeninn.local → 5)
+            var match = email.match(/^room(\d+)@/);
+            var room = match ? match[1] : (data.session.user.user_metadata && data.session.user.user_metadata.room_number) || '';
+
+            if (room) {
+                setRoom(room);
+                hideLoginOverlay();
+                showRoomBadge(room);
+                autoFillRoomFields();
+                // Clean URL
+                var url = new URL(window.location);
+                url.searchParams.delete('room');
+                url.searchParams.delete('qr');
+                window.history.replaceState({}, '', url.pathname + url.search);
+            } else {
+                showLoginError('Could not determine room number.');
+            }
         } else {
-            showLoginError('Authentication error. Please try again.');
+            showLoginError(error ? error.message : 'Invalid login or password.');
         }
 
         showLoginLoading(false);
@@ -223,8 +237,10 @@
             showLoginOverlay();
             showLoginLoading(true);
 
-            var input = document.getElementById('room-login-input');
-            if (input) input.value = roomNum;
+            var emailField = document.getElementById('room-login-email');
+            var passField = document.getElementById('room-login-password');
+            if (emailField) emailField.value = makeEmail(roomNum);
+            if (passField) passField.value = makePassword(roomNum);
 
             var success = await authenticateRoom(roomNum);
             if (success) {
@@ -244,8 +260,10 @@
         } else if (roomParam && isValidRoom(roomParam) && !isQR) {
             // === MANUAL URL: show login with room pre-filled, wait for user ===
             showLoginOverlay();
-            var input = document.getElementById('room-login-input');
-            if (input) input.value = parseInt(roomParam, 10);
+            var emailField = document.getElementById('room-login-email');
+            var passField = document.getElementById('room-login-password');
+            if (emailField) emailField.value = makeEmail(parseInt(roomParam, 10));
+            if (passField) passField.value = makePassword(parseInt(roomParam, 10));
         } else if (roomParam && !isValidRoom(roomParam)) {
             // Invalid room in URL
             showLoginOverlay();

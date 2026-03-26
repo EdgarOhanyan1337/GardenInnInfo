@@ -611,16 +611,23 @@
         <div class="room-login-card">
             <div class="room-login-icon">🏨</div>
             <h2 class="room-login-title">Welcome to Garden Inn</h2>
-            <p class="room-login-subtitle">Enter your room number to continue</p>
+            <p class="room-login-subtitle">Sign in to access hotel services</p>
             <div class="room-login-form">
-                <input type="number" id="room-login-input" class="room-login-input" min="1" max="17" placeholder="Room number (1–17)">
+                <div class="room-login-field">
+                    <label class="room-login-label">Login</label>
+                    <input type="text" id="room-login-email" class="room-login-input" placeholder="e.g. room5@gardeninn.local">
+                </div>
+                <div class="room-login-field">
+                    <label class="room-login-label">Password</label>
+                    <input type="password" id="room-login-password" class="room-login-input" placeholder="Enter password">
+                </div>
                 <div id="room-login-error" class="room-login-error" style="display:none;"></div>
                 <button id="room-login-btn" class="room-login-btn" onclick="handleRoomLogin()">
                     <span id="room-login-spinner" class="room-login-spinner" style="display:none;"></span>
-                    <span>Continue</span>
+                    <span>Sign In</span>
                 </button>
             </div>
-            <p class="room-login-hint">Scan the QR code in your room for instant access</p>
+            <p class="room-login-hint">💡 Scan the QR code in your room for instant access</p>
         </div>
     </div>
 
