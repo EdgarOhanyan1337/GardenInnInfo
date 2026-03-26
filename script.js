@@ -514,10 +514,9 @@ function showToast(message) {
 
 // Call Housekeeping
 window.callHousekeeping = async function () {
-    var roomInput = document.getElementById('hk-room');
-    var room = roomInput ? roomInput.value.trim() : '';
+    var room = window.getRoomNumber ? window.getRoomNumber() : '';
     var t = translations[currentLang] || translations.en;
-    if (!room) { alert(t.hkAlertRoom); return; }
+    if (!room) { alert(t.hkAlertRoom || 'Room not detected. Please scan the QR code.'); return; }
     if (!supabaseClient) { alert(t.hkAlertConnection); return; }
 
     var code = generateCode();
@@ -872,7 +871,10 @@ function initStarRating() {
 }
 // ==================== INIT ====================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Room auth must be first — determines room context for all features
+    if (window.initRoomAuth) await initRoomAuth();
+    
     initLanguage();
     initTheme();
     initWiFi();

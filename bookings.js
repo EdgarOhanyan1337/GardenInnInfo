@@ -115,9 +115,9 @@
         modal.dataset.serviceId = serviceId;
         modal.dataset.hasCalendar = hasCalendar ? 'true' : 'false';
 
-        // Load booked dates to disable them
-        if (hasCalendar && dateInput) {
-            await loadAndDisableBookedDates(serviceId, dateInput);
+        // Load booked time slots for overlap checking
+        if (hasCalendar) {
+            await loadBookedSlots(serviceId);
         }
 
         // Close any currently active modals before opening
@@ -138,40 +138,49 @@
         }
     };
 
-    // ==================== LOAD BOOKED DATES ====================
+    // ==================== LOAD BOOKED TIME SLOTS ====================
 
-    var bookedDatesCache = {};
+    var bookedSlotsCache = {};
 
-    async function loadAndDisableBookedDates(serviceId, dateInput) {
+    async function loadBookedSlots(serviceId) {
         if (!window.supabaseClient) return;
         try {
             var { data } = await window.supabaseClient
                 .from('bookings')
-                .select('date')
+                .select('date, time_from, time_to')
                 .eq('service_id', serviceId)
-                .eq('status', 'approved');
+                .in('status', ['approved', 'pending']);
 
-            var dates = (data || []).map(function (b) { return b.date; });
-            bookedDatesCache[serviceId] = dates;
-
-            // We'll validate on change since native date input doesn't support disabling specific dates
-            dateInput.onchange = function () {
-                if (dates.indexOf(dateInput.value) !== -1) {
-                    var t = (window.translations && window.translations[window.currentLang]) || {};
-                    var errDiv = document.getElementById('booking-err');
-                    if (errDiv) {
-                        errDiv.textContent = t.bookingDateTaken || 'This date is already booked. Please choose another.';
-                        errDiv.style.display = 'block';
-                    }
-                    dateInput.value = '';
-                } else {
-                    var errDiv = document.getElementById('booking-err');
-                    if (errDiv) { errDiv.style.display = 'none'; errDiv.textContent = ''; }
-                }
-            };
+            bookedSlotsCache[serviceId] = (data || []).map(function (b) {
+                return { date: b.date, time_from: b.time_from, time_to: b.time_to };
+            });
         } catch (e) {
-            console.error('Error loading booked dates:', e);
+            console.error('Error loading booked slots:', e);
         }
+    }
+
+    function timeToMinutes(t) {
+        if (!t) return 0;
+        var parts = t.split(':');
+        return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    }
+
+    function hasTimeOverlap(serviceId, date, timeFrom, timeTo) {
+        var slots = bookedSlotsCache[serviceId];
+        if (!slots || !slots.length) return false;
+        var newStart = timeToMinutes(timeFrom);
+        var newEnd = timeToMinutes(timeTo);
+        for (var i = 0; i < slots.length; i++) {
+            if (slots[i].date === date && slots[i].time_from && slots[i].time_to) {
+                var existStart = timeToMinutes(slots[i].time_from);
+                var existEnd = timeToMinutes(slots[i].time_to);
+                // Overlap: newStart < existEnd AND newEnd > existStart
+                if (newStart < existEnd && newEnd > existStart) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     // ==================== SUBMIT BOOKING ====================
@@ -184,14 +193,13 @@
         var hasCalendar = modal.dataset.hasCalendar === 'true';
 
         var nameInput = document.getElementById('booking-guest-name');
-        var roomInput = document.getElementById('booking-room-number');
         var dateInput = document.getElementById('booking-date');
         var submitBtn = document.getElementById('booking-submit-btn');
         var msgDiv = document.getElementById('booking-msg');
         var errDiv = document.getElementById('booking-err');
 
         var guestName = nameInput ? nameInput.value.trim() : '';
-        var roomNumber = roomInput ? roomInput.value.trim() : '';
+        var roomNumber = window.getRoomNumber ? window.getRoomNumber() : '';
         var date = dateInput ? dateInput.value : null;
 
         var t = (window.translations && window.translations[window.currentLang]) || {};
@@ -202,7 +210,7 @@
             return;
         }
         if (!roomNumber) {
-            if (errDiv) { errDiv.textContent = t.bookingRoomRequired || 'Please enter your room number'; errDiv.style.display = 'block'; }
+            if (errDiv) { errDiv.textContent = t.bookingRoomRequired || 'Room not detected. Please scan the QR code in your room.'; errDiv.style.display = 'block'; }
             return;
         }
         if (hasCalendar && !date) {
@@ -210,16 +218,25 @@
             return;
         }
 
-        // Check for double booking
-        if (hasCalendar && bookedDatesCache[serviceId] && bookedDatesCache[serviceId].indexOf(date) !== -1) {
-            if (errDiv) { errDiv.textContent = t.bookingDateTaken || 'This date is already booked'; errDiv.style.display = 'block'; }
-            return;
-        }
 
         var timeFromInput = document.getElementById('booking-time-from');
         var timeToInput = document.getElementById('booking-time-to');
         var timeFrom = timeFromInput ? timeFromInput.value : '';
         var timeTo = timeToInput ? timeToInput.value : '';
+
+        // Validate time ordering: time_from must be before time_to
+        if (hasCalendar && timeFrom && timeTo) {
+            if (timeToMinutes(timeFrom) >= timeToMinutes(timeTo)) {
+                if (errDiv) { errDiv.textContent = t.bookingTimeOrder || 'End time must be after start time.'; errDiv.style.display = 'block'; }
+                return;
+            }
+        }
+
+        // Check for time overlap with existing bookings
+        if (hasCalendar && date && timeFrom && timeTo && hasTimeOverlap(serviceId, date, timeFrom, timeTo)) {
+            if (errDiv) { errDiv.textContent = t.bookingTimeOverlap || 'This time slot overlaps with an existing booking. Please choose a different time.'; errDiv.style.display = 'block'; }
+            return;
+        }
 
         // Armenian Time validation
         if (hasCalendar && date && timeFrom) {
@@ -322,12 +339,17 @@
 
                 if (booking.status === 'approved') {
                     var title = t.bookingApprovedTitle || '✅ Booking Approved';
-                    var body = t.bookingApprovedBody || 'Your booking has been approved!';
+                    var body = (t.bookingApprovedBody || 'Your booking has been approved!') + '\n' + (t.bookingReceptionMsg || '🏨 Please approach the reception.');
                     showBookingToast(title, body, 'approved');
                     if (window.showBrowserNotification) {
                         window.showBrowserNotification(title, body);
                     }
                     playBookingNotificationSound();
+
+                    // Schedule 30-minute reminder if booking has date and time
+                    if (booking.date && booking.time_from) {
+                        scheduleBookingReminder(booking);
+                    }
                 } else if (booking.status === 'rejected') {
                     var reason = booking.reject_reason || '';
                     var title = t.bookingRejectedTitle || '❌ Booking Rejected';
@@ -391,6 +413,52 @@
             osc.start();
             osc.stop(ctx.currentTime + 1);
         } catch (e) { /* ignore audio errors */ }
+    }
+    // ==================== 30-MINUTE BOOKING REMINDER ====================
+
+    var scheduledReminders = {};
+
+    function scheduleBookingReminder(booking) {
+        if (scheduledReminders[booking.id]) return; // already scheduled
+
+        try {
+            // Parse booking date + time_from in Yerevan timezone
+            var dateStr = booking.date; // e.g. "2026-03-26"
+            var timeStr = booking.time_from; // e.g. "15:00"
+            var parts = dateStr.split('-');
+            var timeParts = timeStr.split(':');
+
+            // Get current time in Armenia
+            var armeniaTimeStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Yerevan" });
+            var armeniaNow = new Date(armeniaTimeStr);
+
+            // Construct booking start time as Armenia local
+            var bookingStart = new Date(
+                parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]),
+                parseInt(timeParts[0]), parseInt(timeParts[1]), 0
+            );
+
+            // 30 minutes before
+            var reminderTime = new Date(bookingStart.getTime() - 30 * 60 * 1000);
+            var msUntilReminder = reminderTime.getTime() - armeniaNow.getTime();
+
+            if (msUntilReminder > 0) {
+                var t = (window.translations && window.translations[window.currentLang]) || {};
+                scheduledReminders[booking.id] = setTimeout(function () {
+                    var title = t.bookingReminderTitle || '⏳ Booking Reminder';
+                    var body = (t.bookingReminderBody || 'Your booking starts in 30 minutes!') + '\n' + (t.bookingReceptionMsg || '🏨 Please approach the reception.');
+                    showBookingToast(title, body, 'approved');
+                    if (window.showBrowserNotification) {
+                        window.showBrowserNotification(title, body);
+                    }
+                    playBookingNotificationSound();
+                    delete scheduledReminders[booking.id];
+                }, msUntilReminder);
+                console.log('Reminder scheduled for booking', booking.id, 'in', Math.round(msUntilReminder / 60000), 'minutes');
+            }
+        } catch (e) {
+            console.error('Error scheduling reminder:', e);
+        }
     }
 
 })();

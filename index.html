@@ -72,6 +72,7 @@
             </svg>
         </div>
         <div class="header-controls">
+            <span id="room-badge" class="room-badge" style="display:none;"></span>
             <button id="theme-toggle" class="theme-toggle" aria-label="Переключить тему">
                 <span class="theme-icon">☀️</span>
             </button>
@@ -475,9 +476,8 @@
 
             <!-- CALL TAB -->
             <div id="hk-call-view" class="hk-view">
-                <div class="hk-input-group">
-                    <label class="hk-label">&#x1F3E0; <span data-key="hkRoomLabel">Room Number</span></label>
-                    <input type="text" id="hk-room" class="hk-input" placeholder="Enter your room number" data-placeholder-key="hkRoomPlaceholder">
+                <div class="hk-input-group" id="hk-room-group" style="display:none;">
+                    <input type="hidden" id="hk-room">
                 </div>
                 <button id="hk-submit-btn" class="hk-submit-btn" onclick="callHousekeeping()">
                     <span>&#x1F9F9;</span> <span data-key="hkCallNow">Call Now</span>
@@ -569,9 +569,8 @@
                     <label class="booking-form-label" data-key="bookingGuestName">👤 Your Name</label>
                     <input type="text" id="booking-guest-name" class="hk-input" placeholder="Enter your name" data-placeholder-key="bookingNamePlaceholder">
                 </div>
-                <div class="booking-form-group">
-                    <label class="booking-form-label" data-key="bookingRoomNumber">🏠 Room Number</label>
-                    <input type="text" id="booking-room-number" class="hk-input" placeholder="Enter your room number" data-placeholder-key="bookingRoomPlaceholder">
+                <div class="booking-form-group" id="booking-room-group" style="display:none;">
+                    <input type="hidden" id="booking-room-number">
                 </div>
                 <div class="booking-form-group" id="booking-date-group">
                     <label class="booking-form-label" data-key="bookingDate">📅 Select Date</label>
@@ -579,10 +578,20 @@
                 </div>
                 <div class="booking-form-group" id="booking-time-group" style="display:none;">
                     <label class="booking-form-label" data-key="bookingTime">🕐 Select Time</label>
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <input type="time" id="booking-time-from" class="hk-input" style="flex:1;" value="10:00">
-                        <span style="color: var(--color-primary-light); font-weight: 600;">—</span>
-                        <input type="time" id="booking-time-to" class="hk-input" style="flex:1;" value="12:00">
+                    <div class="time-picker-card">
+                        <div class="time-picker-slot">
+                            <span class="time-picker-label">From</span>
+                            <input type="time" id="booking-time-from" class="time-picker-input" value="10:00">
+                        </div>
+                        <div class="time-picker-divider">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                        <div class="time-picker-slot">
+                            <span class="time-picker-label">To</span>
+                            <input type="time" id="booking-time-to" class="time-picker-input" value="12:00">
+                        </div>
                     </div>
                 </div>
                 <button id="booking-submit-btn" class="hk-submit-btn" onclick="submitBooking()">
@@ -597,7 +606,26 @@
         </div>
     </section>
 
-    <script src="script.js?v=7"></script>
+    <!-- Room Login Overlay (fallback for guests without QR) -->
+    <div id="room-login-overlay" class="room-login-overlay">
+        <div class="room-login-card">
+            <div class="room-login-icon">🏨</div>
+            <h2 class="room-login-title">Welcome to Garden Inn</h2>
+            <p class="room-login-subtitle">Enter your room number to continue</p>
+            <div class="room-login-form">
+                <input type="number" id="room-login-input" class="room-login-input" min="1" max="17" placeholder="Room number (1–17)">
+                <div id="room-login-error" class="room-login-error" style="display:none;"></div>
+                <button id="room-login-btn" class="room-login-btn" onclick="handleRoomLogin()">
+                    <span id="room-login-spinner" class="room-login-spinner" style="display:none;"></span>
+                    <span>Continue</span>
+                </button>
+            </div>
+            <p class="room-login-hint">Scan the QR code in your room for instant access</p>
+        </div>
+    </div>
+
+    <script src="room-auth.js?v=1"></script>
+    <script src="script.js?v=8"></script>
 </body>
 
 </html>

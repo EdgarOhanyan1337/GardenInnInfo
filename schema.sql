@@ -203,3 +203,21 @@ GRANT ALL ON bookings TO anon, authenticated, service_role;
 ALTER PUBLICATION supabase_realtime ADD TABLE bookings;
 
 -- DONE! Tables created + RLS disabled + GRANT permissions given.
+
+-- ============================================
+-- ROOMS TABLE (for QR-based room auth)
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS rooms (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  room_number INTEGER UNIQUE NOT NULL CHECK (room_number >= 1 AND room_number <= 17),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Seed rooms 1-17
+INSERT INTO rooms (room_number)
+SELECT generate_series(1, 17)
+ON CONFLICT (room_number) DO NOTHING;
+
+ALTER TABLE rooms DISABLE ROW LEVEL SECURITY;
+GRANT ALL ON rooms TO anon, authenticated, service_role;
