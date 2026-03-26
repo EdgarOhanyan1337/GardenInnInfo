@@ -545,7 +545,6 @@ window.callHousekeeping = async function () {
         var codeDisplay = document.getElementById('hk-code-display');
         if (codeDisplay) codeDisplay.textContent = code;
         if (msgDiv) msgDiv.style.display = 'block';
-        if (roomInput) roomInput.style.display = 'none';
         if (submitBtn) submitBtn.style.display = 'none';
     } catch (e) {
         console.error('Housekeeping error:', e);

@@ -9,7 +9,6 @@
     var ROOM_MIN = 1;
     var ROOM_MAX = 17;
     var EMAIL_DOMAIN = '@hotel.local'; // internal — users see 'gardeninnN'
-    var PASSWORD_PREFIX = 'gardeninnpassword';
     var LS_ROOM_KEY = 'gi_room_number';
 
     // Expose globally
@@ -23,10 +22,6 @@
         return 'gardeninn' + room + EMAIL_DOMAIN;
     }
 
-    function makePassword(room) {
-        return PASSWORD_PREFIX + room;
-    }
-
     function isValidRoom(num) {
         var n = parseInt(num, 10);
         return !isNaN(n) && n >= ROOM_MIN && n <= ROOM_MAX;
@@ -34,14 +29,13 @@
 
     // ==================== AUTH FLOW ====================
 
-    async function authenticateRoom(roomNumber) {
+    async function authenticateRoom(roomNumber, password) {
         if (!window.supabaseClient) {
             console.error('RoomAuth: Supabase client not available');
             return false;
         }
 
         var email = makeEmail(roomNumber);
-        var password = makePassword(roomNumber);
 
         // Try sign in
         var { data, error } = await window.supabaseClient.auth.signInWithPassword({
@@ -230,33 +224,37 @@
 
     window.initRoomAuth = async function () {
         // 1. Check URL params
-        var params = new URLSearchParams(window.location.search);
-        var roomParam = params.get('room');
-        var isQR = params.get('qr') === '1';
+        var urlParams = new URLSearchParams(window.location.search);
+        var roomParam = urlParams.get('room');
+        var keyParam = urlParams.get('key'); // QR now passes &key=password
+        var isQR = (urlParams.get('qr') === '1' || !!keyParam);
 
         // 2. Check existing session
         var existingRoom = localStorage.getItem(LS_ROOM_KEY);
 
         if (roomParam && isValidRoom(roomParam) && isQR) {
-            // === QR SCAN: auto-login immediately ===
+            // === QR SCAN: attempt auto-login ===
             var roomNum = parseInt(roomParam, 10);
+            
             showLoginOverlay();
             showLoginLoading(true);
 
             var emailField = document.getElementById('room-login-email');
             var passField = document.getElementById('room-login-password');
             if (emailField) emailField.value = makeEmail(roomNum);
-            if (passField) passField.value = makePassword(roomNum);
+            if (passField) passField.value = keyParam || '';
 
-            var success = await authenticateRoom(roomNum);
+            var success = await authenticateRoom(roomNum, keyParam);
             if (success) {
                 setRoom(roomNum);
                 hideLoginOverlay();
                 showRoomBadge(roomNum);
+                autoFillRoomFields();
                 // Clean URL
                 var url = new URL(window.location);
                 url.searchParams.delete('room');
                 url.searchParams.delete('qr');
+                url.searchParams.delete('key');
                 window.history.replaceState({}, '', url.pathname + url.search);
             } else {
                 showLoginError('Failed to authenticate room ' + roomNum + '. Please try manually.');
@@ -268,8 +266,8 @@
             showLoginOverlay();
             var emailField = document.getElementById('room-login-email');
             var passField = document.getElementById('room-login-password');
-            if (emailField) emailField.value = makeEmail(parseInt(roomParam, 10));
-            if (passField) passField.value = makePassword(parseInt(roomParam, 10));
+            if (emailField) emailField.value = "gardeninn" + parseInt(roomParam, 10); // Display the user-friendly format
+            if (passField) passField.value = ""; // Don't prefill password anymore
         } else if (roomParam && !isValidRoom(roomParam)) {
             // Invalid room in URL
             showLoginOverlay();

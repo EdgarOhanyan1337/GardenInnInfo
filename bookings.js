@@ -305,7 +305,6 @@
             // Show success
             if (msgDiv) msgDiv.style.display = 'block';
             if (nameInput) nameInput.style.display = 'none';
-            if (roomInput) roomInput.style.display = 'none';
             if (dateInput) dateInput.style.display = 'none';
             if (submitBtn) submitBtn.style.display = 'none';
             var dateGroup = document.getElementById('booking-date-group');

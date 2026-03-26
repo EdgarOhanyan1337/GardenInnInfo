@@ -91,7 +91,8 @@
         const container = document.getElementById("qr-container");
 
         for (let i = 1; i <= 17; i++) {
-            const url = BASE_URL + i + "&qr=1";
+            const password = "gardeninnpassword" + i;
+            const url = BASE_URL + i + "&key=" + password;
             
             const card = document.createElement("div");
             card.className = "card";

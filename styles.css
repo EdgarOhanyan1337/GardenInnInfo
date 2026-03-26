@@ -2656,3 +2656,9 @@ body {
     background: linear-gradient(135deg, rgba(46, 139, 87, 0.12), rgba(60, 179, 113, 0.08));
     color: var(--color-primary-dark);
 }
+
+@media (max-width: 768px) {
+    .room-badge {
+        display: none !important;
+    }
+}
