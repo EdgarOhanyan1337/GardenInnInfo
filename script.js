@@ -194,11 +194,28 @@ function setTheme(theme) {
 
 function openModal(id) {
     var modal = document.getElementById(id + '-modal');
-    if (modal) { modal.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    if (modal) { 
+        // If there's already an active modal, mark this one as a nested modal to avoid stacking dark backgrounds
+        var activeModals = document.querySelectorAll('.modal.active');
+        if (activeModals.length > 0 && !modal.classList.contains('active')) {
+            modal.classList.add('nested-modal');
+        }
+        modal.classList.add('active'); 
+        document.body.style.overflow = 'hidden'; 
+    }
 }
 
 function closeModal(modal) {
-    if (modal) { modal.classList.remove('active'); document.body.style.overflow = ''; }
+    if (modal) { 
+        modal.classList.remove('active');
+        modal.classList.remove('nested-modal');
+        
+        // If there are no active modals left, restore scroll
+        var activeModals = document.querySelectorAll('.modal.active');
+        if (activeModals.length === 0) {
+            document.body.style.overflow = ''; 
+        }
+    }
 }
 
 function initModals() {

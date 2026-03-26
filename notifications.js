@@ -23,7 +23,13 @@
 
     // Show a browser push notification
     window.showBrowserNotification = function (title, body, icon) {
+        // Fallback: If push notifications aren't supported or denied, use the site's toast system
         if (!('Notification' in window) || Notification.permission !== 'granted') {
+            if (window.showToast) {
+                window.showToast('🔔 <b>' + title + '</b><br>' + body);
+            } else if (window.showBookingToast) {
+                window.showBookingToast(title, body, 'info');
+            }
             return;
         }
         try {

@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+ёёimport { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const BOT_TOKEN = Deno.env.get('BOOKING_TELEGRAM_BOT_TOKEN')!

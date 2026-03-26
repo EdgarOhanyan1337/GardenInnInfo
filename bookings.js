@@ -31,6 +31,12 @@
         modal.dataset.serviceName = serviceName;
         modal.dataset.hasCalendar = hasCalendar ? 'true' : 'false';
 
+        // Check for active modals before opening
+        var activeModals = document.querySelectorAll('.modal.active');
+        if (activeModals.length > 0 && !modal.classList.contains('active')) {
+            modal.classList.add('nested-modal');
+        }
+
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
     };
@@ -39,7 +45,13 @@
         var modal = document.getElementById('booking-confirm-modal');
         if (modal) {
             modal.classList.remove('active');
-            document.body.style.overflow = '';
+            modal.classList.remove('nested-modal');
+            
+            // If there are no other active modals, restore scroll
+            var activeModals = document.querySelectorAll('.modal.active');
+            if (activeModals.length === 0) {
+                document.body.style.overflow = '';
+            }
         }
     };
 
@@ -108,6 +120,12 @@
             await loadAndDisableBookedDates(serviceId, dateInput);
         }
 
+        // Check for active modals before opening
+        var activeModals = document.querySelectorAll('.modal.active');
+        if (activeModals.length > 0 && !modal.classList.contains('active')) {
+            modal.classList.add('nested-modal');
+        }
+
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
     };
@@ -116,7 +134,13 @@
         var modal = document.getElementById('booking-form-modal');
         if (modal) {
             modal.classList.remove('active');
-            document.body.style.overflow = '';
+            modal.classList.remove('nested-modal');
+            
+            // If there are no other active modals, restore scroll
+            var activeModals = document.querySelectorAll('.modal.active');
+            if (activeModals.length === 0) {
+                document.body.style.overflow = '';
+            }
         }
     };
 
@@ -239,25 +263,8 @@
             myBookingIds.push(data.id);
             saveMyBookings();
 
-            // Send notification to Telegram Bot manually
-            try {
-                if (window.ROOT_SUPABASE_URL) {
-                    await fetch(window.ROOT_SUPABASE_URL + '/functions/v1/booking-telegram-bot', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + window.ROOT_SUPABASE_KEY
-                        },
-                        body: JSON.stringify({
-                            type: 'INSERT',
-                            table: 'bookings',
-                            record: Object.assign({}, insertData, { id: data.id })
-                        })
-                    });
-                }
-            } catch (tgErr) {
-                console.error('Telegram notification error:', tgErr);
-            }
+            // The Supabase Database Webhook will automatically send the Telegram notification
+            // when the 'bookings' row is inserted. No need to trigger manually here.
 
             // Show success
             if (msgDiv) msgDiv.style.display = 'block';
