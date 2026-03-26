@@ -204,13 +204,16 @@ serve(async (req: Request) => {
             const guestName = bData.guest_name || 'Гость'
             const room = bData.room_number || 'Н/Д'
             const date = bData.date || 'Без даты'
+            const timeFrom = bData.time_from || ''
+            const timeTo = bData.time_to || ''
             const serviceName = Array.isArray(bData.services) ? bData.services[0]?.title_ru : (bData.services?.title_ru || bData.services?.title_en || 'Услуга')
             
+            const timeLine = (timeFrom && timeTo) ? `\n🕐 Время: *${timeFrom} — ${timeTo}*` : ''
             const baseMessage = `📅 *Бронирование (ОТКЛОНЕНО)*\n\n` +
                     `🛠 Услуга: *${serviceName}*\n` +
                     `👤 Гость: *${guestName}*\n` +
                     `🏠 Номер: *${room}*\n` +
-                    `🗓 Дата: *${date}*`
+                    `🗓 Дата: *${date}*${timeLine}`
 
             const statusText = `❌ *Отклонил(а): ${firstName}*\n📝 Причина: ${reason}`
 
@@ -279,13 +282,16 @@ serve(async (req: Request) => {
           const guestName = bData.guest_name || 'Гость'
           const room = bData.room_number || 'Н/Д'
           const date = bData.date || 'Без даты'
+          const timeFrom = bData.time_from || ''
+          const timeTo = bData.time_to || ''
           const serviceName = Array.isArray(bData.services) ? bData.services[0]?.title_ru : (bData.services?.title_ru || bData.services?.title_en || 'Услуга')
           
+          const timeLine = (timeFrom && timeTo) ? `\n🕐 Время: *${timeFrom} — ${timeTo}*` : ''
           const baseMessage = `📅 *Бронирование*\n\n` +
                   `🛠 Услуга: *${serviceName}*\n` +
                   `👤 Гость: *${guestName}*\n` +
                   `🏠 Номер: *${room}*\n` +
-                  `🗓 Дата: *${date}*`
+                  `🗓 Дата: *${date}*${timeLine}`
                   
           if (bData.tg_messages && Array.isArray(bData.tg_messages)) {
             for (const msg of bData.tg_messages) {
@@ -329,8 +335,16 @@ serve(async (req: Request) => {
     const guestName = body.record.guest_name
     const room = body.record.room_number
     const date = body.record.date || 'Без даты'
+    const timeFrom = body.record.time_from || ''
+    const timeTo = body.record.time_to || ''
     const serviceId = body.record.service_id
     const reqId = body.record.id
+
+    // Dedup: check if notifications were already sent for this booking
+    const { data: existingBooking } = await supabase.from('bookings').select('tg_messages').eq('id', reqId).single()
+    if (existingBooking && existingBooking.tg_messages && Array.isArray(existingBooking.tg_messages) && existingBooking.tg_messages.length > 0) {
+      return new Response('Already notified', { status: 200, headers: corsHeaders })
+    }
 
     // Check service name based on ID
     const { data: service } = await supabase.from('services').select('title_ru, title_en').eq('id', serviceId).single()
@@ -345,11 +359,12 @@ serve(async (req: Request) => {
 
     const chatIds = recipients?.map((r: { value: string }) => r.value) || []
     
+    const timeLine = (timeFrom && timeTo) ? `\n🕐 Время: *${timeFrom} — ${timeTo}*` : ''
     const message = `📅 *Новое Бронирование*\n\n` +
                     `🛠 Услуга: *${serviceName}*\n` +
                     `👤 Гость: *${guestName}*\n` +
                     `🏠 Номер: *${room}*\n` +
-                    `🗓 Дата: *${date}*`
+                    `🗓 Дата: *${date}*${timeLine}`
 
     const tgMessages = []
     for (const chatId of chatIds) {

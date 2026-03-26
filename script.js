@@ -638,16 +638,37 @@ async function initSupabaseFeatures() {
             if (payload.table === 'tours') loadTours();
             if (payload.table === 'rules') loadRules();
             
-            // Listen for housekeeping acceptance
+            // Listen for housekeeping acceptance and completion
             if (payload.table === 'housekeeping_requests' && payload.eventType === 'UPDATE') {
                 var newRec = payload.new;
                 var pendingId = localStorage.getItem('hk_pending_id');
+                var t = translations[currentLang] || translations.en;
                 // If this is our request and it just got accepted
                 if (pendingId && pendingId == newRec.id && newRec.status === 'accepted') {
                     showHousekeepingAcceptedBanner();
-                    // Clear the pending state so we don't trigger again for this specific request
+                    // Browser push notification
+                    if (window.showBrowserNotification) {
+                        window.showBrowserNotification(
+                            t.hkBannerTitle || 'Housekeeping',
+                            t.hkBannerText || 'Staff has accepted your request and is on the way.'
+                        );
+                    }
+                    // Save id for completion tracking, but remove pending state
+                    localStorage.setItem('hk_accepted_id', pendingId);
                     localStorage.removeItem('hk_pending_id');
                     localStorage.removeItem('hk_pending_room');
+                }
+                // If this is our request and cleaning is completed
+                var acceptedId = localStorage.getItem('hk_accepted_id');
+                if (acceptedId && acceptedId == newRec.id && newRec.status === 'completed') {
+                    showHousekeepingCompletedBanner();
+                    if (window.showBrowserNotification) {
+                        window.showBrowserNotification(
+                            t.hkCompletedTitle || '✨ Housekeeping',
+                            t.hkCompletedText || 'Cleaning is complete! Enjoy your stay.'
+                        );
+                    }
+                    localStorage.removeItem('hk_accepted_id');
                 }
             }
         })
@@ -717,7 +738,11 @@ window.dismissHousekeepingBanner = function() {
 
 function showHousekeepingAcceptedBanner() {
     // Save to local storage so it persists if they reload the page
-    localStorage.setItem('hk_active_notification', 'true');
+    localStorage.setItem('hk_active_notification', 'accepted');
+    
+    // Remove completed banner if exists
+    var existingCompleted = document.getElementById('hk-completed-banner');
+    if (existingCompleted) existingCompleted.remove();
     
     // Check if it already exists
     if (document.getElementById('hk-realtime-banner')) return;
@@ -749,10 +774,57 @@ function showHousekeepingAcceptedBanner() {
     }, 100);
 }
 
+function showHousekeepingCompletedBanner() {
+    localStorage.setItem('hk_active_notification', 'completed');
+    
+    // Remove accepted banner if exists
+    dismissHousekeepingBanner();
+    
+    // Check if it already exists
+    if (document.getElementById('hk-completed-banner')) return;
+    
+    var banner = document.createElement('div');
+    banner.id = 'hk-completed-banner';
+    banner.className = 'hk-notification-banner hk-completed-banner';
+    var t = translations[currentLang] || translations.en;
+    banner.innerHTML = `
+        <div class="hk-banner-icon">✨</div>
+        <div class="hk-banner-content">
+            <div class="hk-banner-title">${t.hkCompletedTitle || 'Housekeeping'}</div>
+            <div class="hk-banner-text">${t.hkCompletedText || 'Cleaning is complete! Enjoy your stay.'}</div>
+        </div>
+        <button class="hk-banner-close" onclick="dismissCompletedBanner()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+        </button>
+    `;
+    
+    document.body.appendChild(banner);
+    
+    setTimeout(() => {
+        banner.classList.add('show');
+        playNotificationSound();
+        startTitleFlash();
+    }, 100);
+}
+
+window.dismissCompletedBanner = function() {
+    var banner = document.getElementById('hk-completed-banner');
+    if (banner) {
+        banner.classList.remove('show');
+        setTimeout(() => banner.remove(), 600);
+    }
+    stopTitleFlash();
+    localStorage.removeItem('hk_active_notification');
+};
+
 function checkPersistentNotification() {
-    if (localStorage.getItem('hk_active_notification') === 'true') {
-        // If they reload the page while it's active, show it again but without sound
+    var notifState = localStorage.getItem('hk_active_notification');
+    if (notifState === 'accepted' || notifState === 'true') {
         showHousekeepingAcceptedBanner();
+    } else if (notifState === 'completed') {
+        showHousekeepingCompletedBanner();
     }
 }
 

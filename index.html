@@ -577,6 +577,14 @@
                     <label class="booking-form-label" data-key="bookingDate">📅 Select Date</label>
                     <input type="date" id="booking-date" class="hk-input booking-date-input">
                 </div>
+                <div class="booking-form-group" id="booking-time-group" style="display:none;">
+                    <label class="booking-form-label" data-key="bookingTime">🕐 Select Time</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="time" id="booking-time-from" class="hk-input" style="flex:1;" value="10:00">
+                        <span style="color: var(--color-primary-light); font-weight: 600;">—</span>
+                        <input type="time" id="booking-time-to" class="hk-input" style="flex:1;" value="12:00">
+                    </div>
+                </div>
                 <button id="booking-submit-btn" class="hk-submit-btn" onclick="submitBooking()">
                     <span>📨</span> <span data-key="bookingSubmit">Book Now</span>
                 </button>

@@ -2096,6 +2096,12 @@ body {
     background: rgba(255, 255, 255, 0.2);
 }
 
+/* Completed (cleaning done) banner variant */
+.hk-completed-banner {
+    background: linear-gradient(135deg, #b8860b, #daa520);
+    box-shadow: 0 10px 40px rgba(218, 165, 32, 0.4);
+}
+
 /* ==================== BOOKING SYSTEM ==================== */
 
 /* Booking Confirm Modal */

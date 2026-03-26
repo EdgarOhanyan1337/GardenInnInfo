@@ -71,13 +71,21 @@
         if (nameInput) nameInput.value = '';
         if (roomInput) roomInput.value = '';
         if (dateInput) dateInput.value = '';
+        var timeFromInput = document.getElementById('booking-time-from');
+        var timeToInput = document.getElementById('booking-time-to');
+        if (timeFromInput) timeFromInput.value = '10:00';
+        if (timeToInput) timeToInput.value = '12:00';
         if (msgDiv) msgDiv.style.display = 'none';
         if (errDiv) { errDiv.style.display = 'none'; errDiv.textContent = ''; }
         if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('loading'); }
 
-        // Show/hide calendar based on has_calendar
+        // Show/hide calendar and time based on has_calendar
         if (dateGroup) {
             dateGroup.style.display = hasCalendar ? 'flex' : 'none';
+        }
+        var timeGroup = document.getElementById('booking-time-group');
+        if (timeGroup) {
+            timeGroup.style.display = hasCalendar ? 'flex' : 'none';
         }
 
         // Set min date to today
@@ -208,6 +216,12 @@
             };
             if (hasCalendar && date) {
                 insertData.date = date;
+                var timeFromInput = document.getElementById('booking-time-from');
+                var timeToInput = document.getElementById('booking-time-to');
+                var timeFrom = timeFromInput ? timeFromInput.value : '';
+                var timeTo = timeToInput ? timeToInput.value : '';
+                if (timeFrom) insertData.time_from = timeFrom;
+                if (timeTo) insertData.time_to = timeTo;
             }
 
             var { data, error } = await window.supabaseClient
@@ -253,6 +267,8 @@
             if (submitBtn) submitBtn.style.display = 'none';
             var dateGroup = document.getElementById('booking-date-group');
             if (dateGroup) dateGroup.style.display = 'none';
+            var timeGroup = document.getElementById('booking-time-group');
+            if (timeGroup) timeGroup.style.display = 'none';
             // Also hide labels
             modal.querySelectorAll('.booking-form-label').forEach(function (el) { el.style.display = 'none'; });
 
