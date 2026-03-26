@@ -564,23 +564,43 @@
                 <h2 data-key="bookingFormTitle">Book Service</h2>
                 <p class="booking-form-service-name"></p>
             </div>
+
+            <!-- How it works info -->
+            <div class="booking-info-card">
+                <div class="booking-info-title" data-key="bookingHowItWorks">📋 How it works</div>
+                <div class="booking-info-steps">
+                    <div class="booking-info-step">
+                        <div class="booking-step-num">1</div>
+                        <span data-key="bookingStep1">Fill in your details below</span>
+                    </div>
+                    <div class="booking-info-step">
+                        <div class="booking-step-num">2</div>
+                        <span data-key="bookingStep2">Our staff will review your request</span>
+                    </div>
+                    <div class="booking-info-step">
+                        <div class="booking-step-num">3</div>
+                        <span data-key="bookingStep3">You'll receive a notification with the result</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="booking-form-body">
-                <div class="booking-form-group">
-                    <label class="booking-form-label" data-key="bookingGuestName">👤 Your Name</label>
+                <div class="hk-input-group">
+                    <label class="hk-label booking-form-label" data-key="bookingGuestName">👤 Your Name</label>
                     <input type="text" id="booking-guest-name" class="hk-input" placeholder="Enter your name" data-placeholder-key="bookingNamePlaceholder">
                 </div>
                 <div class="booking-form-group" id="booking-room-group" style="display:none;">
                     <input type="hidden" id="booking-room-number">
                 </div>
-                <div class="booking-form-group" id="booking-date-group">
-                    <label class="booking-form-label" data-key="bookingDate">📅 Select Date</label>
+                <div class="hk-input-group" id="booking-date-group">
+                    <label class="hk-label booking-form-label" data-key="bookingDate">📅 Select Date</label>
                     <input type="date" id="booking-date" class="hk-input booking-date-input">
                 </div>
-                <div class="booking-form-group" id="booking-time-group" style="display:none;">
-                    <label class="booking-form-label" data-key="bookingTime">🕐 Select Time</label>
+                <div class="hk-input-group" id="booking-time-group" style="display:none;">
+                    <label class="hk-label booking-form-label" data-key="bookingTime">🕐 Select Time</label>
                     <div class="time-picker-card">
                         <div class="time-picker-slot">
-                            <span class="time-picker-label">From</span>
+                            <span class="time-picker-label" data-key="bookingTimeFrom">FROM</span>
                             <input type="time" id="booking-time-from" class="time-picker-input" value="10:00">
                         </div>
                         <div class="time-picker-divider">
@@ -589,14 +609,15 @@
                             </svg>
                         </div>
                         <div class="time-picker-slot">
-                            <span class="time-picker-label">To</span>
+                            <span class="time-picker-label" data-key="bookingTimeTo">TO</span>
                             <input type="time" id="booking-time-to" class="time-picker-input" value="12:00">
                         </div>
                     </div>
                 </div>
                 <button id="booking-submit-btn" class="hk-submit-btn" onclick="submitBooking()">
-                    <span>📨</span> <span data-key="bookingSubmit">Book Now</span>
+                    <span>📅</span> <span data-key="bookingSubmit">Book Now</span>
                 </button>
+                <p class="booking-form-hint" data-key="bookingHint">💡 You will be notified on this page once your booking is approved or rejected.</p>
                 <div id="booking-msg" class="hk-success-msg">
                     <div class="hk-success-icon">🎉</div>
                     <p class="hk-success-title" data-key="bookingSuccess">Booking submitted! We will notify you once it's reviewed.</p>

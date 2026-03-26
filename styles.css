@@ -2281,12 +2281,13 @@ body {
 
 .booking-form-header {
     text-align: center;
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-lg);
 }
 
 .booking-form-icon {
     font-size: 2.5rem;
     margin-bottom: var(--space-sm);
+    animation: bounceIn 0.6s ease;
 }
 
 .booking-form-header h2 {
@@ -2301,6 +2302,52 @@ body {
     font-size: 1rem;
     color: var(--color-primary-light);
     font-weight: 600;
+}
+
+/* Booking Info Card */
+.booking-info-card {
+    background: rgba(46, 139, 87, 0.08);
+    border: 1px solid rgba(46, 139, 87, 0.2);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: var(--space-lg);
+}
+
+.booking-info-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-primary-light);
+    margin-bottom: 10px;
+    letter-spacing: 0.3px;
+}
+
+.booking-info-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.booking-info-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+    line-height: 1.3;
+}
+
+.booking-step-num {
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 800;
+    flex-shrink: 0;
 }
 
 .booking-form-body {
@@ -2320,6 +2367,16 @@ body {
     font-weight: 600;
     color: var(--color-text-muted);
     letter-spacing: 0.3px;
+}
+
+/* Booking Hint */
+.booking-form-hint {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    text-align: center;
+    opacity: 0.7;
+    margin: 0;
+    line-height: 1.4;
 }
 
 /* Date Input Styling */
@@ -2347,6 +2404,83 @@ body {
 
 [data-theme="light"] .booking-date-input::-webkit-calendar-picker-indicator {
     filter: none;
+}
+
+/* Time Picker */
+.time-picker-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-glass);
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+}
+
+.time-picker-slot {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.time-picker-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--color-primary-light);
+}
+
+.time-picker-input {
+    width: 100%;
+    padding: 10px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--color-glass-border);
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    outline: none;
+    transition: all 0.25s ease;
+    color-scheme: dark;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.time-picker-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.15);
+}
+
+.time-picker-input::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
+    cursor: pointer;
+}
+
+[data-theme="light"] .time-picker-input {
+    color-scheme: light;
+    background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .time-picker-input::-webkit-calendar-picker-indicator {
+    filter: none;
+}
+
+.time-picker-divider {
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    padding-top: 16px;
+    opacity: 0.6;
+}
+
+[data-theme="light"] .booking-info-card {
+    background: rgba(46, 139, 87, 0.06);
+    border-color: rgba(46, 139, 87, 0.15);
 }
 
 /* Loading State */

@@ -311,7 +311,11 @@
             if (dateGroup) dateGroup.style.display = 'none';
             var timeGroup = document.getElementById('booking-time-group');
             if (timeGroup) timeGroup.style.display = 'none';
-            // Also hide labels
+            // Hide info card, labels, and hint
+            var infoCard = modal.querySelector('.booking-info-card');
+            if (infoCard) infoCard.style.display = 'none';
+            var hint = modal.querySelector('.booking-form-hint');
+            if (hint) hint.style.display = 'none';
             modal.querySelectorAll('.booking-form-label').forEach(function (el) { el.style.display = 'none'; });
 
         } catch (e) {

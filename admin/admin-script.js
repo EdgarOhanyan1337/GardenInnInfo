@@ -100,9 +100,9 @@
         data.forEach(function(item) {
             html += '<tr><td><img src="' + item.image_url + '" width="50" onerror="this.src=\'https://placehold.co/50x50?text=No+Image\'"></td>' +
                 '<td>' + item.name + '</td><td>' + item.price + ' AMD</td>' +
-                '<td style="display:flex;gap:6px;">' +
+                '<td><div style="display:flex;gap:6px;">' +
                 '<button class="btn-edit" onclick="startEditMinibar(\'' + item.id + '\')">Edit</button>' +
-                '<button class="btn-danger" onclick="deleteItem(\'minibar_items\',\'' + item.id + '\',renderMinibar)">Delete</button></td></tr>';
+                '<button class="btn-danger" onclick="deleteItem(\'minibar_items\',\'' + item.id + '\',renderMinibar)">Delete</button></div></td></tr>';
         });
         html += '</table>';
         document.getElementById('minibar-table').innerHTML = html;
