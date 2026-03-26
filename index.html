@@ -489,9 +489,32 @@
                 <div class="hk-input-group" id="hk-room-group" style="display:none;">
                     <input type="hidden" id="hk-room">
                 </div>
-                <button id="hk-submit-btn" class="hk-submit-btn" onclick="callHousekeeping()">
-                    <span>&#x1F9F9;</span> <span data-key="hkCallNow">Call Now</span>
-                </button>
+                
+                <!-- How it works info -->
+                <div class="booking-info-card" id="hk-info-card">
+                    <div class="booking-info-title" data-key="hkHowItWorks">📋 How it works</div>
+                    <div class="booking-info-steps">
+                        <div class="booking-info-step">
+                            <div class="booking-step-num">1</div>
+                            <span data-key="hkStep1">Click "Call Now" to request room cleaning</span>
+                        </div>
+                        <div class="booking-info-step">
+                            <div class="booking-step-num">2</div>
+                            <span data-key="hkStep2">Staff will receive your request immediately</span>
+                        </div>
+                        <div class="booking-info-step">
+                            <div class="booking-step-num">3</div>
+                            <span data-key="hkStep3">You will get a notification when staff is on the way</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hk-form-group">
+                    <button id="hk-submit-btn" class="hk-submit-btn" onclick="callHousekeeping()">
+                        <span>&#x1F9F9;</span> <span data-key="hkCallNow">Call Now</span>
+                    </button>
+                    <p class="booking-form-hint" id="hk-form-hint" style="margin-top: 12px;" data-key="hkHint">You will be notified once the staff accepts your request.</p>
+                </div>
                 <div id="hk-msg" class="hk-success-msg">
                     <div class="hk-success-icon">&#x2705;</div>
                     <p class="hk-success-title" data-key="hkSuccessTitle">Request sent! Staff notified.</p>

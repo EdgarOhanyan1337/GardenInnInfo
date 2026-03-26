@@ -543,9 +543,14 @@ window.callHousekeeping = async function () {
         // Show success + code
         var msgDiv = document.getElementById('hk-msg');
         var codeDisplay = document.getElementById('hk-code-display');
+        var infoCard = document.getElementById('hk-info-card');
+        var hintLabel = document.getElementById('hk-form-hint');
+        
         if (codeDisplay) codeDisplay.textContent = code;
         if (msgDiv) msgDiv.style.display = 'block';
         if (submitBtn) submitBtn.style.display = 'none';
+        if (infoCard) infoCard.style.display = 'none';
+        if (hintLabel) hintLabel.style.display = 'none';
     } catch (e) {
         console.error('Housekeeping error:', e);
         alert(t.hkAlertError);
