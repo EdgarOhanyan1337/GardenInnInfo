@@ -859,6 +859,22 @@
     window.loadHotDealsAdmin = async function(data) {
         await checkHotDealsStatus();
         renderHotDealsTable(data);
+        
+        // Ensure reference data is loaded before building dropdown
+        var promises = [];
+        if (!window.currentTableData['minibar_items']) {
+             promises.push(db.from('minibar_items').select('*').order('created_at', { ascending: false }).then(function(res) { if (!res.error) window.currentTableData['minibar_items'] = res.data || []; }));
+        }
+        if (!window.currentTableData['services']) {
+             promises.push(db.from('services').select('*').order('created_at', { ascending: false }).then(function(res) { if (!res.error) window.currentTableData['services'] = res.data || []; }));
+        }
+        if (!window.currentTableData['tours']) {
+             promises.push(db.from('tours').select('*').order('created_at', { ascending: false }).then(function(res) { if (!res.error) window.currentTableData['tours'] = res.data || []; }));
+        }
+        if (promises.length > 0) {
+            await Promise.all(promises);
+        }
+        
         populateReferencesDropdown();
     };
 
