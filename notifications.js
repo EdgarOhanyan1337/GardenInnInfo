@@ -7,7 +7,7 @@
 
     // IMPORTANT: Replace this with your actual VAPID public key
     // You can generate one via Supabase Edge Function or a VAPID generator online
-    const PUBLIC_VAPID_KEY = 'BH_JfKz7CioXlbrwOrwxS6YAkLApaZ07CyBlZti8B0sAIGN7210AmfLChCp38PBJ2B1nf1FWvLeDLHQZXz0V24s'; // Replace with real key before deploying
+    const PUBLIC_VAPID_KEY = 'BDgtS83KPMTQCEu0oe3OnAYWxvFOqZYBoSO2FAhHCon07YyVF-R-sOuGIOnvSCpRhrpzMZ0XE3uCWyA1NgYnOKA';
 
     function urlBase64ToUint8Array(base64String) {
         if (!base64String) return new Uint8Array(0);
