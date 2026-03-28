@@ -418,27 +418,7 @@
             myBookingIds.push(data.id);
             saveMyBookings();
 
-            // Explicitly call the Telegram bot Edge Function from frontend to guarantee delivery
-            // (The DB webhook might still fire, but the Edge Function has a deduplication check)
-            try {
-                if (window.supabaseUrl) {
-                    var fullRecord = Object.assign({}, insertData, { id: data.id });
-                    fetch(window.supabaseUrl + '/functions/v1/booking-telegram-bot', {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + window.ROOT_SUPABASE_KEY
-                        },
-                        body: JSON.stringify({
-                            type: 'INSERT',
-                            table: 'bookings',
-                            record: fullRecord
-                        })
-                    }).catch(function(e) { console.error('TG bot direct call err:', e); });
-                }
-            } catch(err) {
-                console.error(err);
-            }
+                    // Everything relies on DB Webhook now.
 
             // Show success
             if (msgDiv) msgDiv.style.display = 'block';
