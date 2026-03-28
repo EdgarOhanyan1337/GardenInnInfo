@@ -232,8 +232,8 @@ serve(async (req: Request) => {
           await fetch(`${SUPABASE_URL}/functions/v1/send-web-push`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` },
-            body: JSON.stringify({ room_number: Number(room), title: '🧹 Housekeeping', body: 'Staff has accepted your request and is on the way.' })
-          }).catch(e => console.error('Push error:', e))
+            body: JSON.stringify({ room_number: room, title: '🧹 Housekeeping', body: 'Staff has accepted your request and is on the way.', url: '/GardenInnInfo/?view=housekeeping' })
+          }).then(r => r.text()).then(t => console.log('Push response:', t)).catch(e => console.error('Push error:', e))
         }
 
         if (bData && bData.tg_messages && Array.isArray(bData.tg_messages)) {
@@ -293,8 +293,8 @@ serve(async (req: Request) => {
           await fetch(`${SUPABASE_URL}/functions/v1/send-web-push`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` },
-            body: JSON.stringify({ room_number: Number(room), title: '✨ Housekeeping', body: 'Cleaning is complete! Enjoy your stay.' })
-          }).catch(e => console.error('Push error:', e))
+            body: JSON.stringify({ room_number: room, title: '✨ Housekeeping', body: 'Cleaning is complete! Enjoy your stay.', url: '/GardenInnInfo/?view=housekeeping' })
+          }).then(r => r.text()).then(t => console.log('Push response:', t)).catch(e => console.error('Push error:', e))
         }
 
         if (bData && bData.tg_messages && Array.isArray(bData.tg_messages)) {

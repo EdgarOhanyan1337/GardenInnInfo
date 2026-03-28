@@ -1,10 +1,18 @@
+self.addEventListener('install', function(event) {
+    self.skipWaiting();
+});
+
+self.addEventListener('activate', function(event) {
+    event.waitUntil(clients.claim());
+});
+
 self.addEventListener('push', function (event) {
     if (event.data) {
         var data = event.data.json();
         var options = {
             body: data.body,
-            icon: 'assets/logo.png',
-            badge: 'assets/logo.png',
+            icon: 'icon-192x192.png',
+            badge: 'icon-192x192.png',
             vibrate: [200, 100, 200],
             data: {
                 url: data.url || '/'
