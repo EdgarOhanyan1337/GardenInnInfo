@@ -6,11 +6,16 @@
 (function () {
     'use strict';
 
+    function getBookingsStorageKey() {
+        var match = document.cookie.match(/room_number=([\w-]+)/);
+        return 'gi_my_bookings_' + (match ? match[1] : 'unknown');
+    }
+
     // Track booking session (guest's pending bookings by service_id)
-    var myBookingIds = JSON.parse(localStorage.getItem('gi_my_bookings') || '[]');
+    var myBookingIds = JSON.parse(localStorage.getItem(getBookingsStorageKey()) || '[]');
 
     function saveMyBookings() {
-        localStorage.setItem('gi_my_bookings', JSON.stringify(myBookingIds));
+        localStorage.setItem(getBookingsStorageKey(), JSON.stringify(myBookingIds));
         if (window.updateMyBookingsButton) window.updateMyBookingsButton();
     }
 
