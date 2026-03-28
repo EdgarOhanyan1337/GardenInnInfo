@@ -425,7 +425,10 @@
                     var fullRecord = Object.assign({}, insertData, { id: data.id });
                     fetch(window.supabaseUrl + '/functions/v1/booking-telegram-bot', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + window.ROOT_SUPABASE_KEY
+                        },
                         body: JSON.stringify({
                             type: 'INSERT',
                             table: 'bookings',
