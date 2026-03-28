@@ -157,6 +157,7 @@ function setLanguage(lang) {
     loadServices();
     loadTours();
     loadRules();
+    loadHotDeals();
 }
 
 function updateTexts() {
@@ -662,6 +663,7 @@ async function initSupabaseFeatures() {
             if (payload.table === 'services') loadServices();
             if (payload.table === 'tours') loadTours();
             if (payload.table === 'rules') loadRules();
+            if (payload.table === 'hot_deals' || payload.table === 'app_settings') loadHotDeals();
             
             // Listen for housekeeping acceptance and completion
             if (payload.table === 'housekeeping_requests' && payload.eventType === 'UPDATE') {

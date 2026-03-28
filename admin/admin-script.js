@@ -70,7 +70,8 @@
         'notification_recipients': 'notifications-section',
         'housekeeping_requests': 'housekeeping-section',
         'housekeeping_ratings': 'ratings-section',
-        'bookings': 'bookings-section'
+        'bookings': 'bookings-section',
+        'hot_deals': 'hot-deals-section'
     };
 
     window.loadData = async function(table, renderCallback) {
@@ -850,6 +851,218 @@
         if (error) { alert('Delete error: ' + error.message); return; }
         
         loadData(table, renderCallback);
+    };
+
+    // --- HOT DEALS ---
+    window.editState.hot_deals = null;
+    
+    window.loadHotDealsAdmin = async function(data) {
+        await checkHotDealsStatus();
+        renderHotDealsTable(data);
+        populateReferencesDropdown();
+    };
+
+    async function checkHotDealsStatus() {
+        var btn = document.getElementById('hd-toggle-btn');
+        var st = document.getElementById('hd-toggle-status');
+        if (!btn) return;
+        var { data } = await db.from('app_settings').select('value').eq('key', 'hot_deals_active').single();
+        var isActive = data && data.value === 'true';
+        if (isActive) {
+            btn.textContent = 'DISABLE Hot Deals Button';
+            btn.style.background = '#f87171';
+            st.textContent = 'App is currently SHOWING the Hot Deals button.';
+            btn.setAttribute('data-target', 'false');
+        } else {
+            btn.textContent = 'ENABLE Hot Deals Button';
+            btn.style.background = '#4ade80';
+            st.textContent = 'App is currently HIDING the Hot Deals button.';
+            btn.setAttribute('data-target', 'true');
+        }
+    }
+
+    window.toggleHotDealsFeature = async function() {
+        var btn = document.getElementById('hd-toggle-btn');
+        var targetVal = btn.getAttribute('data-target');
+        var { error } = await db.from('app_settings').upsert({ key: 'hot_deals_active', value: targetVal }, { onConflict: 'key' });
+        if (error) { alert('Error: ' + error.message); return; }
+        checkHotDealsStatus();
+    };
+
+    function renderHotDealsTable(data) {
+        var html = '<table><tr><th>Image</th><th>Type</th><th>Title EN</th><th>New Price</th><th>Status</th><th>Actions</th></tr>';
+        data.forEach(function(item) {
+            var typeLabel = item.type === 'discount' ? '💰 Sale' : '📢 Anncmt';
+            var statusColor = item.is_active ? '#4ade80' : '#8b98a5';
+            var statusText = item.is_active ? 'Active' : 'Hidden';
+            var toggleText = item.is_active ? 'Hide' : 'Show';
+            
+            html += '<tr style="' + (item.is_active ? '' : 'opacity:0.6') + '"><td><img src="' + item.image_url + '" width="50" onerror="this.src=\'https://placehold.co/50x50?text=No+Image\'"></td>' +
+                '<td>' + typeLabel + '</td>' +
+                '<td><b>' + (item.title_en || '-') + '</b></td>' +
+                '<td>' + (item.new_price || '-') + '</td>' +
+                '<td style="color:' + statusColor + '"><b>' + statusText + '</b></td>' +
+                '<td style="display:flex;gap:6px;flex-wrap:wrap;">' +
+                '<button style="background:rgba(255,255,255,0.1); color:#fff; border:none; padding:6px 10px; border-radius:6px; font-weight:600; cursor:pointer;" onclick="toggleHotDealActive(\'' + item.id + '\',' + !item.is_active + ')">' + toggleText + '</button>' +
+                '<button class="btn-edit" onclick="startEditHotDeal(\'' + item.id + '\')">Edit</button>' +
+                '<button class="btn-danger" onclick="deleteItem(\'hot_deals\',\'' + item.id + '\',loadHotDealsDataDirect)">Delete</button></td></tr>';
+        });
+        html += '</table>';
+        document.getElementById('hot-deals-table-container').innerHTML = html;
+    }
+
+    window.loadHotDealsDataDirect = function() {
+        loadData('hot_deals', window.loadHotDealsAdmin);
+    };
+
+    function populateReferencesDropdown() {
+        var sel = document.getElementById('hd-ref-id');
+        if (!sel) return;
+        sel.innerHTML = '<option value="">-- No link (Standalone) --</option>';
+        ['minibar_items', 'services', 'tours'].forEach(function(t) {
+            if (window.currentTableData[t]) {
+                var group = document.createElement('optgroup');
+                group.label = t.toUpperCase();
+                window.currentTableData[t].forEach(function(item) {
+                    var tName = item.name || item.title_en || item.tour_key;
+                    group.innerHTML += '<option value="' + item.id + '">' + tName + '</option>';
+                });
+                sel.appendChild(group);
+            }
+        });
+    }
+
+    window.toggleHotDealTypeFields = function() {
+        var type = document.getElementById('hd-type').value;
+        if (type === 'announcement') {
+            document.getElementById('hd-ref-group').style.display = 'none';
+        } else {
+            document.getElementById('hd-ref-group').style.display = 'block';
+        }
+    };
+
+    window.toggleHotDealActive = async function(id, val) {
+        var { error } = await db.from('hot_deals').update({ is_active: val }).eq('id', id);
+        if (error) { alert('Error: ' + error.message); return; }
+        loadHotDealsDataDirect();
+    };
+
+    window.startEditHotDeal = function(id) {
+        var item = window.currentTableData['hot_deals'].find(function(i) { return i.id === id; });
+        if (!item) return;
+        window.editState.hot_deals = id;
+        document.getElementById('hd-type').value = item.type;
+        document.getElementById('hd-ref-id').value = item.reference_id || '';
+        document.getElementById('hd-title-en').value = item.title_en || '';
+        document.getElementById('hd-title-ru').value = item.title_ru || '';
+        document.getElementById('hd-title-hy').value = item.title_hy || '';
+        document.getElementById('hd-desc-en').value = item.description_en || '';
+        document.getElementById('hd-desc-ru').value = item.description_ru || '';
+        document.getElementById('hd-desc-hy').value = item.description_hy || '';
+        document.getElementById('hd-old-price').value = item.old_price || '';
+        document.getElementById('hd-new-price').value = item.new_price || '';
+        
+        toggleHotDealTypeFields();
+        document.getElementById('hd-submit-btn-title').textContent = 'Edit Hot Deal';
+        document.getElementById('hd-submit-btn-action').textContent = 'Update Deal';
+        document.getElementById('hd-cancel-btn').style.display = 'inline-block';
+        document.getElementById('hot-deals-section').scrollIntoView({behavior: "smooth"});
+    };
+
+    window.cancelEditHotDeal = function() {
+        window.editState.hot_deals = null;
+        document.getElementById('hd-type').value = 'discount';
+        document.getElementById('hd-ref-id').value = '';
+        document.getElementById('hd-title-en').value = '';
+        document.getElementById('hd-title-ru').value = '';
+        document.getElementById('hd-title-hy').value = '';
+        document.getElementById('hd-desc-en').value = '';
+        document.getElementById('hd-desc-ru').value = '';
+        document.getElementById('hd-desc-hy').value = '';
+        document.getElementById('hd-old-price').value = '';
+        document.getElementById('hd-new-price').value = '';
+        document.getElementById('hd-file').value = '';
+        toggleHotDealTypeFields();
+        document.getElementById('hd-submit-btn-title').textContent = 'Create New Hot Deal';
+        document.getElementById('hd-submit-btn-action').textContent = 'Save & Publish';
+        document.getElementById('hd-cancel-btn').style.display = 'none';
+    };
+
+    window.saveHotDeal = async function() {
+        var type = document.getElementById('hd-type').value;
+        var ref = document.getElementById('hd-ref-id').value;
+        var tEn = document.getElementById('hd-title-en').value;
+        var tRu = document.getElementById('hd-title-ru').value || tEn;
+        var tHy = document.getElementById('hd-title-hy').value || tEn;
+        if (!tEn) { alert('English Title is required!'); return; }
+        
+        var dEn = document.getElementById('hd-desc-en').value;
+        var dRu = document.getElementById('hd-desc-ru').value || dEn;
+        var dHy = document.getElementById('hd-desc-hy').value || dEn;
+        
+        var op = document.getElementById('hd-old-price').value;
+        var np = document.getElementById('hd-new-price').value;
+        var isEditing = window.editState.hot_deals !== null;
+        
+        var file = document.getElementById('hd-file').files[0];
+        var uploadUrl = null;
+        if (file) {
+            uploadUrl = await uploadImage(file);
+        } else if (!isEditing && type === 'discount' && ref) {
+            // Try to clone image from reference if available
+            var rItem = null;
+            ['minibar_items','services','tours'].forEach(t => {
+                var found = (window.currentTableData[t]||[]).find(x => x.id === ref);
+                if (found) rItem = found;
+            });
+            if (rItem) {
+                if (rItem.image_url) uploadUrl = rItem.image_url;
+                else if (rItem.images && rItem.images.length > 0) uploadUrl = rItem.images[0];
+            }
+        }
+        
+        var updateData = {
+            type: type,
+            reference_id: type === 'discount' ? (ref || null) : null,
+            title_en: tEn, title_ru: tRu, title_hy: tHy,
+            description_en: dEn, description_ru: dRu, description_hy: dHy,
+            old_price: op, new_price: np,
+            is_active: true
+        };
+        
+        if (uploadUrl) updateData.image_url = uploadUrl;
+
+        var err;
+        if (isEditing) {
+            var res = await db.from('hot_deals').update(updateData).eq('id', window.editState.hot_deals);
+            err = res.error;
+        } else {
+            updateData.image_url = updateData.image_url || '';
+            var res = await db.from('hot_deals').insert([updateData]);
+            err = res.error;
+        }
+
+        if (err) { alert('Error saving: ' + err.message); return; }
+
+        // Send Broadcast Web Push if checkbox is checked
+        var sendPush = document.getElementById('hd-send-push').checked;
+        if (sendPush && !isEditing) {
+            try {
+                await db.functions.invoke('send-web-push', {
+                    body: {
+                        broadcast: true,
+                        title: "🔥 " + tEn,
+                        body: dEn || `Check out our new ${type}!`,
+                        url: '/'
+                    }
+                });
+            } catch (e) {
+                console.error("Broadcast push error:", e);
+            }
+        }
+
+        cancelEditHotDeal();
+        loadHotDealsDataDirect();
     };
 
 })();
