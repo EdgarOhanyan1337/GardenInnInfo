@@ -3268,11 +3268,27 @@ span.flatpickr-weekday {
     z-index: 2;
 }
 
+.hot-deal-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    height: 160px;
+    border-radius: 12px 12px 0 0;
+}
+
 .hot-deal-image {
     width: 100%;
-    height: 160px;
+    height: 100%;
     object-fit: cover;
     background: #2f3640;
+    transition: transform var(--transition-normal);
+}
+
+.hot-deal-card:hover .hot-deal-image {
+    transform: scale(1.05);
+}
+
+.hot-deal-card:hover .product-overlay {
+    opacity: 1;
 }
 
 .hot-deal-content {

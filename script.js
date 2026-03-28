@@ -69,7 +69,8 @@ function renderMinibar() {
         if (typeof dynamicHotDeals !== 'undefined') {
             let deal = dynamicHotDeals.find(d => d.reference_id === item.id && d.type === 'discount' && d.is_active);
             if (deal) {
-                priceHtml = '<span style="text-decoration:line-through; font-size:0.8em; color:#7f8fa6;">' + item.price + ' AMD</span> <br><span style="color:#4cd137; font-weight:bold;">' + (deal.new_price || '🔥 Sale') + '</span>';
+                let displayP = (deal.new_price || '🔥 Sale').split('\n')[0];
+                priceHtml = '<span style="text-decoration:line-through; font-size:0.8em; color:#7f8fa6;">' + item.price + ' AMD</span> <br><span style="color:#4cd137; font-weight:bold;">' + displayP + '</span>';
                 badgeHtml = '<div style="position:absolute; top:8px; left:8px; background:#ff4757; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; z-index:2;">🔥 % SALE</div>';
             }
         }
@@ -107,7 +108,8 @@ function renderServices() {
         if (typeof dynamicHotDeals !== 'undefined') {
             let deal = dynamicHotDeals.find(d => d.reference_id === item.service_key && d.type === 'discount' && d.is_active);
             if (deal) {
-                statusHtml = '<span class="status paid" style="background:rgba(231,76,60,0.2); color:#e74c3c; font-weight:bold; letter-spacing:0.5px;">🔥 ' + (deal.new_price || 'SALE') + '</span>';
+                let displayP = (deal.new_price || 'SALE').split('\n')[0];
+                statusHtml = '<span class="status paid" style="background:rgba(231,76,60,0.2); color:#e74c3c; font-weight:bold; letter-spacing:0.5px;">🔥 ' + displayP + '</span>';
             }
         }
 
@@ -148,7 +150,8 @@ function renderTours() {
         if (typeof dynamicHotDeals !== 'undefined') {
             let deal = dynamicHotDeals.find(d => d.reference_id === item.tour_key && d.type === 'discount' && d.is_active);
             if (deal) {
-                statusHtml = '<span class="status paid" style="background:rgba(231,76,60,0.2); color:#e74c3c;">🔥 SALE</span>';
+                let displayP = (deal.new_price || 'SALE').split('\n')[0];
+                statusHtml = '<span class="status paid" style="background:rgba(231,76,60,0.2); color:#e74c3c; font-weight:bold; letter-spacing:0.5px;">🔥 ' + displayP + '</span>';
             }
         }
 
@@ -303,12 +306,26 @@ function openDetail(serviceKey) {
         var dealTitle = deal['title_' + currentLang] || deal.title_en || 'Discount!';
         priceInfo = '<div class="detail-price-box" style="margin-top: 16px; padding: 12px; background: rgba(26, 188, 156, 0.05); border: 1px solid rgba(255, 71, 87, 0.4); border-radius: 8px; font-weight: 500;">';
         if (formattedPrice) {
-            priceInfo += '<div style="text-decoration:line-through; opacity:0.6; font-size:0.9em; margin-bottom: 6px;">' + formattedPrice + '</div>';
+            priceInfo += '<div style="text-decoration:line-through; opacity:0.6; font-size:0.9em; margin-bottom: 8px;">' + formattedPrice + '</div>';
         }
-        priceInfo += '<div style="color:#ff4757; font-size:1.1em; font-weight:bold;">🔥 ' + dealTitle + '</div>';
+        priceInfo += '<div style="color:#ff4757; font-size:1.1em; font-weight:bold; margin-bottom:10px;">🔥 ' + dealTitle + '</div>';
+        
         if (deal.new_price) {
-            priceInfo += '<div style="color:#4cd137; font-size:1.2em; font-weight:bold; margin-top:4px;">' + deal.new_price;
-            if (deal.old_price) priceInfo += ' <span style="font-size:0.7em; text-decoration:line-through; color:#7f8fa6; margin-left: 6px;">' + deal.old_price + '</span>';
+            let oldLines = (deal.old_price || '').split('\n');
+            let newLines = (deal.new_price || '').split('\n');
+            let maxLines = Math.max(oldLines.length, newLines.length);
+            
+            priceInfo += '<div style="display:flex; flex-direction:column; gap:6px;">';
+            for (let i = 0; i < maxLines; i++) {
+                let oPrice = oldLines[i];
+                let nPrice = newLines[i];
+                if (!oPrice && !nPrice) continue;
+                
+                priceInfo += '<div style="display:flex; flex-direction:column; background:rgba(0,0,0,0.1); padding:8px 12px; border-radius:6px; border-left: 3px solid #ff4757;">';
+                if (oPrice) priceInfo += '<span style="text-decoration:line-through; opacity:0.6; font-size:0.85em; margin-bottom:2px;">' + oPrice + '</span>';
+                if (nPrice) priceInfo += '<span style="color:#4cd137; font-size:1.05em; font-weight:bold;">' + nPrice + '</span>';
+                priceInfo += '</div>';
+            }
             priceInfo += '</div>';
         }
         priceInfo += '</div>';
@@ -978,17 +995,20 @@ async function loadHotDeals() {
             const desc = deal['description_' + currentLang] || deal.description_en;
             let priceHtml = '';
 
-            if (deal.type === 'discount' && deal.old_price) {
+            let displayOldPrice = (deal.old_price || '').split('\n')[0];
+            let displayNewPrice = (deal.new_price || '').split('\n')[0];
+
+            if (deal.type === 'discount' && displayOldPrice) {
                 priceHtml = `
                     <div class="hot-deal-price-box">
-                        <span class="hot-deal-old-price">${deal.old_price}</span>
-                        <span class="hot-deal-new-price">${deal.new_price || 'FREE'}</span>
+                        <span class="hot-deal-old-price">${displayOldPrice}</span>
+                        <span class="hot-deal-new-price">${displayNewPrice || 'FREE'}</span>
                     </div>
                 `;
-            } else if (deal.new_price) {
+            } else if (displayNewPrice) {
                  priceHtml = `
                     <div class="hot-deal-price-box">
-                        <span class="hot-deal-new-price">${deal.new_price}</span>
+                        <span class="hot-deal-new-price">${displayNewPrice}</span>
                     </div>
                 `;
             } else if (deal.type === 'announcement') {
@@ -1001,8 +1021,14 @@ async function loadHotDeals() {
                  actionHtml = `<div style="margin-left:auto;"><button class="hk-submit-btn" style="padding: 6px 16px; font-size: 0.85rem; border-radius: 6px; margin:0;" onclick="openDetail('${deal.reference_id}')">${translations[currentLang].more}</button></div>`;
             }
 
-            const imgHtml = deal.image_url ? `<img src="${deal.image_url}" class="hot-deal-image" style="cursor:zoom-in;" onclick="openLightbox(['${deal.image_url}'], 0)" onerror="this.style.display='none'">` : '';
-            const badgeHtml = deal.type === 'discount' ? `<div class="hot-deal-badge">SALE</div>` : '';
+            const imgHtml = deal.image_url ? `
+                <div class="product-image hot-deal-image-wrapper" data-images='["${deal.image_url}"]'>
+                    <img src="${deal.image_url}" class="hot-deal-image" onerror="this.style.display='none'">
+                    <div class="product-overlay">
+                        <button class="view-btn" aria-label="View Image">&#128065;</button>
+                    </div>
+                </div>` : '';
+            const badgeHtml = deal.type === 'discount' ? `<div class="hot-deal-badge" style="z-index: 5;">SALE</div>` : '';
 
             const article = document.createElement('div');
             article.className = 'hot-deal-card';
@@ -1020,6 +1046,11 @@ async function loadHotDeals() {
             `;
             container.appendChild(article);
         });
+        
+        // Initialize lightbox logic for the new .view-btn elements
+        if (typeof initLightboxTriggers === 'function') {
+            initLightboxTriggers();
+        }
     } catch(e) {
         console.error('Error loading hot deals:', e);
     }

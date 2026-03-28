@@ -951,6 +951,20 @@
         loadHotDealsDataDirect();
     };
 
+    window.addHdPriceRow = function(oldPrice = '', newPrice = '') {
+        var container = document.getElementById('hd-price-rows-container');
+        var row = document.createElement('div');
+        row.className = 'hd-price-entry form-row';
+        row.style.display = 'grid';
+        row.style.gridTemplateColumns = '1fr 1fr auto';
+        row.style.gap = '8px';
+        row.innerHTML = 
+            '<input type="text" class="hd-old-price-input" value="' + oldPrice + '" placeholder="Old Price (e.g. 1h - 20000 AMD)" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;">' +
+            '<input type="text" class="hd-new-price-input" value="' + newPrice + '" placeholder="New Price (e.g. 1h - 15000 AMD)" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;">' +
+            '<button type="button" onclick="this.parentElement.remove()" tabindex="-1" style="background:rgba(255,71,87,0.2); color:#ff4757; border:none; padding:0 12px; border-radius:6px; cursor:pointer; font-weight:bold;">X</button>';
+        container.appendChild(row);
+    };
+
     window.startEditHotDeal = function(id) {
         var item = window.currentTableData['hot_deals'].find(function(i) { return i.id === id; });
         if (!item) return;
@@ -963,8 +977,18 @@
         document.getElementById('hd-desc-en').value = item.description_en || '';
         document.getElementById('hd-desc-ru').value = item.description_ru || '';
         document.getElementById('hd-desc-hy').value = item.description_hy || '';
-        document.getElementById('hd-old-price').value = item.old_price || '';
-        document.getElementById('hd-new-price').value = item.new_price || '';
+        
+        document.getElementById('hd-price-rows-container').innerHTML = '';
+        var opLines = (item.old_price || '').split('\n');
+        var npLines = (item.new_price || '').split('\n');
+        var maxLines = Math.max(opLines.length, npLines.length);
+        if (maxLines === 0 || (maxLines === 1 && !opLines[0] && !npLines[0])) {
+            window.addHdPriceRow();
+        } else {
+            for (var i = 0; i < maxLines; i++) {
+                window.addHdPriceRow(opLines[i] || '', npLines[i] || '');
+            }
+        }
         
         toggleHotDealTypeFields();
         document.getElementById('hd-submit-btn-title').textContent = 'Edit Hot Deal';
@@ -983,8 +1007,10 @@
         document.getElementById('hd-desc-en').value = '';
         document.getElementById('hd-desc-ru').value = '';
         document.getElementById('hd-desc-hy').value = '';
-        document.getElementById('hd-old-price').value = '';
-        document.getElementById('hd-new-price').value = '';
+        
+        document.getElementById('hd-price-rows-container').innerHTML = '';
+        window.addHdPriceRow();
+        
         document.getElementById('hd-file').value = '';
         toggleHotDealTypeFields();
         document.getElementById('hd-submit-btn-title').textContent = 'Create New Hot Deal';
@@ -1004,8 +1030,18 @@
         var dRu = document.getElementById('hd-desc-ru').value || dEn;
         var dHy = document.getElementById('hd-desc-hy').value || dEn;
         
-        var op = document.getElementById('hd-old-price').value;
-        var np = document.getElementById('hd-new-price').value;
+        var opArr = [];
+        var npArr = [];
+        document.querySelectorAll('.hd-old-price-input').forEach(function(el) { opArr.push(el.value.trim()); });
+        document.querySelectorAll('.hd-new-price-input').forEach(function(el) { npArr.push(el.value.trim()); });
+        
+        while(opArr.length > 0 && !opArr[opArr.length-1] && !npArr[npArr.length-1]) {
+            opArr.pop();
+            npArr.pop();
+        }
+        
+        var op = opArr.join('\n');
+        var np = npArr.join('\n');
         var isEditing = window.editState.hot_deals !== null;
         
         var file = document.getElementById('hd-file').files[0];
