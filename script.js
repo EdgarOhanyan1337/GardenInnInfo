@@ -320,8 +320,8 @@ function openDetail(serviceKey) {
                 let oPrice = oldLines[i];
                 let nPrice = newLines[i];
                 if (!oPrice && !nPrice) continue;
-                
-                priceInfo += '<div style="display:flex; flex-direction:column; background:rgba(0,0,0,0.1); padding:8px 12px; border-radius:6px; border-left: 3px solid #ff4757;">';
+                // Centre the price items and use a bottom border for a clean, centered list look
+                priceInfo += '<div style="display:flex; flex-direction:column; align-items:center; background:rgba(0,0,0,0.1); padding:8px 12px; border-radius:6px; border-bottom: 2px solid #ff4757;">';
                 if (oPrice) priceInfo += '<span style="text-decoration:line-through; opacity:0.6; font-size:0.85em; margin-bottom:2px;">' + oPrice + '</span>';
                 if (nPrice) priceInfo += '<span style="color:#4cd137; font-size:1.05em; font-weight:bold;">' + nPrice + '</span>';
                 priceInfo += '</div>';
@@ -1014,14 +1014,14 @@ async function loadHotDeals() {
 
             if (deal.type === 'discount' && displayOldPrice) {
                 priceHtml = `
-                    <div class="hot-deal-price-box">
+                    <div class="hot-deal-price-box" style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:2px;">
                         <span class="hot-deal-old-price">${displayOldPrice}</span>
                         <span class="hot-deal-new-price">${displayNewPrice || 'FREE'}</span>
                     </div>
                 `;
             } else if (displayNewPrice) {
                  priceHtml = `
-                    <div class="hot-deal-price-box">
+                    <div class="hot-deal-price-box" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
                         <span class="hot-deal-new-price">${displayNewPrice}</span>
                     </div>
                 `;

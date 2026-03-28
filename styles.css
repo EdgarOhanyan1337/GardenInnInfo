@@ -3290,9 +3290,16 @@ span.flatpickr-weekday {
 .hot-deal-btn {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, rgba(255, 71, 87, 0.1), rgba(255, 71, 87, 0.2));
-    border-color: rgba(255, 71, 87, 0.4);
-    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.2);
+    background: linear-gradient(135deg, rgba(255, 71, 87, 0.1), rgba(255, 71, 87, 0.25));
+    border-color: rgba(255, 71, 87, 0.5);
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+    animation: hot-deal-pulse-glow 2s infinite;
+}
+
+@keyframes hot-deal-pulse-glow {
+    0% { box-shadow: 0 0 5px 0 rgba(255, 71, 87, 0.4); }
+    70% { box-shadow: 0 0 15px 8px rgba(255, 71, 87, 0); }
+    100% { box-shadow: 0 0 5px 0 rgba(255, 71, 87, 0); }
 }
 
 .hot-deal-btn::before {
@@ -3301,19 +3308,18 @@ span.flatpickr-weekday {
     bottom: -5px;
     left: 0;
     width: 100%;
-    height: 35px;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 668 173' preserveAspectRatio='none'%3E%3Cpath d='M0,173 L0,120 L80,90 L100,173 Z' fill='rgba(255, 71, 87, 0.4)'/%3E%3Cpath d='M100,173 L130,50 L250,140 L280,173 Z' fill='rgba(255, 71, 87, 0.5)'/%3E%3Cpath d='M260,173 L350,70 L380,100 L430,70 L460,173 Z' fill='rgba(255, 71, 87, 0.45)'/%3E%3Cpath d='M440,173 L490,60 L620,150 L668,90 L668,173 Z' fill='rgba(255, 71, 87, 0.35)'/%3E%3C/svg%3E");
+    height: 45px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 668 173' preserveAspectRatio='none'%3E%3Cpath d='M0,173 C100,100 150,170 250,120 T450,150 T668,80 L668,173 Z' fill='rgba(255, 107, 107, 0.35)'/%3E%3Cpath d='M0,173 C150,160 200,90 350,130 T600,60 T668,130 L668,173 Z' fill='rgba(255, 71, 87, 0.4)'/%3E%3Cpath d='M0,173 C80,180 180,80 300,150 T500,90 T668,150 L668,173 Z' fill='rgba(238, 82, 83, 0.3)'/%3E%3C/svg%3E");
     background-size: 100% 100%;
     z-index: 0;
     pointer-events: none;
     opacity: 0.9;
-    animation: fire-flicker 1.5s infinite alternate ease-in-out;
+    animation: fire-flicker 1.2s infinite alternate ease-in-out;
 }
 
 @keyframes fire-flicker {
-    0% { transform: translateY(0) scaleY(1); opacity: 0.8; }
-    50% { transform: translateY(-2px) scaleY(1.05); opacity: 1; }
-    100% { transform: translateY(0) scaleY(1.1); opacity: 0.9; }
+    0% { transform: translateY(0) scaleY(1); opacity: 0.85; filter: hue-rotate(0deg); }
+    100% { transform: translateY(-4px) scaleY(1.15); opacity: 1; filter: hue-rotate(-5deg); }
 }
 
 .hot-deal-btn > * {
