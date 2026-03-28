@@ -16,31 +16,11 @@
 
     function saveMyBookings() {
         localStorage.setItem(getBookingsStorageKey(), JSON.stringify(myBookingIds));
-        if (window.updateMyBookingsButton) window.updateMyBookingsButton();
     }
 
-    // Update the My Bookings button text dynamically based on whether there are bookings
     window.updateMyBookingsButton = function() {
-        var btn = document.getElementById('my-bookings-nav-btn');
-        if (!btn) return;
-        var textSpan = btn.querySelector('span:nth-child(2)');
-        if (!textSpan) return;
-        
-        var t = (window.translations && window.translations[window.currentLang]) || {};
-        
-        if (!myBookingIds || myBookingIds.length === 0) {
-            var msg = t.noBookingsYet || (window.currentLang === 'ru' ? 'У вас нет броней' : window.currentLang === 'hy' ? 'Չկան ամրագրումներ' : 'No bookings yet');
-            textSpan.textContent = msg;
-        } else {
-            var msg = t.myBookings || (window.currentLang === 'ru' ? 'Мои брони' : window.currentLang === 'hy' ? 'Իմ ամրագրումները' : 'My Bookings');
-            textSpan.textContent = msg;
-        }
+        // Disabled by user request. The button now translates just like 'Tours' and 'Mini Bar'.
     };
-
-    // Initialize the button text shortly after load
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(window.updateMyBookingsButton, 300);
-    });
 
     // ==================== BOOKING CONFIRM MODAL ====================
 
