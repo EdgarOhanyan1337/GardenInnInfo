@@ -50,6 +50,8 @@ CREATE TABLE tours (
   price TEXT NOT NULL DEFAULT '',
   icon TEXT NOT NULL DEFAULT '',
   images JSONB DEFAULT '[]'::JSONB,
+  is_paid BOOLEAN DEFAULT true,
+  has_calendar BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -103,6 +105,21 @@ CREATE TABLE notification_recipients (
   enabled BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ============================================
+-- WEB PUSH SUBSCRIPTIONS
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  room_number TEXT NOT NULL,
+  subscription JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(room_number, subscription)
+);
+
+ALTER TABLE push_subscriptions DISABLE ROW LEVEL SECURITY;
+GRANT ALL ON push_subscriptions TO anon, authenticated, service_role;
 
 -- App settings (staff password, etc.)
 CREATE TABLE app_settings (
@@ -186,17 +203,22 @@ CREATE TABLE IF NOT EXISTS bookings (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   guest_name TEXT NOT NULL,
   room_number TEXT NOT NULL DEFAULT '',
-  service_id UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
+  service_id UUID REFERENCES services(id) ON DELETE CASCADE,
+  tour_id UUID REFERENCES tours(id) ON DELETE CASCADE,
   date DATE,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
   reject_reason TEXT DEFAULT NULL,
   tg_messages JSONB DEFAULT '[]'::JSONB,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  CHECK (service_id IS NOT NULL OR tour_id IS NOT NULL)
 );
 
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS tg_messages JSONB DEFAULT '[]'::JSONB;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS time_from TEXT DEFAULT NULL;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS time_to TEXT DEFAULT NULL;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS notified_2h BOOLEAN DEFAULT false;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS notified_1h BOOLEAN DEFAULT false;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS notified_15m BOOLEAN DEFAULT false;
 
 ALTER TABLE bookings DISABLE ROW LEVEL SECURITY;
 GRANT ALL ON bookings TO anon, authenticated, service_role;

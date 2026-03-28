@@ -1,4 +1,4 @@
-ёёimport { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const BOT_TOKEN = Deno.env.get('BOOKING_TELEGRAM_BOT_TOKEN')!
@@ -193,7 +193,7 @@ serve(async (req: Request) => {
         const reqId = match[1]
         const reason = text
 
-        const { data: bData } = await supabase.from('bookings').select('*, services(title_ru, title_en)').eq('id', reqId).single()
+        const { data: bData } = await supabase.from('bookings').select('*, services(title_ru, title_en), tours(title_ru, title_en)').eq('id', reqId).single()
         
         await supabase
           .from('bookings')
@@ -206,7 +206,12 @@ serve(async (req: Request) => {
             const date = bData.date || 'Без даты'
             const timeFrom = bData.time_from || ''
             const timeTo = bData.time_to || ''
-            const serviceName = Array.isArray(bData.services) ? bData.services[0]?.title_ru : (bData.services?.title_ru || bData.services?.title_en || 'Услуга')
+            let serviceName = 'Услуга'
+            if (bData.services) {
+                serviceName = Array.isArray(bData.services) ? bData.services[0]?.title_ru : (bData.services?.title_ru || bData.services?.title_en || 'Услуга')
+            } else if (bData.tours) {
+                serviceName = Array.isArray(bData.tours) ? bData.tours[0]?.title_ru : (bData.tours?.title_ru || bData.tours?.title_en || 'Тур')
+            }
             
             const timeLine = (timeFrom && timeTo) ? `\n🕐 Время: *${timeFrom} — ${timeTo}*` : ''
             const baseMessage = `📅 *Бронирование (ОТКЛОНЕНО)*\n\n` +
@@ -260,7 +265,7 @@ serve(async (req: Request) => {
       const reqId = action === 'approved' ? callbackData.replace('approve_', '') : callbackData.replace('reject_', '')
 
       if (action === 'approved') {
-        const { data: bData } = await supabase.from('bookings').select('*, services(title_ru, title_en)').eq('id', reqId).single()
+        const { data: bData } = await supabase.from('bookings').select('*, services(title_ru, title_en), tours(title_ru, title_en)').eq('id', reqId).single()
         
         await supabase
           .from('bookings')
@@ -284,7 +289,12 @@ serve(async (req: Request) => {
           const date = bData.date || 'Без даты'
           const timeFrom = bData.time_from || ''
           const timeTo = bData.time_to || ''
-          const serviceName = Array.isArray(bData.services) ? bData.services[0]?.title_ru : (bData.services?.title_ru || bData.services?.title_en || 'Услуга')
+          let serviceName = 'Услуга'
+          if (bData.services) {
+              serviceName = Array.isArray(bData.services) ? bData.services[0]?.title_ru : (bData.services?.title_ru || bData.services?.title_en || 'Услуга')
+          } else if (bData.tours) {
+              serviceName = Array.isArray(bData.tours) ? bData.tours[0]?.title_ru : (bData.tours?.title_ru || bData.tours?.title_en || 'Тур')
+          }
           
           const timeLine = (timeFrom && timeTo) ? `\n🕐 Время: *${timeFrom} — ${timeTo}*` : ''
           const baseMessage = `📅 *Бронирование*\n\n` +
@@ -338,6 +348,7 @@ serve(async (req: Request) => {
     const timeFrom = body.record.time_from || ''
     const timeTo = body.record.time_to || ''
     const serviceId = body.record.service_id
+    const tourId = body.record.tour_id
     const reqId = body.record.id
 
     // Dedup: check if notifications were already sent for this booking
@@ -347,8 +358,14 @@ serve(async (req: Request) => {
     }
 
     // Check service name based on ID
-    const { data: service } = await supabase.from('services').select('title_ru, title_en').eq('id', serviceId).single()
-    const serviceName = service?.title_ru || service?.title_en || 'Услуга'
+    let serviceName = 'Услуга'
+    if (serviceId) {
+        const { data: service } = await supabase.from('services').select('title_ru, title_en').eq('id', serviceId).single()
+        serviceName = service?.title_ru || service?.title_en || 'Услуга'
+    } else if (tourId) {
+        const { data: tour } = await supabase.from('tours').select('title_ru, title_en').eq('id', tourId).single()
+        serviceName = tour?.title_ru || tour?.title_en || 'Тур'
+    }
 
     // Load recipients from DB
     const { data: recipients } = await supabase

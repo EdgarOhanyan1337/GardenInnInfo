@@ -260,7 +260,8 @@ function openDetail(serviceKey) {
             bookBtn.innerHTML = '<span>📅</span> <span>' + (t.bookingSubmit || 'Book Now') + '</span>';
             bookBtn.onclick = () => {
                 closeModal(document.getElementById('detail-modal'));
-                if (window.showBookingConfirm) window.showBookingConfirm(data.id, sName, data.has_calendar);
+                var type = data.tour_key ? 'tour' : 'service';
+                if (window.showBookingConfirm) window.showBookingConfirm(data.id, sName, data.has_calendar, type);
             };
             contentEl.appendChild(bookBtn);
         }

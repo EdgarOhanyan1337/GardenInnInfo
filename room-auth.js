@@ -211,6 +211,11 @@
                 url.searchParams.delete('room');
                 url.searchParams.delete('qr');
                 window.history.replaceState({}, '', url.pathname + url.search);
+                
+                // Ask for Push Notifications
+                if (window.showPushPrompt) {
+                    setTimeout(window.showPushPrompt, 500);
+                }
             } else {
                 showLoginError('Could not determine room number.');
             }
@@ -287,6 +292,11 @@
                 url.searchParams.delete('qr');
                 url.searchParams.delete('key');
                 window.history.replaceState({}, '', url.pathname + url.search);
+                
+                // Ask for Push Notifications
+                if (window.showPushPrompt) {
+                    setTimeout(window.showPushPrompt, 500);
+                }
             } else {
                 showLoginError('Failed to authenticate room ' + roomNum + '. Please try manually.');
             }
@@ -309,12 +319,14 @@
             if (data && data.session) {
                 window.currentRoom = existingRoom;
                 showRoomBadge(existingRoom);
+                if (window.showPushPrompt) setTimeout(window.showPushPrompt, 500);
             } else {
                 // Session expired, re-auth silently
                 var success = await authenticateRoom(parseInt(existingRoom, 10));
                 if (success) {
                     showRoomBadge(existingRoom);
                     window.currentRoom = existingRoom;
+                    if (window.showPushPrompt) setTimeout(window.showPushPrompt, 500);
                 } else {
                     clearRoom();
                     showLoginOverlay();

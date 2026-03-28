@@ -15,7 +15,7 @@
 
     // ==================== BOOKING CONFIRM MODAL ====================
 
-    window.showBookingConfirm = function (serviceId, serviceName, hasCalendar) {
+    window.showBookingConfirm = function (serviceId, serviceName, hasCalendar, serviceType) {
         var modal = document.getElementById('booking-confirm-modal');
         if (!modal) return;
         var titleEl = modal.querySelector('.booking-confirm-title');
@@ -30,6 +30,7 @@
         modal.dataset.serviceId = serviceId;
         modal.dataset.serviceName = serviceName;
         modal.dataset.hasCalendar = hasCalendar ? 'true' : 'false';
+        modal.dataset.serviceType = serviceType || 'service';
 
         // Close any currently active modals before opening
         var activeModals = document.querySelectorAll('.modal.active');
@@ -55,13 +56,14 @@
         var serviceId = modal.dataset.serviceId;
         var serviceName = modal.dataset.serviceName;
         var hasCalendar = modal.dataset.hasCalendar === 'true';
+        var serviceType = modal.dataset.serviceType;
         window.closeBookingConfirm();
-        window.openBookingForm(serviceId, serviceName, hasCalendar);
+        window.openBookingForm(serviceId, serviceName, hasCalendar, serviceType);
     };
 
     // ==================== BOOKING FORM MODAL ====================
 
-    window.openBookingForm = async function (serviceId, serviceName, hasCalendar) {
+    window.openBookingForm = async function (serviceId, serviceName, hasCalendar, serviceType) {
         var modal = document.getElementById('booking-form-modal');
         if (!modal) return;
 
@@ -152,10 +154,11 @@
         // Store service data
         modal.dataset.serviceId = serviceId;
         modal.dataset.hasCalendar = hasCalendar ? 'true' : 'false';
+        modal.dataset.serviceType = serviceType || 'service';
 
         // Load booked time slots for overlap checking
         if (hasCalendar) {
-            await loadBookedSlots(serviceId);
+            await loadBookedSlots(serviceId, serviceType);
         }
 
         // Close any currently active modals before opening
@@ -180,13 +183,14 @@
 
     var bookedSlotsCache = {};
 
-    async function loadBookedSlots(serviceId) {
+    async function loadBookedSlots(serviceId, serviceType) {
         if (!window.supabaseClient) return;
         try {
+            var column = serviceType === 'tour' ? 'tour_id' : 'service_id';
             var { data } = await window.supabaseClient
                 .from('bookings')
                 .select('date, time_from, time_to')
-                .eq('service_id', serviceId)
+                .eq(column, serviceId)
                 .in('status', ['approved', 'pending']);
 
             bookedSlotsCache[serviceId] = (data || []).map(function (b) {
@@ -229,6 +233,7 @@
 
         var serviceId = modal.dataset.serviceId;
         var hasCalendar = modal.dataset.hasCalendar === 'true';
+        var serviceType = modal.dataset.serviceType;
 
         var nameInput = document.getElementById('booking-guest-name');
         var dateInput = document.getElementById('booking-date');
@@ -324,9 +329,13 @@
             var insertData = {
                 guest_name: guestName,
                 room_number: roomNumber,
-                service_id: serviceId,
                 status: 'pending'
             };
+            if (serviceType === 'tour') {
+                insertData.tour_id = serviceId;
+            } else {
+                insertData.service_id = serviceId;
+            }
             if (hasCalendar && date) {
                 insertData.date = date;
                 if (timeFrom) insertData.time_from = timeFrom;
