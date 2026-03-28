@@ -279,3 +279,33 @@ BEGIN
     END IF;
   END LOOP;
 END $$;
+
+-- ============================================
+-- HOT DEALS SYSTEM
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS hot_deals (
+    id uuid default gen_random_uuid() primary key,
+    type text not null check (type in ('discount', 'announcement')),
+    reference_id text,
+    title_en text,
+    title_ru text,
+    title_hy text,
+    description_en text,
+    description_ru text,
+    description_hy text,
+    old_price text,
+    new_price text,
+    is_paid boolean default false,
+    image_url text,
+    is_active boolean default true,
+    created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+ALTER TABLE hot_deals DISABLE ROW LEVEL SECURITY;
+GRANT ALL ON hot_deals TO anon, authenticated, service_role;
+ALTER PUBLICATION supabase_realtime ADD TABLE hot_deals;
+
+-- Hot Deals feature toggle
+INSERT INTO app_settings (key, value) VALUES ('hot_deals_active', 'true')
+ON CONFLICT (key) DO NOTHING;

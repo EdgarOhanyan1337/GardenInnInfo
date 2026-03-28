@@ -576,6 +576,9 @@
             <a onclick="navTo('housekeeping_ratings', renderRatings, this)">
                 <span class="nav-emoji">⭐</span> HK Ratings
             </a>
+            <a onclick="navTo('hot_deals', loadHotDealsAdmin, this)">
+                <span class="nav-emoji" style="color:#ff4757;">🔥</span> Hot Deals
+            </a>
             <a onclick="logout()" class="logout-btn">
                 <span class="nav-emoji">🚪</span> Logout
             </a>
@@ -585,6 +588,67 @@
             <div class="content-header">
                 <h1>Admin Dashboard</h1>
                 <p>Manage your resort content, services, and guest interactions</p>
+            </div>
+
+            <!-- ==================== HOT DEALS SECTION ==================== -->
+            <div id="hot-deals-section" style="display:none;">
+                <!-- Global Settings Card -->
+                <div class="card" style="border-color: rgba(255, 71, 87, 0.3); background: rgba(255, 71, 87, 0.05);">
+                    <h3><span class="card-icon">⚙️</span> Hot Deals Master Switch</h3>
+                    <p style="margin-bottom:12px;">Turn the entire Hot Deals feature ON or OFF globally for all devices.</p>
+                    <div style="display:flex; align-items:center; gap: 12px;">
+                        <button id="hd-toggle-btn" onclick="toggleHotDealsFeature()" style="background: #4ade80; color: #000; padding: 10px 20px; border-radius:8px; border:none; font-weight:bold; cursor:pointer;">Checking status...</button>
+                        <span id="hd-toggle-status" style="font-size: 13px; color: #8b98a5;">Please wait...</span>
+                    </div>
+                </div>
+
+                <div class="card" id="hd-form-card">
+                    <h3 style="margin-bottom:12px;"><span class="card-icon">🎁</span> <span id="hd-submit-btn-title">Create New Hot Deal</span></h3>
+                    <div class="form-group" style="margin-bottom:12px;">
+                        <label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Deal Type</label>
+                        <select id="hd-type" onchange="toggleHotDealTypeFields()" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;">
+                            <option value="discount">Sale / Discount 💰</option>
+                            <option value="announcement">Announcement 📢</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="hd-ref-group" style="margin-bottom:12px;">
+                        <label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Link to Existing Item (Optional)</label>
+                        <select id="hd-ref-id" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;">
+                            <option value="">-- No link (Standalone) --</option>
+                        </select>
+                    </div>
+                    <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
+                        <div><label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Title (EN)*</label><input type="text" id="hd-title-en" placeholder="e.g. 50% Off Pool" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;"></div>
+                        <div><label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Title (RU)</label><input type="text" id="hd-title-ru" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;"></div>
+                        <div><label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Title (HY)</label><input type="text" id="hd-title-hy" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;"></div>
+                    </div>
+                    <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
+                        <div><label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Description (EN)</label><input type="text" id="hd-desc-en" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;"></div>
+                        <div><label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Description (RU)</label><input type="text" id="hd-desc-ru" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;"></div>
+                        <div><label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Description (HY)</label><input type="text" id="hd-desc-hy" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;"></div>
+                    </div>
+                    <div class="form-row" id="hd-price-row" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                        <div><label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Old Price</label><input type="text" id="hd-old-price" placeholder="e.g. 10000 AMD" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;"></div>
+                        <div><label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">New Price</label><input type="text" id="hd-new-price" placeholder="e.g. 5000 AMD" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;"></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Image (Recommended)</label>
+                        <input type="file" id="hd-file" accept="image/*" style="width:100%; color:#fff;">
+                    </div>
+                    <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+                        <input type="checkbox" id="hd-send-push" style="width:16px; height:16px;" checked>
+                        <label for="hd-send-push" style="font-size:14px; margin:0; cursor:pointer;">🔔 Send Broadcast Push on Registration</label>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button id="hd-submit-btn-action" onclick="saveHotDeal()" style="background:#4ade80; color:#000; padding:10px 16px; border:none; border-radius:8px; font-weight:600; cursor:pointer;">Save & Publish</button>
+                        <button id="hd-cancel-btn" onclick="cancelEditHotDeal()" style="background:rgba(255,255,255,0.1); color:#fff; padding:10px 16px; border:none; border-radius:8px; display:none; cursor:pointer;">Cancel Edit</button>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:24px;">
+                    <h3><span class="card-icon">🔥</span> Active & Past Deals</h3>
+                    <div class="table-wrapper" id="hot-deals-table-container">Loading deals...</div>
+                </div>
             </div>
 
             <!-- MINIBAR SECTION -->

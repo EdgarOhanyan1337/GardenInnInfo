@@ -99,6 +99,10 @@
                 <h1 data-key="welcome">Welcome</h1>
                 <p data-key="tagline" class="tagline">Garden Green Resort & Spa</p>
                 <nav class="main-nav" aria-label="Основная навигация">
+                    <button id="hot-deals-nav-btn" class="nav-btn wide-btn hot-deal-btn" data-modal="hot-deals" style="display: none;">
+                        <span class="nav-icon">🎁</span>
+                        <span data-key="hotDeals">HOT DEAL</span>
+                    </button>
                     <button id="wifi-connect-btn" class="nav-btn wide-btn" aria-label="Подключиться к WiFi">
                         <span class="nav-icon">📶</span>
                         <span data-key="wifiMenu">WiFi</span>
@@ -181,6 +185,28 @@
     </main>
 
     <!-- ==================== MODALS ==================== -->
+
+    <!-- Hot Deals Modal -->
+    <section id="hot-deals-modal" class="modal" aria-labelledby="hot-deals-title" role="dialog" aria-modal="true">
+        <div class="modal-content glass scrollable">
+            <button class="modal-close" data-modal="hot-deals" aria-label="Закрыть">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+            </button>
+            <h2 id="hot-deals-title" data-key="hotDealsTitle" style="color: #ff4757;">🔥 Hot Deals</h2>
+            <div id="hot-deals-list" class="hot-deals-grid" style="display:flex; flex-direction:column; gap:16px;">
+                <!-- Dynamically populated -->
+            </div>
+            <div id="hot-deals-empty" style="display:none; text-align:center; padding: 32px 16px; color: var(--color-text-muted);">
+                <div style="font-size:48px; margin-bottom:12px;">😔</div>
+                <p data-key="hotDealsEmpty">No active deals right now. Check back later!</p>
+            </div>
+            <div id="hot-deals-loading" style="text-align:center; padding: 32px; color: var(--color-text-muted);">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </section>
 
     <!-- Services Modal -->
     <section id="services-modal" class="modal" aria-labelledby="services-title" role="dialog" aria-modal="true">

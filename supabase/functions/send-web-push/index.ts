@@ -33,27 +33,29 @@ serve(async (req) => {
     const supabase = createClient(SUPABASE_URL!, SUPABASE_KEY!)
 
     const bodyObj = await req.json()
-    const { room_number, title, body, url } = bodyObj
+    const { room_number, broadcast, title, body, url } = bodyObj
 
-    if (!room_number) {
-      return new Response(JSON.stringify({ error: 'room_number is required' }), { status: 400, headers: corsHeaders })
+    if (!room_number && !broadcast) {
+      return new Response(JSON.stringify({ error: 'room_number or broadcast is required' }), { status: 400, headers: corsHeaders })
     }
 
-    const { data: subs, error: subsError } = await supabase
-      .from('push_subscriptions')
-      .select('subscription')
-      .eq('room_number', String(room_number))
+    let query = supabase.from('push_subscriptions').select('subscription, room_number')
+    if (!broadcast) {
+      query = query.eq('room_number', String(room_number))
+    }
+
+    const { data: subs, error: subsError } = await query
 
     if (subsError) {
       return new Response(JSON.stringify({ error: subsError.message }), { status: 500, headers: corsHeaders })
     }
 
     if (!subs || subs.length === 0) {
-      console.log('PUSH: no subscriptions found for room', room_number)
+      console.log('PUSH: no subscriptions found for room', room_number || 'ALL')
       return new Response(JSON.stringify({ message: 'No subscriptions found for room' }), { status: 200, headers: corsHeaders })
     }
 
-    console.log(`PUSH: found ${subs.length} subscriptions for room ${room_number}`)
+    console.log(`PUSH: found ${subs.length} subscriptions for room ${room_number || 'ALL'}`)
 
     const payload = JSON.stringify({
       title: title,
@@ -80,10 +82,11 @@ serve(async (req) => {
 
     if (expiredSubs.length > 0) {
       for (const exp of expiredSubs) {
-         await supabase.from('push_subscriptions')
-           .delete()
-           .eq('room_number', String(room_number))
-           .contains('subscription', exp)
+         let delQuery = supabase.from('push_subscriptions').delete().contains('subscription', exp)
+         if (!broadcast) {
+           delQuery = delQuery.eq('room_number', String(room_number))
+         }
+         await delQuery
       }
       console.log(`Cleaned up ${expiredSubs.length} expired subscriptions.`)
     }
