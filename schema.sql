@@ -98,7 +98,7 @@ CREATE TABLE housekeeping_ratings (
 
 CREATE TABLE notification_recipients (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  type TEXT NOT NULL CHECK (type IN ('telegram', 'email')),
+  type TEXT NOT NULL CHECK (type IN ('telegram', 'email', 'telegram_booking')),
   value TEXT NOT NULL,
   label TEXT DEFAULT '',
   username TEXT DEFAULT '',

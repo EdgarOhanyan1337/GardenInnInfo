@@ -111,6 +111,8 @@
         if (errDiv) { errDiv.style.display = 'none'; errDiv.textContent = ''; }
         if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('loading'); }
 
+        var isTour = (serviceType === 'tour');
+
         // Show/hide calendar and time based on has_calendar
         if (dateGroup) {
             dateGroup.style.display = hasCalendar ? 'flex' : 'none';
@@ -118,6 +120,40 @@
         var timeGroup = document.getElementById('booking-time-group');
         if (timeGroup) {
             timeGroup.style.display = hasCalendar ? 'flex' : 'none';
+        }
+
+        // For tours: hide the "TO" slot and divider, change label to "Pickup Time"
+        var timeToSlot = document.querySelector('#booking-time-group .time-picker-slot:last-child');
+        var timeDivider = document.querySelector('#booking-time-group .time-picker-divider');
+        var timeFromLabel = document.querySelector('#booking-time-group .time-picker-slot:first-child .time-picker-label');
+        var timeGroupLabel = document.querySelector('[for="booking-time-group"], #booking-time-group .hk-label, label[data-key="bookingTime"]');
+        // Also find the main time label above the time picker card
+        var timeMainLabel = null;
+        var allLabels = document.querySelectorAll('#booking-time-group .booking-form-label, #booking-time-group .hk-label');
+        if (allLabels.length > 0) timeMainLabel = allLabels[0];
+
+        if (isTour && hasCalendar) {
+            if (timeToSlot) timeToSlot.style.display = 'none';
+            if (timeDivider) timeDivider.style.display = 'none';
+            if (timeFromLabel) {
+                var t2 = (window.translations && window.translations[window.currentLang]) || {};
+                timeFromLabel.textContent = t2.bookingPickupTime || 'PICKUP';
+            }
+            if (timeMainLabel) {
+                var t2 = (window.translations && window.translations[window.currentLang]) || {};
+                timeMainLabel.innerHTML = '🕐 ' + (t2.bookingPickupTimeLabel || 'Pickup Time');
+            }
+        } else {
+            if (timeToSlot) timeToSlot.style.display = '';
+            if (timeDivider) timeDivider.style.display = '';
+            if (timeFromLabel) {
+                var t2 = (window.translations && window.translations[window.currentLang]) || {};
+                timeFromLabel.textContent = t2.bookingTimeFrom || 'FROM';
+            }
+            if (timeMainLabel) {
+                var t2 = (window.translations && window.translations[window.currentLang]) || {};
+                timeMainLabel.innerHTML = '🕐 ' + (t2.bookingTime || 'Select Time');
+            }
         }
 
         // Set min date and initial value to today (Armenia time)
@@ -158,7 +194,7 @@
                     allowInput: false
                 });
             }
-            if (timeToInput) {
+            if (timeToInput && !isTour) {
                 flatpickr(timeToInput, {
                     enableTime: true,
                     noCalendar: true,
@@ -286,32 +322,33 @@
         }
 
 
+        var isTourBooking = (serviceType === 'tour');
         var timeFromInput = document.getElementById('booking-time-from');
         var timeToInput = document.getElementById('booking-time-to');
         var timeFrom = timeFromInput ? timeFromInput.value : '';
-        var timeTo = timeToInput ? timeToInput.value : '';
+        var timeTo = (!isTourBooking && timeToInput) ? timeToInput.value : '';
 
         // Strict time format validation
         var timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
         if (hasCalendar && timeFrom && !timeRegex.test(timeFrom)) {
-            if (errDiv) { errDiv.textContent = t.bookingInvalidTime || 'Invalid start time format. Use HH:MM.'; errDiv.style.display = 'block'; }
+            if (errDiv) { errDiv.textContent = t.bookingInvalidTime || 'Invalid time format. Use HH:MM.'; errDiv.style.display = 'block'; }
             return;
         }
-        if (hasCalendar && timeTo && !timeRegex.test(timeTo)) {
+        if (!isTourBooking && hasCalendar && timeTo && !timeRegex.test(timeTo)) {
             if (errDiv) { errDiv.textContent = t.bookingInvalidTime || 'Invalid end time format. Use HH:MM.'; errDiv.style.display = 'block'; }
             return;
         }
 
-        // Validate time ordering: time_from must be before time_to
-        if (hasCalendar && timeFrom && timeTo) {
+        // Validate time ordering: time_from must be before time_to (skip for tours - they only have pickup time)
+        if (!isTourBooking && hasCalendar && timeFrom && timeTo) {
             if (timeToMinutes(timeFrom) >= timeToMinutes(timeTo)) {
                 if (errDiv) { errDiv.textContent = t.bookingTimeOrder || 'End time must be after start time.'; errDiv.style.display = 'block'; }
                 return;
             }
         }
 
-        // Check for time overlap with existing bookings
-        if (hasCalendar && date && timeFrom && timeTo && hasTimeOverlap(serviceId, date, timeFrom, timeTo)) {
+        // Check for time overlap with existing bookings (skip for tours)
+        if (!isTourBooking && hasCalendar && date && timeFrom && timeTo && hasTimeOverlap(serviceId, date, timeFrom, timeTo)) {
             if (errDiv) { errDiv.textContent = t.bookingTimeOverlap || 'This time slot overlaps with an existing booking. Please choose a different time.'; errDiv.style.display = 'block'; }
             return;
         }
@@ -363,7 +400,7 @@
             if (hasCalendar && date) {
                 insertData.date = date;
                 if (timeFrom) insertData.time_from = timeFrom;
-                if (timeTo) insertData.time_to = timeTo;
+                if (!isTourBooking && timeTo) insertData.time_to = timeTo;
             }
 
             var { data, error } = await window.supabaseClient

@@ -228,7 +228,7 @@ serve(async (req: Request) => {
                 serviceName = Array.isArray(bData.tours) ? bData.tours[0]?.title_ru : (bData.tours?.title_ru || bData.tours?.title_en || 'Тур')
             }
             
-            const timeLine = (timeFrom && timeTo) ? `\n🕐 Время: *${timeFrom} — ${timeTo}*` : ''
+            const timeLine = (timeFrom && timeTo) ? `\n🕐 Время: *${timeFrom} — ${timeTo}*` : (timeFrom ? `\n🕐 Выезд: *${timeFrom}*` : '')
             const baseMessage = `📅 *Бронирование (ОТКЛОНЕНО)*\n\n` +
                     `🛠 Услуга: *${serviceName}*\n` +
                     `👤 Гость: *${guestName}*\n` +
@@ -326,7 +326,7 @@ serve(async (req: Request) => {
               serviceName = Array.isArray(bData.tours) ? bData.tours[0]?.title_ru : (bData.tours?.title_ru || bData.tours?.title_en || 'Тур')
           }
           
-          const timeLine = (timeFrom && timeTo) ? `\n🕐 Время: *${timeFrom} — ${timeTo}*` : ''
+          const timeLine = (timeFrom && timeTo) ? `\n🕐 Время: *${timeFrom} — ${timeTo}*` : (timeFrom ? `\n🕐 Выезд: *${timeFrom}*` : '')
           const baseMessage = `📅 *Бронирование*\n\n` +
                   `🛠 Услуга: *${serviceName}*\n` +
                   `👤 Гость: *${guestName}*\n` +
@@ -406,7 +406,7 @@ serve(async (req: Request) => {
 
     const chatIds = recipients?.map((r: { value: string }) => r.value) || []
     
-    const timeLine = (timeFrom && timeTo) ? `\n🕐 Время: *${timeFrom} — ${timeTo}*` : ''
+    const timeLine = (timeFrom && timeTo) ? `\n🕐 Время: *${timeFrom} — ${timeTo}*` : (timeFrom ? `\n🕐 Выезд: *${timeFrom}*` : '')
     const message = `📅 *Новое Бронирование*\n\n` +
                     `🛠 Услуга: *${serviceName}*\n` +
                     `👤 Гость: *${guestName}*\n` +
