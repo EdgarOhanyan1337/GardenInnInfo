@@ -297,7 +297,6 @@
         document.getElementById('tour-desc-hy').value = item.description_hy || '';
         document.getElementById('tour-price').value = item.price || '';
         document.getElementById('tour-icon').value = item.icon || '';
-        document.getElementById('tour-is-paid').checked = item.is_paid !== false;
         document.getElementById('tour-has-calendar').checked = item.has_calendar !== false;
         document.getElementById('tour-submit-btn').textContent = 'Update Tour';
         document.getElementById('tour-cancel-btn').style.display = 'inline-flex';
@@ -315,7 +314,6 @@
         document.getElementById('tour-desc-hy').value = '';
         document.getElementById('tour-price').value = '';
         document.getElementById('tour-icon').value = '';
-        document.getElementById('tour-is-paid').checked = true;
         document.getElementById('tour-has-calendar').checked = true;
         document.getElementById('tour-file').value = '';
         document.getElementById('tour-submit-btn').textContent = '+ Add Tour';
@@ -332,7 +330,6 @@
         var description_hy = document.getElementById('tour-desc-hy').value || description_en;
         var price = document.getElementById('tour-price').value;
         var icon = document.getElementById('tour-icon').value;
-        var is_paid = document.getElementById('tour-is-paid').checked;
         var has_calendar = document.getElementById('tour-has-calendar').checked;
         if (!tour_key || !title_en) { alert('Fill in key and English title!'); return; }
         
@@ -341,7 +338,7 @@
         var updateData = {
             tour_key: tour_key, title_en: title_en, title_ru: title_ru, title_hy: title_hy,
             description_en: description_en, description_ru: description_ru, description_hy: description_hy,
-            price: price, icon: icon, is_paid: is_paid, has_calendar: has_calendar
+            price: price, icon: icon, has_calendar: has_calendar
         };
 
         if (files.length > 0) {

@@ -91,8 +91,13 @@
     };
 
     window.showPushPrompt = function () {
-        if (localStorage.getItem('gi_push_subscribed') === 'true' || Notification.permission === 'granted') {
-            return; // Already subscribed or granted
+        // If already granted, silently re-subscribe to keep DB in sync
+        if (Notification.permission === 'granted') {
+            window.subscribeToPush();
+            return;
+        }
+        if (localStorage.getItem('gi_push_subscribed') === 'true') {
+            return; // Already subscribed
         }
         if (Notification.permission === 'denied') return; // Don't annoy if they explicitly blocked
 
@@ -159,5 +164,13 @@
 
     // Initialize Service Worker immediately
     window.initPushNotifications();
+
+    // Auto re-subscribe on every page load if permission already granted
+    // This ensures the DB subscription stays valid even if it was cleaned up
+    if ('Notification' in window && Notification.permission === 'granted') {
+        setTimeout(function() {
+            window.subscribeToPush();
+        }, 2000);
+    }
 
 })();

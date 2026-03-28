@@ -546,8 +546,9 @@
         var t = (window.translations && window.translations[window.currentLang]) || {};
 
         if (!myBookingIds || myBookingIds.length === 0) {
-            // Show alert if no bookings are found on this device
-            alert(t.myBookingsEmptyAlert || (window.currentLang === 'ru' ? 'У вас еще нет бронирований.' : window.currentLang === 'hy' ? 'Դուք դեռ չունեք ամրագրումներ:' : 'You have no bookings yet.'));
+            // Show a pretty toast instead of ugly alert
+            var emptyMsg = t.myBookingsEmptyAlert || (window.currentLang === 'ru' ? 'У вас еще нет бронирований.' : window.currentLang === 'hy' ? 'Դուք դեռ չունեք ամրագրումներ:' : 'You have no bookings yet.');
+            showBookingToast('📭 ' + (t.myBookings || 'My Bookings'), emptyMsg, 'info');
             return;
         }
 
@@ -560,7 +561,6 @@
         // Show modal
         var activeModals = document.querySelectorAll('.modal.active');
         activeModals.forEach(function (m) { m.classList.remove('active'); });
-        modal.style.display = 'flex';
         setTimeout(function () { modal.classList.add('active'); }, 50);
         document.body.style.overflow = 'hidden';
 
@@ -677,6 +677,16 @@
             console.error('My Bookings error:', e);
             if (loadingEl) loadingEl.style.display = 'none';
             if (emptyEl) emptyEl.style.display = 'block';
+        }
+    };
+
+    // Close My Bookings modal properly (prevents frozen buttons bug)
+    window.closeMyBookings = function () {
+        var modal = document.getElementById('my-bookings-modal');
+        if (modal) {
+            modal.classList.remove('active');
+            setTimeout(function () { modal.style.display = 'none'; }, 300);
+            document.body.style.overflow = '';
         }
     };
 
