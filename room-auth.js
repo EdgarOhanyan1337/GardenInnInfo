@@ -28,7 +28,8 @@
     function clearAllProjectData() {
         localStorage.removeItem(LS_ROOM_KEY);
         localStorage.removeItem(LS_LOGIN_TIME_KEY);
-        localStorage.removeItem('gi_my_bookings');
+        // Note: intentionally NOT clearing 'gi_my_bookings' so they persist 
+        // across 10-hour cache resets for the same device
         localStorage.removeItem('hk_pending_room');
         localStorage.removeItem('hk_pending_id');
         localStorage.removeItem('hk_accepted_id');

@@ -171,6 +171,9 @@ function updateTexts() {
         if (t[pKey]) el.placeholder = t[pKey];
     });
     document.title = 'Garden Inn Resort | ' + (t.tagline || 'Resort');
+    
+    // Update "My Bookings" button text specifically
+    if (window.updateMyBookingsButton) window.updateMyBookingsButton();
 }
 
 // ==================== THEME ====================
@@ -254,8 +257,8 @@ function openDetail(serviceKey) {
     if (contentEl) {
         contentEl.innerHTML = desc + priceInfo;
         
-        // Add booking button if service is paid
-        if (data.is_paid) {
+        // Add booking button if paid or if it's a tour
+        if (data.is_paid || data.tour_key) {
             var sName = data['title_' + currentLang] || data.title_en || '';
             var bookBtn = document.createElement('button');
             bookBtn.className = 'hk-submit-btn';

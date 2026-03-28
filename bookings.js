@@ -11,7 +11,31 @@
 
     function saveMyBookings() {
         localStorage.setItem('gi_my_bookings', JSON.stringify(myBookingIds));
+        if (window.updateMyBookingsButton) window.updateMyBookingsButton();
     }
+
+    // Update the My Bookings button text dynamically based on whether there are bookings
+    window.updateMyBookingsButton = function() {
+        var btn = document.getElementById('my-bookings-nav-btn');
+        if (!btn) return;
+        var textSpan = btn.querySelector('span:nth-child(2)');
+        if (!textSpan) return;
+        
+        var t = (window.translations && window.translations[window.currentLang]) || {};
+        
+        if (!myBookingIds || myBookingIds.length === 0) {
+            var msg = t.noBookingsYet || (window.currentLang === 'ru' ? 'У вас нет броней' : window.currentLang === 'hy' ? 'Չկան ամրագրումներ' : 'No bookings yet');
+            textSpan.textContent = msg;
+        } else {
+            var msg = t.myBookings || (window.currentLang === 'ru' ? 'Мои брони' : window.currentLang === 'hy' ? 'Իմ ամրագրումները' : 'My Bookings');
+            textSpan.textContent = msg;
+        }
+    };
+
+    // Initialize the button text shortly after load
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(window.updateMyBookingsButton, 300);
+    });
 
     // ==================== BOOKING CONFIRM MODAL ====================
 
@@ -570,9 +594,45 @@
             var html = '';
 
             data.forEach(function (b) {
-                var statusColor = b.status === 'approved' ? '#4ade80' : b.status === 'rejected' ? '#f87171' : '#fbbf24';
-                var statusEmoji = b.status === 'approved' ? '✅' : b.status === 'rejected' ? '❌' : '⏳';
+                var statusColor = '#fbbf24'; // Default to amber
+                var statusEmoji = '⏳';
                 var statusLabel = b.status === 'approved' ? (t.approved || 'Approved') : b.status === 'rejected' ? (t.rejected || 'Rejected') : (t.pending || 'Pending');
+
+                if (b.status === 'rejected' || b.status === 'cancelled') {
+                    statusColor = '#f87171'; // Red
+                    statusEmoji = '❌';
+                    statusLabel = b.status === 'cancelled' ? (t.cancelled || 'Cancelled') : statusLabel;
+                } else {
+                    // Check if the booking has passed
+                    var isPassed = false;
+                    if (b.date) {
+                        var armeniaTimeStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Yerevan" });
+                        var armeniaNow = new Date(armeniaTimeStr);
+                        
+                        var parts = b.date.split('-');
+                        var timeParts = b.time_from ? b.time_from.split(':') : ['23', '59'];
+                        
+                        var bookingTime = new Date(
+                            parseInt(parts[0], 10), 
+                            parseInt(parts[1], 10) - 1, 
+                            parseInt(parts[2], 10),
+                            parseInt(timeParts[0], 10), 
+                            parseInt(timeParts[1], 10), 0
+                        );
+                        
+                        if (armeniaNow > bookingTime) {
+                            isPassed = true;
+                        }
+                    }
+                    
+                    if (isPassed) {
+                        statusColor = '#4ade80'; // Green
+                        statusEmoji = '✅';
+                    } else {
+                        statusColor = '#f97316'; // Orange
+                        statusEmoji = b.status === 'approved' ? '✅' : '⏳';
+                    }
+                }
 
                 // Service or Tour name
                 var name = '';
