@@ -126,12 +126,22 @@
         var btn = document.getElementById('push-accept-btn');
         if (btn) { btn.disabled = true; btn.textContent = "Please wait..."; }
         
-        const success = await window.subscribeToPush();
-        window.closePushPrompt();
-        
-        if (btn) { btn.disabled = false; btn.textContent = "Enable Notifications"; }
-        if (success && window.showToast) {
-            window.showToast('✅ Notifications Enabled!');
+        try {
+            const success = await Promise.race([
+                window.subscribeToPush(),
+                new Promise(resolve => setTimeout(() => resolve(false), 5000))
+            ]);
+            
+            if (success) {
+                if (window.showToast) window.showToast('✅ Notifications Enabled!');
+            } else {
+                console.warn("Push subscription failed or timed out.");
+            }
+        } catch(e) {
+            console.error(e);
+        } finally {
+            window.closePushPrompt();
+            if (btn) { btn.disabled = false; btn.textContent = "Enable Notifications"; }
         }
     };
 
