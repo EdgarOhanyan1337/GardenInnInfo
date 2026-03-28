@@ -381,8 +381,24 @@
             myBookingIds.push(data.id);
             saveMyBookings();
 
-            // The Supabase Database Webhook will automatically send the Telegram notification
-            // when the 'bookings' row is inserted. No need to trigger manually here.
+            // Explicitly call the Telegram bot Edge Function from frontend to guarantee delivery
+            // (The DB webhook might still fire, but the Edge Function has a deduplication check)
+            try {
+                if (window.supabaseUrl) {
+                    var fullRecord = Object.assign({}, insertData, { id: data.id });
+                    fetch(window.supabaseUrl + '/functions/v1/booking-telegram-bot', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'INSERT',
+                            table: 'bookings',
+                            record: fullRecord
+                        })
+                    }).catch(function(e) { console.error('TG bot direct call err:', e); });
+                }
+            } catch(err) {
+                console.error(err);
+            }
 
             // Show success
             if (msgDiv) msgDiv.style.display = 'block';
