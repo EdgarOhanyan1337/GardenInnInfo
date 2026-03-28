@@ -30,6 +30,8 @@ let dynamicServices = [];
 let dynamicTours = [];
 let lightboxImages = [];
 let lightboxIndex = 0;
+let dynamicMinibar = [];
+let dynamicHotDeals = [];
 
 // ==================== SUPABASE LOADING ====================
 
@@ -51,21 +53,37 @@ async function loadMinibar() {
     if (!supabaseClient) return;
     try {
         const { data } = await supabaseClient.from('minibar_items').select('*');
-        const container = document.querySelector('.products-grid');
-        if (!container || !data || data.length === 0) return;
-        container.innerHTML = '';
-        data.forEach(item => {
-            const article = document.createElement('article');
-            article.className = 'product-card';
-            article.innerHTML = '<div class="product-image" data-images=\'["' + item.image_url + '"]\'>' +
-                '<img src="' + item.image_url + '" alt="' + item.name + '" loading="lazy" onerror="this.style.display=\'none\'">' +
-                '<div class="product-overlay"><button class="view-btn">&#128065;</button></div>' +
-                '</div>' +
-                '<div class="product-info"><h4>' + item.name + '</h4><p class="price">' + item.price + ' AMD</p></div>';
-            container.appendChild(article);
-        });
-        initLightboxTriggers();
+        if (!data || data.length === 0) return;
+        dynamicMinibar = data;
+        renderMinibar();
     } catch (e) { console.error('Minibar error:', e); }
+}
+
+function renderMinibar() {
+    const container = document.querySelector('.products-grid');
+    if (!container || !dynamicMinibar || dynamicMinibar.length === 0) return;
+    container.innerHTML = '';
+    dynamicMinibar.forEach(item => {
+        let priceHtml = item.price + ' AMD';
+        let badgeHtml = '';
+        if (typeof dynamicHotDeals !== 'undefined') {
+            let deal = dynamicHotDeals.find(d => d.reference_id === item.id && d.type === 'discount' && d.is_active);
+            if (deal) {
+                priceHtml = '<span style="text-decoration:line-through; font-size:0.8em; color:#7f8fa6;">' + item.price + ' AMD</span> <br><span style="color:#4cd137; font-weight:bold;">' + (deal.new_price || '🔥 Sale') + '</span>';
+                badgeHtml = '<div style="position:absolute; top:8px; left:8px; background:#ff4757; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; z-index:2;">🔥 % SALE</div>';
+            }
+        }
+        const article = document.createElement('article');
+        article.className = 'product-card';
+        article.style.position = 'relative';
+        article.innerHTML = badgeHtml + '<div class="product-image" data-images=\'["' + item.image_url + '"]\'>' +
+            '<img src="' + item.image_url + '" alt="' + item.name + '" loading="lazy" onerror="this.style.display=\'none\'">' +
+            '<div class="product-overlay"><button class="view-btn">&#128065;</button></div>' +
+            '</div>' +
+            '<div class="product-info"><h4>' + item.name + '</h4><p class="price" style="line-height:1.2; margin-top:4px;">' + priceHtml + '</p></div>';
+        container.appendChild(article);
+    });
+    initLightboxTriggers();
 }
 
 async function loadServices() {
@@ -74,26 +92,39 @@ async function loadServices() {
         const { data } = await supabaseClient.from('services').select('*');
         if (!data) return;
         dynamicServices = data;
-        const container = document.querySelector('#services-modal .services-grid');
-        if (!container) return;
-        container.innerHTML = '';
-        data.forEach(item => {
-            var title = item['title_' + currentLang] || item.title_en || '';
-            var article = document.createElement('article');
-            article.className = 'service-card';
-            article.dataset.service = item.service_key;
-            if (item.is_paid) article.dataset.isPaid = 'true';
-            
-            article.innerHTML = '<div class="service-icon">' + item.icon + '</div>' +
-                '<h3>' + title + '</h3>' +
-                '<span class="status ' + item.status_type + '">' + item.status_type.toUpperCase() + '</span>' +
-                '<button class="more-btn">' + (translations[currentLang].more || 'More') + '</button>';
-            container.appendChild(article);
-        });
-        container.querySelectorAll('.more-btn').forEach(btn => {
-            btn.onclick = () => openDetail(btn.closest('.service-card').dataset.service);
-        });
+        renderServices();
     } catch (e) { console.error('Services error:', e); }
+}
+
+function renderServices() {
+    const container = document.querySelector('#services-modal .services-grid');
+    if (!container || !dynamicServices) return;
+    container.innerHTML = '';
+    dynamicServices.forEach(item => {
+        var title = item['title_' + currentLang] || item.title_en || '';
+        let statusHtml = '<span class="status ' + item.status_type + '">' + item.status_type.toUpperCase() + '</span>';
+        
+        if (typeof dynamicHotDeals !== 'undefined') {
+            let deal = dynamicHotDeals.find(d => d.reference_id === item.service_key && d.type === 'discount' && d.is_active);
+            if (deal) {
+                statusHtml = '<span class="status paid" style="background:rgba(231,76,60,0.2); color:#e74c3c;">🔥 SALE</span>';
+            }
+        }
+
+        var article = document.createElement('article');
+        article.className = 'service-card';
+        article.dataset.service = item.service_key;
+        if (item.is_paid) article.dataset.isPaid = 'true';
+        
+        article.innerHTML = '<div class="service-icon">' + item.icon + '</div>' +
+            '<h3>' + title + '</h3>' +
+            statusHtml +
+            '<button class="more-btn">' + (translations[currentLang].more || 'More') + '</button>';
+        container.appendChild(article);
+    });
+    container.querySelectorAll('.more-btn').forEach(btn => {
+        btn.onclick = () => openDetail(btn.closest('.service-card').dataset.service);
+    });
 }
 
 async function loadTours() {
@@ -102,24 +133,37 @@ async function loadTours() {
         const { data } = await supabaseClient.from('tours').select('*');
         if (!data) return;
         dynamicTours = data;
-        const container = document.querySelector('#tours-modal .services-grid');
-        if (!container) return;
-        container.innerHTML = '';
-        data.forEach(item => {
-            var title = item['title_' + currentLang] || item.title_en || '';
-            var article = document.createElement('article');
-            article.className = 'service-card';
-            article.dataset.service = item.tour_key;
-            article.innerHTML = '<div class="service-icon">' + item.icon + '</div>' +
-                '<h3>' + title + '</h3>' +
-                '<span class="status paid" style="text-transform: none;">' + item.price + '</span>' +
-                '<button class="more-btn">' + (translations[currentLang].more || 'More') + '</button>';
-            container.appendChild(article);
-        });
-        container.querySelectorAll('.more-btn').forEach(btn => {
-            btn.onclick = () => openDetail(btn.closest('.service-card').dataset.service);
-        });
+        renderTours();
     } catch (e) { console.error('Tours error:', e); }
+}
+
+function renderTours() {
+    const container = document.querySelector('#tours-modal .services-grid');
+    if (!container || !dynamicTours) return;
+    container.innerHTML = '';
+    dynamicTours.forEach(item => {
+        var title = item['title_' + currentLang] || item.title_en || '';
+        let statusHtml = '<span class="status paid" style="text-transform: none;">' + item.price + '</span>';
+        
+        if (typeof dynamicHotDeals !== 'undefined') {
+            let deal = dynamicHotDeals.find(d => d.reference_id === item.tour_key && d.type === 'discount' && d.is_active);
+            if (deal) {
+                statusHtml = '<span class="status paid" style="background:rgba(231,76,60,0.2); color:#e74c3c;">🔥 SALE</span>';
+            }
+        }
+
+        var article = document.createElement('article');
+        article.className = 'service-card';
+        article.dataset.service = item.tour_key;
+        article.innerHTML = '<div class="service-icon">' + item.icon + '</div>' +
+            '<h3>' + title + '</h3>' +
+            statusHtml +
+            '<button class="more-btn">' + (translations[currentLang].more || 'More') + '</button>';
+        container.appendChild(article);
+    });
+    container.querySelectorAll('.more-btn').forEach(btn => {
+        btn.onclick = () => openDetail(btn.closest('.service-card').dataset.service);
+    });
 }
 
 async function loadRules() {
@@ -249,8 +293,26 @@ function openDetail(serviceKey) {
 
     // Append price info if it exists
     var priceInfo = '';
-    if (data.price) {
-        // Convert newlines to breaks just in case they typed multiple lines
+    let deal = null;
+    if (typeof dynamicHotDeals !== 'undefined') {
+        deal = dynamicHotDeals.find(d => (d.reference_id === serviceKey || d.reference_id === data.id) && d.type === 'discount' && d.is_active);
+    }
+    
+    if (deal) {
+        var formattedPrice = data.price ? data.price.replace(/\n/g, '<br>') : '';
+        var dealTitle = deal['title_' + currentLang] || deal.title_en || 'Discount!';
+        priceInfo = '<div class="detail-price-box" style="margin-top: 16px; padding: 12px; background: rgba(26, 188, 156, 0.05); border: 1px solid rgba(255, 71, 87, 0.4); border-radius: 8px; font-weight: 500;">';
+        if (formattedPrice) {
+            priceInfo += '<div style="text-decoration:line-through; opacity:0.6; font-size:0.9em; margin-bottom: 6px;">' + formattedPrice + '</div>';
+        }
+        priceInfo += '<div style="color:#ff4757; font-size:1.1em; font-weight:bold;">🔥 ' + dealTitle + '</div>';
+        if (deal.new_price) {
+            priceInfo += '<div style="color:#4cd137; font-size:1.2em; font-weight:bold; margin-top:4px;">' + deal.new_price;
+            if (deal.old_price) priceInfo += ' <span style="font-size:0.7em; text-decoration:line-through; color:#7f8fa6; margin-left: 6px;">' + deal.old_price + '</span>';
+            priceInfo += '</div>';
+        }
+        priceInfo += '</div>';
+    } else if (data.price) {
         var formattedPrice = data.price.replace(/\n/g, '<br>');
         priceInfo = '<div class="detail-price-box" style="margin-top: 16px; padding: 12px; background: rgba(26, 188, 156, 0.1); border: 1px dashed var(--color-primary); border-radius: 8px; color: var(--color-primary-light); font-weight: 500;">' + formattedPrice + '</div>';
     }
@@ -872,16 +934,27 @@ async function loadHotDeals() {
         
         if (!isEnabled && hotDealBtn) {
             hotDealBtn.style.display = 'none';
+            dynamicHotDeals = [];
+            if (typeof renderMinibar === 'function') renderMinibar();
+            if (typeof renderServices === 'function') renderServices();
+            if (typeof renderTours === 'function') renderTours();
             return;
         }
 
         // 2. Load active deals
         const { data: deals } = await supabaseClient.from('hot_deals')
             .select('*').eq('is_active', true).order('created_at', { ascending: false });
+            
+        dynamicHotDeals = deals || [];
+
+        // Trigger updates so the badges reflect dynamically
+        if (typeof renderMinibar === 'function') renderMinibar();
+        if (typeof renderServices === 'function') renderServices();
+        if (typeof renderTours === 'function') renderTours();
 
         if (hotDealBtn) {
             // Show button only if feature is active AND there is at least one active deal
-            hotDealBtn.style.display = (deals && deals.length > 0) ? 'flex' : 'none';
+            hotDealBtn.style.display = (dynamicHotDeals.length > 0) ? 'flex' : 'none';
         }
 
         const container = document.getElementById('hot-deals-list');
@@ -891,7 +964,7 @@ async function loadHotDeals() {
 
         if (loadingState) loadingState.style.display = 'none';
 
-        if (!deals || deals.length === 0) {
+        if (dynamicHotDeals.length === 0) {
             container.innerHTML = '';
             if (emptyState) emptyState.style.display = 'block';
             return;
@@ -900,7 +973,7 @@ async function loadHotDeals() {
         if (emptyState) emptyState.style.display = 'none';
         container.innerHTML = '';
 
-        deals.forEach(deal => {
+        dynamicHotDeals.forEach(deal => {
             const title = deal['title_' + currentLang] || deal.title_en;
             const desc = deal['description_' + currentLang] || deal.description_en;
             let priceHtml = '';
@@ -923,8 +996,9 @@ async function loadHotDeals() {
             }
 
             let actionHtml = '';
-            if (deal.reference_id && window.openDetail) {
-                 actionHtml = `<button class="hk-submit-btn" style="padding: 10px; margin:0;" onclick="openDetail('${deal.reference_id}')">${translations[currentLang].more}</button>`;
+            let isMinibar = dynamicMinibar.some(m => m.id === deal.reference_id);
+            if (deal.reference_id && window.openDetail && !isMinibar) {
+                 actionHtml = `<button class="hk-submit-btn" style="padding: 6px 14px; font-size: 0.85rem; border-radius: 6px; margin:0;" onclick="openDetail('${deal.reference_id}')">${translations[currentLang].more}</button>`;
             }
 
             const imgHtml = deal.image_url ? `<img src="${deal.image_url}" class="hot-deal-image" onerror="this.style.display='none'">` : '';

@@ -922,10 +922,14 @@
         ['minibar_items', 'services', 'tours'].forEach(function(t) {
             if (window.currentTableData[t]) {
                 var group = document.createElement('optgroup');
-                group.label = t.toUpperCase();
+                var labelMap = { minibar_items: 'MINIBAR', services: 'SERVICES', tours: 'TOURS' };
+                group.label = labelMap[t];
                 window.currentTableData[t].forEach(function(item) {
                     var tName = item.name || item.title_en || item.tour_key;
-                    group.innerHTML += '<option value="' + item.id + '">' + tName + '</option>';
+                    var val = item.id;
+                    if (t === 'services') val = item.service_key;
+                    if (t === 'tours') val = item.tour_key;
+                    group.innerHTML += '<option value="' + val + '">' + tName + '</option>';
                 });
                 sel.appendChild(group);
             }
@@ -1012,7 +1016,7 @@
             // Try to clone image from reference if available
             var rItem = null;
             ['minibar_items','services','tours'].forEach(t => {
-                var found = (window.currentTableData[t]||[]).find(x => x.id === ref);
+                var found = (window.currentTableData[t]||[]).find(x => x.id === ref || x.service_key === ref || x.tour_key === ref);
                 if (found) rItem = found;
             });
             if (rItem) {
