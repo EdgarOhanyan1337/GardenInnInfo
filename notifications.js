@@ -33,7 +33,7 @@
         }
 
         try {
-            const registration = await navigator.serviceWorker.register('/sw.js');
+            const registration = await navigator.serviceWorker.register('./sw.js');
             console.log('ServiceWorker registered');
         } catch (error) {
             console.error('ServiceWorker registration failed:', error);
