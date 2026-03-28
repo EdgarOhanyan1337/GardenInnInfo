@@ -961,7 +961,7 @@ async function loadHotDeals() {
             .select('value').eq('key', 'hot_deals_active').single();
         
         const isEnabled = config && config.value === 'true';
-        const hotDealBtn = document.getElementById('hot-deals-nav-btn');
+        const hotDealBtn = document.getElementById('hot-deals-wrap');
         
         if (!isEnabled && hotDealBtn) {
             hotDealBtn.style.display = 'none';
