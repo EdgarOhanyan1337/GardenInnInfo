@@ -215,7 +215,11 @@ function closeModal(modal) {
 
 function initModals() {
     document.querySelectorAll('.nav-btn[data-modal]').forEach(btn => {
-        btn.onclick = () => openModal(btn.dataset.modal);
+        if (btn.dataset.modal === 'my-bookings') {
+            btn.onclick = () => { if (window.openMyBookings) window.openMyBookings(); };
+        } else {
+            btn.onclick = () => openModal(btn.dataset.modal);
+        }
     });
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.onclick = () => closeModal(btn.closest('.modal'));

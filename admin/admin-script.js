@@ -84,7 +84,10 @@
             if (el) el.style.display = 'block';
         }
         try {
-            var { data, error } = await db.from(table).select('*').order('created_at', { ascending: false });
+            var query = db.from(table).select(
+                table === 'bookings' ? '*, services(title_ru, title_en), tours(title_ru, title_en)' : '*'
+            ).order('created_at', { ascending: false });
+            var { data, error } = await query;
             if (error) { console.error('Load error:', error); renderCallback([]); return; }
             window.currentTableData[table] = data || [];
             renderCallback(data || []);
@@ -294,6 +297,8 @@
         document.getElementById('tour-desc-hy').value = item.description_hy || '';
         document.getElementById('tour-price').value = item.price || '';
         document.getElementById('tour-icon').value = item.icon || '';
+        document.getElementById('tour-is-paid').checked = item.is_paid !== false;
+        document.getElementById('tour-has-calendar').checked = item.has_calendar !== false;
         document.getElementById('tour-submit-btn').textContent = 'Update Tour';
         document.getElementById('tour-cancel-btn').style.display = 'inline-flex';
         document.getElementById('tours-section').scrollIntoView({behavior: "smooth"});
@@ -310,6 +315,8 @@
         document.getElementById('tour-desc-hy').value = '';
         document.getElementById('tour-price').value = '';
         document.getElementById('tour-icon').value = '';
+        document.getElementById('tour-is-paid').checked = true;
+        document.getElementById('tour-has-calendar').checked = true;
         document.getElementById('tour-file').value = '';
         document.getElementById('tour-submit-btn').textContent = '+ Add Tour';
         document.getElementById('tour-cancel-btn').style.display = 'none';
@@ -325,6 +332,8 @@
         var description_hy = document.getElementById('tour-desc-hy').value || description_en;
         var price = document.getElementById('tour-price').value;
         var icon = document.getElementById('tour-icon').value;
+        var is_paid = document.getElementById('tour-is-paid').checked;
+        var has_calendar = document.getElementById('tour-has-calendar').checked;
         if (!tour_key || !title_en) { alert('Fill in key and English title!'); return; }
         
         var files = document.getElementById('tour-file').files;
@@ -332,7 +341,7 @@
         var updateData = {
             tour_key: tour_key, title_en: title_en, title_ru: title_ru, title_hy: title_hy,
             description_en: description_en, description_ru: description_ru, description_hy: description_hy,
-            price: price, icon: icon
+            price: price, icon: icon, is_paid: is_paid, has_calendar: has_calendar
         };
 
         if (files.length > 0) {
@@ -678,7 +687,7 @@
             filteredData = data.filter(function(b) { return b.status === window.currentBookingFilter; });
         }
 
-        var html = '<table><tr><th>Date/Time</th><th>Service ID</th><th>Guest</th><th>Room</th><th>Date Selected</th><th>Status</th><th>Actions</th></tr>';
+        var html = '<table><tr><th>Submitted</th><th>Service / Tour</th><th>Guest</th><th>Room</th><th>Date &amp; Time</th><th>Status</th><th>Actions</th></tr>';
         filteredData.forEach(function(item) {
             var rowColor = '';
             if (item.status === 'approved') rowColor = 'style="background: rgba(74, 222, 128, 0.05);"';
@@ -694,14 +703,32 @@
                 actions = '<button onclick="cancelBooking(\'' + item.id + '\')" style="background:#f87171; color:#fff; padding:6px; border:none; border-radius:4px;">Cancel</button>';
             }
 
-            var serviceDisplay = item.service_id.substring(0,8) + '...'; // Basic display
+            // Service/Tour name display
+            var serviceDisplay = '<span style="color:#71767b; font-size:11px;">Loading...</span>';
+            if (item.services && (item.services.title_ru || item.services.title_en)) {
+                serviceDisplay = '<b>' + (item.services.title_ru || item.services.title_en) + '</b>';
+            } else if (item.tours && (item.tours.title_ru || item.tours.title_en)) {
+                serviceDisplay = '<b>🗺️ ' + (item.tours.title_ru || item.tours.title_en) + '</b>';
+            } else if (item.service_id) {
+                serviceDisplay = '<small title="' + item.service_id + '">' + item.service_id.substring(0,8) + '...</small>';
+            } else if (item.tour_id) {
+                serviceDisplay = '<small title="' + item.tour_id + '">Tour: ' + item.tour_id.substring(0,8) + '...</small>';
+            }
+
+            // Date + time display
+            var dateDisplay = item.date || '-';
+            if (item.time_from && item.time_to) {
+                dateDisplay += '<br><span style="font-size:13px; color: #a8e063; font-weight:600;">🕐 ' + item.time_from + ' &mdash; ' + item.time_to + '</span>';
+            } else if (item.time_from) {
+                dateDisplay += '<br><span style="font-size:13px; color: #a8e063; font-weight:600;">🕐 ' + item.time_from + '</span>';
+            }
 
             html += '<tr ' + rowColor + '>' +
                 '<td>' + new Date(item.created_at).toLocaleString() + '</td>' +
-                '<td title="' + item.service_id + '">' + serviceDisplay + '</td>' +
+                '<td>' + serviceDisplay + '</td>' +
                 '<td>' + item.guest_name + '</td>' +
                 '<td>' + item.room_number + '</td>' +
-                '<td>' + (item.date || '-') + '</td>' +
+                '<td>' + dateDisplay + '</td>' +
                 '<td><b>' + item.status.toUpperCase() + '</b></td>' +
                 '<td>' + actions + '</td></tr>';
         });

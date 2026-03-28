@@ -516,4 +516,103 @@
         }
     }
 
+    // ==================== MY BOOKINGS MODAL ====================
+
+    window.openMyBookings = async function () {
+        var modal = document.getElementById('my-bookings-modal');
+        var listEl = document.getElementById('my-bookings-list');
+        var emptyEl = document.getElementById('my-bookings-empty');
+        var loadingEl = document.getElementById('my-bookings-loading');
+        if (!modal) return;
+
+        // Show modal
+        var activeModals = document.querySelectorAll('.modal.active');
+        activeModals.forEach(function (m) { m.classList.remove('active'); });
+        modal.style.display = 'flex';
+        setTimeout(function () { modal.classList.add('active'); }, 50);
+        document.body.style.overflow = 'hidden';
+
+        // Show loading
+        if (listEl) listEl.innerHTML = '';
+        if (emptyEl) emptyEl.style.display = 'none';
+        if (loadingEl) loadingEl.style.display = 'block';
+
+        var room = window.getRoomNumber ? window.getRoomNumber() : null;
+        var t = (window.translations && window.translations[window.currentLang]) || {};
+
+        if (!window.supabaseClient || !room) {
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (emptyEl) emptyEl.style.display = 'block';
+            return;
+        }
+
+        try {
+            var { data, error } = await window.supabaseClient
+                .from('bookings')
+                .select('*, services(title_ru, title_en, title_hy), tours(title_ru, title_en, title_hy)')
+                .eq('room_number', String(room))
+                .order('created_at', { ascending: false })
+                .limit(20);
+
+            if (loadingEl) loadingEl.style.display = 'none';
+
+            if (error || !data || data.length === 0) {
+                if (emptyEl) emptyEl.style.display = 'block';
+                return;
+            }
+
+            var lang = window.currentLang || 'en';
+            var html = '';
+
+            data.forEach(function (b) {
+                var statusColor = b.status === 'approved' ? '#4ade80' : b.status === 'rejected' ? '#f87171' : '#fbbf24';
+                var statusEmoji = b.status === 'approved' ? '✅' : b.status === 'rejected' ? '❌' : '⏳';
+                var statusLabel = b.status === 'approved' ? (t.approved || 'Approved') : b.status === 'rejected' ? (t.rejected || 'Rejected') : (t.pending || 'Pending');
+
+                // Service or Tour name
+                var name = '';
+                if (b.services) {
+                    name = b.services['title_' + lang] || b.services.title_en || '';
+                } else if (b.tours) {
+                    name = '🗺️ ' + (b.tours['title_' + lang] || b.tours.title_en || '');
+                }
+
+                // Date & time
+                var dateInfo = '';
+                if (b.date) {
+                    var parts = b.date.split('-');
+                    dateInfo = parts[2] + '.' + parts[1] + '.' + parts[0];
+                    if (b.time_from && b.time_to) {
+                        dateInfo += ' &nbsp;🕐 ' + b.time_from + ' — ' + b.time_to;
+                    } else if (b.time_from) {
+                        dateInfo += ' &nbsp;🕐 ' + b.time_from;
+                    }
+                }
+
+                var rejectNote = (b.status === 'rejected' && b.reject_reason)
+                    ? '<div style="font-size:12px; color:#f87171; margin-top:6px;">📝 ' + b.reject_reason + '</div>'
+                    : '';
+
+                html += '<div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid ' + statusColor + '; border-radius: 12px; padding: 14px 16px;">' +
+                    '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">' +
+                        '<div>' +
+                            '<div style="font-weight:600; color: var(--color-primary-light); font-size:15px;">' + (name || '—') + '</div>' +
+                            (dateInfo ? '<div style="font-size:13px; color:var(--color-text-muted); margin-top:4px;">' + dateInfo + '</div>' : '') +
+                            rejectNote +
+                        '</div>' +
+                        '<span style="font-size:12px; font-weight:700; color:' + statusColor + '; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px; white-space:nowrap;">' + statusEmoji + ' ' + statusLabel + '</span>' +
+                    '</div>' +
+                    '<div style="font-size:11px; color:var(--color-text-muted); margin-top:8px;">' + new Date(b.created_at).toLocaleDateString() + '</div>' +
+                '</div>';
+            });
+
+            if (listEl) listEl.innerHTML = html;
+
+        } catch (e) {
+            console.error('My Bookings error:', e);
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (emptyEl) emptyEl.style.display = 'block';
+        }
+    };
+
 })();
