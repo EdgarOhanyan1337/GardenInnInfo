@@ -228,6 +228,14 @@ serve(async (req: Request) => {
         const room = bData?.room_number || 'Н/Д'
         const statusText = `✅ *Принял(а): ${staffName}*`
 
+        if (room !== 'Н/Д') {
+          await fetch(`${SUPABASE_URL}/functions/v1/send-web-push`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` },
+            body: JSON.stringify({ room_number: Number(room), title: '🧹 Housekeeping', body: 'Staff has accepted your request and is on the way.' })
+          }).catch(e => console.error('Push error:', e))
+        }
+
         if (bData && bData.tg_messages && Array.isArray(bData.tg_messages)) {
           for (const msg of bData.tg_messages) {
             const isAccepter = String(msg.chat_id) === String(chatId)
@@ -280,6 +288,14 @@ serve(async (req: Request) => {
 
         const room = bData?.room_number || 'Н/Д'
         const statusText = `🏁 *Уборка завершена* (${staffName})`
+
+        if (room !== 'Н/Д') {
+          await fetch(`${SUPABASE_URL}/functions/v1/send-web-push`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` },
+            body: JSON.stringify({ room_number: Number(room), title: '✨ Housekeeping', body: 'Cleaning is complete! Enjoy your stay.' })
+          }).catch(e => console.error('Push error:', e))
+        }
 
         if (bData && bData.tg_messages && Array.isArray(bData.tg_messages)) {
           for (const msg of bData.tg_messages) {

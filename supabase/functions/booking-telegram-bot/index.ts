@@ -200,6 +200,21 @@ serve(async (req: Request) => {
           .update({ status: 'rejected', reject_reason: reason })
           .eq('id', reqId)
 
+        // Send web push notification to guest about rejection
+        if (bData?.room_number) {
+          let pushServiceName = 'Booking'
+          if (bData.services) {
+            pushServiceName = Array.isArray(bData.services) ? bData.services[0]?.title_en : (bData.services?.title_en || 'Service')
+          } else if (bData.tours) {
+            pushServiceName = Array.isArray(bData.tours) ? bData.tours[0]?.title_en : (bData.tours?.title_en || 'Tour')
+          }
+          await fetch(`${SUPABASE_URL}/functions/v1/send-web-push`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` },
+            body: JSON.stringify({ room_number: Number(bData.room_number), title: '❌ Booking Declined', body: `Your booking for "${pushServiceName}" was declined. Reason: ${reason}` })
+          }).catch(e => console.error('Push error:', e))
+        }
+
         if (bData) {
             const guestName = bData.guest_name || 'Гость'
             const room = bData.room_number || 'Н/Д'
@@ -271,6 +286,21 @@ serve(async (req: Request) => {
           .from('bookings')
           .update({ status: 'approved' })
           .eq('id', reqId)
+
+        // Send web push notification to guest
+        if (bData?.room_number) {
+          let pushServiceName = 'Booking'
+          if (bData.services) {
+            pushServiceName = Array.isArray(bData.services) ? bData.services[0]?.title_en : (bData.services?.title_en || 'Service')
+          } else if (bData.tours) {
+            pushServiceName = Array.isArray(bData.tours) ? bData.tours[0]?.title_en : (bData.tours?.title_en || 'Tour')
+          }
+          await fetch(`${SUPABASE_URL}/functions/v1/send-web-push`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` },
+            body: JSON.stringify({ room_number: Number(bData.room_number), title: '✅ Booking Approved', body: `Your booking for "${pushServiceName}" has been approved!` })
+          }).catch(e => console.error('Push error:', e))
+        }
 
         await fetch(`${TG_API}/answerCallbackQuery`, {
           method: 'POST',
