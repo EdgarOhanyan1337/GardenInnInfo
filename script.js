@@ -1014,14 +1014,14 @@ async function loadHotDeals() {
 
             if (deal.type === 'discount' && displayOldPrice) {
                 priceHtml = `
-                    <div class="hot-deal-price-box" style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:2px;">
+                    <div class="hot-deal-price-box" style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; width: 100%;">
                         <span class="hot-deal-old-price">${displayOldPrice}</span>
                         <span class="hot-deal-new-price">${displayNewPrice || 'FREE'}</span>
                     </div>
                 `;
             } else if (displayNewPrice) {
                  priceHtml = `
-                    <div class="hot-deal-price-box" style="text-align:center; display:flex; flex-direction:column; align-items:center;">
+                    <div class="hot-deal-price-box" style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; width: 100%;">
                         <span class="hot-deal-new-price">${displayNewPrice}</span>
                     </div>
                 `;
@@ -1032,7 +1032,7 @@ async function loadHotDeals() {
             let actionHtml = '';
             let isService = dynamicServices.some(s => s.service_key === deal.reference_id);
             if (deal.reference_id && window.openDetail && isService) {
-                 actionHtml = `<div style="margin-left:auto;"><button class="hk-submit-btn" style="padding: 6px 16px; font-size: 0.85rem; border-radius: 6px; margin:0;" onclick="openDetail('${deal.reference_id}')">${translations[currentLang].more}</button></div>`;
+                 actionHtml = `<div style="position: absolute; right: 0; bottom: 0;"><button class="hk-submit-btn" style="padding: 6px 16px; font-size: 0.85rem; border-radius: 6px; margin:0;" onclick="openDetail('${deal.reference_id}')">${translations[currentLang].more}</button></div>`;
             }
 
             const imgHtml = deal.image_url ? `
@@ -1052,7 +1052,7 @@ async function loadHotDeals() {
                 <div class="hot-deal-content">
                     <h3 class="hot-deal-title">${title}</h3>
                     <p class="hot-deal-desc">${desc || ''}</p>
-                    <div class="hot-deal-footer" style="display:flex; justify-content:space-between; align-items:flex-end;">
+                    <div class="hot-deal-footer" style="display:flex; justify-content:center; align-items:center; position: relative;">
                         ${priceHtml}
                         ${actionHtml}
                     </div>
