@@ -687,11 +687,51 @@
             filteredData = data.filter(function(b) { return b.status === window.currentBookingFilter; });
         }
 
+        // Get current Armenia time for past/future comparison
+        var armeniaNowStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Yerevan" });
+        var armeniaNow = new Date(armeniaNowStr);
+
         var html = '<table><tr><th>Submitted</th><th>Service / Tour</th><th>Guest</th><th>Room</th><th>Date &amp; Time</th><th>Status</th><th>Actions</th></tr>';
         filteredData.forEach(function(item) {
+            // Determine row color based on status + timing
             var rowColor = '';
-            if (item.status === 'approved') rowColor = 'style="background: rgba(74, 222, 128, 0.05);"';
-            if (item.status === 'rejected') rowColor = 'style="background: rgba(248, 113, 113, 0.05);"';
+            var statusColor = '';
+            var statusLabel = item.status.toUpperCase();
+
+            if (item.status === 'rejected') {
+                // RED for rejected/cancelled
+                rowColor = 'style="background: rgba(248, 113, 113, 0.08); border-left: 3px solid #f87171;"';
+                statusColor = 'color:#f87171;';
+            } else if (item.status === 'approved' || item.status === 'pending') {
+                // Check if booking is in the past
+                var isPast = false;
+                if (item.date) {
+                    var parts = item.date.split('-');
+                    var bookingDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                    if (item.time_to) {
+                        var tp = item.time_to.split(':');
+                        bookingDate.setHours(parseInt(tp[0]), parseInt(tp[1]));
+                    } else if (item.time_from) {
+                        var tp = item.time_from.split(':');
+                        bookingDate.setHours(parseInt(tp[0]) + 1, parseInt(tp[1]));
+                    } else {
+                        bookingDate.setHours(23, 59);
+                    }
+                    isPast = bookingDate < armeniaNow;
+                }
+
+                if (isPast) {
+                    // GREEN for past (completed)
+                    rowColor = 'style="background: rgba(74, 222, 128, 0.08); border-left: 3px solid #4ade80;"';
+                    statusColor = 'color:#4ade80;';
+                    statusLabel = '✅ ' + statusLabel;
+                } else {
+                    // ORANGE for upcoming
+                    rowColor = 'style="background: rgba(251, 191, 36, 0.08); border-left: 3px solid #fbbf24;"';
+                    statusColor = 'color:#fbbf24;';
+                    statusLabel = '⏳ ' + statusLabel;
+                }
+            }
 
             var actions = '';
             if (item.status === 'pending') {
@@ -704,7 +744,7 @@
             }
 
             // Service/Tour name display
-            var serviceDisplay = '<span style="color:#71767b; font-size:11px;">Loading...</span>';
+            var serviceDisplay = '<span style="color:#71767b; font-size:11px;">—</span>';
             if (item.services && (item.services.title_ru || item.services.title_en)) {
                 serviceDisplay = '<b>' + (item.services.title_ru || item.services.title_en) + '</b>';
             } else if (item.tours && (item.tours.title_ru || item.tours.title_en)) {
@@ -729,7 +769,7 @@
                 '<td>' + item.guest_name + '</td>' +
                 '<td>' + item.room_number + '</td>' +
                 '<td>' + dateDisplay + '</td>' +
-                '<td><b>' + item.status.toUpperCase() + '</b></td>' +
+                '<td style="' + statusColor + '"><b>' + statusLabel + '</b></td>' +
                 '<td>' + actions + '</td></tr>';
         });
         html += '</table>';

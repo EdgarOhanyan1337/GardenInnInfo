@@ -519,6 +519,14 @@
     // ==================== MY BOOKINGS MODAL ====================
 
     window.openMyBookings = async function () {
+        var t = (window.translations && window.translations[window.currentLang]) || {};
+
+        if (!myBookingIds || myBookingIds.length === 0) {
+            // Show alert if no bookings are found on this device
+            alert(t.myBookingsEmptyAlert || (window.currentLang === 'ru' ? 'У вас еще нет бронирований.' : window.currentLang === 'hy' ? 'Դուք դեռ չունեք ամրագրումներ:' : 'You have no bookings yet.'));
+            return;
+        }
+
         var modal = document.getElementById('my-bookings-modal');
         var listEl = document.getElementById('my-bookings-list');
         var emptyEl = document.getElementById('my-bookings-empty');
@@ -537,10 +545,7 @@
         if (emptyEl) emptyEl.style.display = 'none';
         if (loadingEl) loadingEl.style.display = 'block';
 
-        var room = window.getRoomNumber ? window.getRoomNumber() : null;
-        var t = (window.translations && window.translations[window.currentLang]) || {};
-
-        if (!window.supabaseClient || !room) {
+        if (!window.supabaseClient) {
             if (loadingEl) loadingEl.style.display = 'none';
             if (emptyEl) emptyEl.style.display = 'block';
             return;
@@ -550,9 +555,9 @@
             var { data, error } = await window.supabaseClient
                 .from('bookings')
                 .select('*, services(title_ru, title_en, title_hy), tours(title_ru, title_en, title_hy)')
-                .eq('room_number', String(room))
+                .in('id', myBookingIds)
                 .order('created_at', { ascending: false })
-                .limit(20);
+                .limit(40);
 
             if (loadingEl) loadingEl.style.display = 'none';
 
