@@ -107,7 +107,7 @@ function renderServices() {
         if (typeof dynamicHotDeals !== 'undefined') {
             let deal = dynamicHotDeals.find(d => d.reference_id === item.service_key && d.type === 'discount' && d.is_active);
             if (deal) {
-                statusHtml = '<span class="status paid" style="background:rgba(231,76,60,0.2); color:#e74c3c;">🔥 SALE</span>';
+                statusHtml = '<span class="status paid" style="background:rgba(231,76,60,0.2); color:#e74c3c; font-weight:bold; letter-spacing:0.5px;">🔥 ' + (deal.new_price || 'SALE') + '</span>';
             }
         }
 
@@ -996,22 +996,23 @@ async function loadHotDeals() {
             }
 
             let actionHtml = '';
-            let isMinibar = dynamicMinibar.some(m => m.id === deal.reference_id);
-            if (deal.reference_id && window.openDetail && !isMinibar) {
-                 actionHtml = `<button class="hk-submit-btn" style="padding: 6px 14px; font-size: 0.85rem; border-radius: 6px; margin:0;" onclick="openDetail('${deal.reference_id}')">${translations[currentLang].more}</button>`;
+            let isService = dynamicServices.some(s => s.service_key === deal.reference_id);
+            if (deal.reference_id && window.openDetail && isService) {
+                 actionHtml = `<div style="margin-left:auto;"><button class="hk-submit-btn" style="padding: 6px 16px; font-size: 0.85rem; border-radius: 6px; margin:0;" onclick="openDetail('${deal.reference_id}')">${translations[currentLang].more}</button></div>`;
             }
 
-            const imgHtml = deal.image_url ? `<img src="${deal.image_url}" class="hot-deal-image" onerror="this.style.display='none'">` : '';
+            const imgHtml = deal.image_url ? `<img src="${deal.image_url}" class="hot-deal-image" style="cursor:zoom-in;" onclick="openLightbox(['${deal.image_url}'], 0)" onerror="this.style.display='none'">` : '';
+            const badgeHtml = deal.type === 'discount' ? `<div class="hot-deal-badge">SALE</div>` : '';
 
             const article = document.createElement('div');
             article.className = 'hot-deal-card';
             article.innerHTML = `
-                <div class="hot-deal-badge">SALE</div>
+                ${badgeHtml}
                 ${imgHtml}
                 <div class="hot-deal-content">
                     <h3 class="hot-deal-title">${title}</h3>
                     <p class="hot-deal-desc">${desc || ''}</p>
-                    <div class="hot-deal-footer">
+                    <div class="hot-deal-footer" style="display:flex; justify-content:space-between; align-items:flex-end;">
                         ${priceHtml}
                         ${actionHtml}
                     </div>
