@@ -3256,7 +3256,7 @@ span.flatpickr-weekday {
     position: absolute;
     top: 12px;
     right: 12px;
-    background: #e74c3c;
+    background: rgba(255, 71, 87, 0.85); /* Slightly transparent red */
     color: white;
     font-size: 11px;
     font-weight: 800;
@@ -3273,14 +3273,52 @@ span.flatpickr-weekday {
     overflow: hidden;
     height: 160px;
     border-radius: 12px 12px 0 0;
+    padding: 0 !important; /* Force override of .product-image padding */
 }
 
 .hot-deal-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover !important;
     background: #2f3640;
     transition: transform var(--transition-normal);
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Flame animation for the Hot Deals main button */
+.hot-deal-btn {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(255, 71, 87, 0.1), rgba(255, 71, 87, 0.2));
+    border-color: rgba(255, 71, 87, 0.4);
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.2);
+}
+
+.hot-deal-btn::before {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 35px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 668 173' preserveAspectRatio='none'%3E%3Cpath d='M0,173 L0,120 L80,90 L100,173 Z' fill='rgba(255, 71, 87, 0.4)'/%3E%3Cpath d='M100,173 L130,50 L250,140 L280,173 Z' fill='rgba(255, 71, 87, 0.5)'/%3E%3Cpath d='M260,173 L350,70 L380,100 L430,70 L460,173 Z' fill='rgba(255, 71, 87, 0.45)'/%3E%3Cpath d='M440,173 L490,60 L620,150 L668,90 L668,173 Z' fill='rgba(255, 71, 87, 0.35)'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.9;
+    animation: fire-flicker 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes fire-flicker {
+    0% { transform: translateY(0) scaleY(1); opacity: 0.8; }
+    50% { transform: translateY(-2px) scaleY(1.05); opacity: 1; }
+    100% { transform: translateY(0) scaleY(1.1); opacity: 0.9; }
+}
+
+.hot-deal-btn > * {
+    position: relative;
+    z-index: 1;
 }
 
 .hot-deal-card:hover .hot-deal-image {

@@ -383,6 +383,20 @@ function openLightbox(images, index) {
     var tot = document.getElementById('lightbox-total');
     if (cur) cur.textContent = index + 1;
     if (tot) tot.textContent = images.length;
+    
+    var prevBtn = lb.querySelector('.lightbox-prev');
+    var nextBtn = lb.querySelector('.lightbox-next');
+    var counter = lb.querySelector('.lightbox-counter');
+    if (images.length <= 1) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        if (counter) counter.style.display = 'none';
+    } else {
+        if (prevBtn) prevBtn.style.display = 'flex';
+        if (nextBtn) nextBtn.style.display = 'flex';
+        if (counter) counter.style.display = 'block';
+    }
+    
     lb.classList.add('active');
 }
 
