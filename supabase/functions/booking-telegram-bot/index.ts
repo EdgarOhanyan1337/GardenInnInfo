@@ -280,7 +280,9 @@ serve(async (req: Request) => {
       const reqId = action === 'approved' ? callbackData.replace('approve_', '') : callbackData.replace('reject_', '')
 
       if (action === 'approved') {
-        const { data: bData } = await supabase.from('bookings').select('*, services(title_ru, title_en), tours(title_ru, title_en)').eq('id', reqId).single()
+        console.log('APPROVE: starting for reqId:', reqId)
+        const { data: bData, error: bErr } = await supabase.from('bookings').select('*, services(title_ru, title_en), tours(title_ru, title_en)').eq('id', reqId).single()
+        console.log('APPROVE: room=', bData?.room_number, 'err=', bErr)
         
         await supabase
           .from('bookings')
@@ -288,6 +290,7 @@ serve(async (req: Request) => {
           .eq('id', reqId)
 
         // Send web push notification to guest
+        console.log('APPROVE: room_number check:', bData?.room_number)
         if (bData?.room_number) {
           let pushServiceName = 'Booking'
           if (bData.services) {
@@ -295,11 +298,18 @@ serve(async (req: Request) => {
           } else if (bData.tours) {
             pushServiceName = Array.isArray(bData.tours) ? bData.tours[0]?.title_en : (bData.tours?.title_en || 'Tour')
           }
-          await fetch(`${SUPABASE_URL}/functions/v1/send-web-push`, {
+          try {
+          const pushResp = await fetch(`${SUPABASE_URL}/functions/v1/send-web-push`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` },
             body: JSON.stringify({ room_number: Number(bData.room_number), title: '✅ Booking Approved', body: `Your booking for "${pushServiceName}" has been approved!` })
-          }).catch(e => console.error('Push error:', e))
+          })
+          console.log('APPROVE: push response status:', pushResp.status, await pushResp.clone().text())
+        } catch(pushErr) {
+          console.error('APPROVE: push error:', pushErr)
+        }
+        } else {
+          console.log('APPROVE: NO room_number, skipping push')
         }
 
         await fetch(`${TG_API}/answerCallbackQuery`, {

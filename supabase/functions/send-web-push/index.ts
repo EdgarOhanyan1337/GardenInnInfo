@@ -307,13 +307,16 @@ async function sendPushNotification(subscription: any, payload: string, vapidPub
       body: encryptedBody,
     });
 
+    console.log('PUSH: response status:', response.status, 'endpoint:', endpoint.substring(0, 80))
     if (response.status === 201 || response.status === 200) {
       return { success: true, statusCode: response.status };
     } else {
       const text = await response.text().catch(() => '');
+      console.log('PUSH: error response body:', text)
       return { success: false, statusCode: response.status, error: text };
     }
   } catch (err) {
+    console.error('PUSH: exception:', err)
     return { success: false, error: err.message };
   }
 }
@@ -351,7 +354,13 @@ serve(async (req) => {
     }
 
     if (!subs || subs.length === 0) {
+      console.log('PUSH: no subscriptions found for room', room_number)
       return new Response(JSON.stringify({ message: 'No subscriptions found for room' }), { status: 200, headers: corsHeaders })
+    }
+
+    console.log('PUSH: found', subs.length, 'subscriptions for room', room_number)
+    for (const s of subs) {
+      console.log('PUSH: sub endpoint:', s.subscription?.endpoint?.substring(0, 80), 'has keys:', !!s.subscription?.keys)
     }
 
     const payload = JSON.stringify({
@@ -363,6 +372,7 @@ serve(async (req) => {
     const results = await Promise.allSettled(
       subs.map((s) => sendPushNotification(s.subscription, payload, publicKeyBytes, privateKey))
     )
+    console.log('PUSH: results:', JSON.stringify(results))
 
     // Handle expired/invalid subscriptions
     const expiredSubs: any[] = []
