@@ -39,9 +39,27 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+        .qrcode {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .qrcode canvas {
             max-width: 100%;
             height: auto;
+        }
+        .qr-center-text {
+            position: absolute;
+            background: #ffffff;
+            padding: 4px 8px;
+            font-size: 16px;
+            font-weight: 900;
+            color: #000;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
         }
         .creds {
             margin-top: 15px;
@@ -113,6 +131,11 @@
                 colorLight : "#ffffff",
                 correctLevel : QRCode.CorrectLevel.H
             });
+            
+            const centerText = document.createElement("div");
+            centerText.className = "qr-center-text";
+            centerText.innerText = "INFO";
+            qrWrapper.appendChild(centerText);
             
             const creds = document.createElement("div");
             creds.className = "creds";
