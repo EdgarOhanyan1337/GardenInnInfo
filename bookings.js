@@ -667,6 +667,8 @@
                     if (isPassed) {
                         statusColor = '#f97316'; // Orange
                         statusEmoji = b.status === 'approved' ? '✅' : '⏳';
+                        var passedWord = t.passed || (lang === 'ru' ? 'Завершено' : lang === 'hy' ? 'Ավարտված է' : 'Passed');
+                        statusLabel = passedWord;
                     } else {
                         statusColor = b.status === 'approved' ? '#4ade80' : '#f97316'; // Green for Approved, Orange for Pending
                         statusEmoji = b.status === 'approved' ? '✅' : '⏳';

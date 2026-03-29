@@ -722,7 +722,7 @@
                     // ORANGE for past (completed)
                     rowColor = 'style="background: rgba(249, 115, 22, 0.08); border-left: 3px solid #f97316;"';
                     statusColor = 'color:#f97316;';
-                    statusLabel = (item.status === 'approved' ? '✅ ' : '⏳ ') + statusLabel;
+                    statusLabel = (item.status === 'approved' ? '✅ Passed' : '⏳ Passed (Unconfirmed)');
                 } else {
                     if (item.status === 'approved') {
                         // GREEN for upcoming approved
