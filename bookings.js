@@ -403,7 +403,25 @@
             myBookingIds.push(data.id);
             saveMyBookings();
 
-                    // Everything relies on DB Webhook now.
+            // Trigger Edge Function directly from frontend to ensure Telegram delivery (bypass unreliable webhooks)
+            try {
+                // Ensure insertData has the ID added so the webhook can read it
+                var fullRecord = Object.assign({}, insertData, { id: data.id });
+                await fetch(window.ROOT_SUPABASE_URL + '/functions/v1/booking-telegram-bot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + window.ROOT_SUPABASE_KEY
+                    },
+                    body: JSON.stringify({
+                        type: 'INSERT',
+                        table: 'bookings',
+                        record: fullRecord
+                    })
+                });
+            } catch (fetchErr) {
+                console.error('Error triggering booking-telegram-bot:', fetchErr);
+            }
 
             // Show success
             if (msgDiv) msgDiv.style.display = 'block';

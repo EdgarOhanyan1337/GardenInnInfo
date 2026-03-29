@@ -1104,13 +1104,18 @@
         var sendPush = document.getElementById('hd-send-push').checked;
         if (sendPush && !isEditing) {
             try {
-                await db.functions.invoke('send-web-push', {
-                    body: {
+                await fetch(SUPABASE_URL + '/functions/v1/send-web-push', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + SUPABASE_KEY
+                    },
+                    body: JSON.stringify({
                         broadcast: true,
                         title: "🔥 " + tEn,
                         body: dEn || `Check out our new ${type}!`,
                         url: '/'
-                    }
+                    })
                 });
             } catch (e) {
                 console.error("Broadcast push error:", e);
