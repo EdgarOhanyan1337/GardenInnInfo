@@ -665,10 +665,10 @@
                     }
                     
                     if (isPassed) {
-                        statusColor = '#4ade80'; // Green
-                        statusEmoji = '✅';
-                    } else {
                         statusColor = '#f97316'; // Orange
+                        statusEmoji = b.status === 'approved' ? '✅' : '⏳';
+                    } else {
+                        statusColor = b.status === 'approved' ? '#4ade80' : '#f97316'; // Green for Approved, Orange for Pending
                         statusEmoji = b.status === 'approved' ? '✅' : '⏳';
                     }
                 }

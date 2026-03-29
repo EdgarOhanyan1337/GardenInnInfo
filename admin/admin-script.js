@@ -711,7 +711,7 @@
                         bookingDate.setHours(parseInt(tp[0]), parseInt(tp[1]));
                     } else if (item.time_from) {
                         var tp = item.time_from.split(':');
-                        bookingDate.setHours(parseInt(tp[0]) + 1, parseInt(tp[1]));
+                        bookingDate.setHours(parseInt(tp[0]), parseInt(tp[1]));
                     } else {
                         bookingDate.setHours(23, 59);
                     }
@@ -719,15 +719,22 @@
                 }
 
                 if (isPast) {
-                    // GREEN for past (completed)
-                    rowColor = 'style="background: rgba(74, 222, 128, 0.08); border-left: 3px solid #4ade80;"';
-                    statusColor = 'color:#4ade80;';
-                    statusLabel = '✅ ' + statusLabel;
+                    // ORANGE for past (completed)
+                    rowColor = 'style="background: rgba(249, 115, 22, 0.08); border-left: 3px solid #f97316;"';
+                    statusColor = 'color:#f97316;';
+                    statusLabel = (item.status === 'approved' ? '✅ ' : '⏳ ') + statusLabel;
                 } else {
-                    // ORANGE for upcoming
-                    rowColor = 'style="background: rgba(251, 191, 36, 0.08); border-left: 3px solid #fbbf24;"';
-                    statusColor = 'color:#fbbf24;';
-                    statusLabel = '⏳ ' + statusLabel;
+                    if (item.status === 'approved') {
+                        // GREEN for upcoming approved
+                        rowColor = 'style="background: rgba(74, 222, 128, 0.08); border-left: 3px solid #4ade80;"';
+                        statusColor = 'color:#4ade80;';
+                        statusLabel = '✅ ' + statusLabel;
+                    } else {
+                        // ORANGE for upcoming pending
+                        rowColor = 'style="background: rgba(249, 115, 22, 0.08); border-left: 3px solid #f97316;"';
+                        statusColor = 'color:#f97316;';
+                        statusLabel = '⏳ ' + statusLabel;
+                    }
                 }
             }
 
