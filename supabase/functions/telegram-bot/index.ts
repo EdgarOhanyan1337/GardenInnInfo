@@ -331,9 +331,20 @@ serve(async (req: Request) => {
     // ==========================================
     // 3. Database Webhook (INSERT trigger)
     // ==========================================
-    if (body.type === 'INSERT' && body.table === 'housekeeping_requests') {
+    if ((body.type === 'INSERT' || body.type === 'FRONTEND_INSERT') && body.table === 'housekeeping_requests') {
+      if (body.type === 'INSERT') {
+        // Delay webhook to prevent double notifications race condition
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+
       const room = body.record.room_number
       const reqId = body.record.id
+
+      // Dedup: check if notifications were already sent for this request
+      const { data: existingReq } = await supabase.from('housekeeping_requests').select('tg_messages').eq('id', reqId).single()
+      if (existingReq && existingReq.tg_messages && Array.isArray(existingReq.tg_messages) && existingReq.tg_messages.length > 0) {
+        return new Response('Already notified', { status: 200, headers: corsHeaders })
+      }
 
       // Load recipients from DB
       const { data: recipients } = await supabase

@@ -575,7 +575,7 @@ async function sendTelegramNotification(room, id) {
                 'Authorization': 'Bearer ' + ROOT_SUPABASE_KEY
             },
             body: JSON.stringify({
-                type: 'INSERT',
+                type: 'FRONTEND_INSERT',
                 table: 'housekeeping_requests',
                 record: {
                     id: id,

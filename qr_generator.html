@@ -61,17 +61,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             text-align: center;
         }
-        .creds {
-            margin-top: 15px;
-            font-size: 0.85rem;
-            color: #64748b;
-            text-align: left;
-            width: 100%;
-            background: #f8fafc;
-            padding: 8px;
-            border-radius: 6px;
-        }
-        .creds-title { display: block; font-weight: bold; margin-bottom: 4px; color: #475569; }
         
         @media print {
             body { background: white; padding: 0; }
@@ -137,17 +126,16 @@
             centerText.innerText = "INFO";
             qrWrapper.appendChild(centerText);
             
-            const creds = document.createElement("div");
-            creds.className = "creds";
-            creds.innerHTML = `
-                <span class="creds-title">Fallback Login:</span>
-                Login: <b>gardeninn${i}</b><br>
-                Pass: <b>gardeninnpassword${i}</b>
-            `;
+            const infoText = document.createElement("div");
+            infoText.style.marginTop = "12px";
+            infoText.style.fontWeight = "600";
+            infoText.style.color = "#000";
+            infoText.style.fontSize = "14px";
+            infoText.innerText = "for info about hotel";
             
             card.appendChild(title);
             card.appendChild(qrWrapper);
-            card.appendChild(creds);
+            card.appendChild(infoText);
             container.appendChild(card);
         }
     </script>

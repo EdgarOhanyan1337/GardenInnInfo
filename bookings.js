@@ -414,7 +414,7 @@
                         'Authorization': 'Bearer ' + window.ROOT_SUPABASE_KEY
                     },
                     body: JSON.stringify({
-                        type: 'INSERT',
+                        type: 'FRONTEND_INSERT',
                         table: 'bookings',
                         record: fullRecord
                     })
