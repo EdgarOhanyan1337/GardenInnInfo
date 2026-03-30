@@ -3349,3 +3349,32 @@ span.flatpickr-weekday {
 [data-theme="light"] .hot-deal-footer {
     border-color: rgba(0,0,0,0.05);
 }
+
+/* 🔥 Hot Deals Fire Effect Button */
+.hot-deal-btn {
+    background: linear-gradient(135deg, #ff4757, #ff6b81) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.hot-deal-btn::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 20px rgba(255, 71, 87, 0.8);
+    animation: hotDealPulse 1.5s infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes hotDealPulse {
+    0% { opacity: 0.5; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1.05); }
+}
+
+.hot-deal-btn:hover {
+    background: linear-gradient(135deg, #ff6b81, #ff4757) !important;
+    transform: translateY(-2px) scale(1.02) !important;
+}
