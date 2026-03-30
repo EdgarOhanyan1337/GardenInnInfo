@@ -7,15 +7,17 @@
     'use strict';
 
     function getBookingsStorageKey() {
-        var match = document.cookie.match(/room_number=([\w-]+)/);
-        return 'gi_my_bookings_' + (match ? match[1] : 'unknown');
+        var room = window.getRoomNumber ? window.getRoomNumber() : localStorage.getItem('gi_room_number');
+        return 'gi_my_bookings_' + (room ? room : 'unknown');
     }
 
     // Track booking session (guest's pending bookings by service_id)
-    var myBookingIds = JSON.parse(localStorage.getItem(getBookingsStorageKey()) || '[]');
+    function getMyBookingIds() {
+        return JSON.parse(localStorage.getItem(getBookingsStorageKey()) || '[]');
+    }
 
-    function saveMyBookings() {
-        localStorage.setItem(getBookingsStorageKey(), JSON.stringify(myBookingIds));
+    function saveMyBookings(ids) {
+        localStorage.setItem(getBookingsStorageKey(), JSON.stringify(ids));
     }
 
     window.updateMyBookingsButton = function() {
@@ -400,8 +402,9 @@
             }
 
             // Save booking ID for realtime tracking
+            var myBookingIds = getMyBookingIds();
             myBookingIds.push(data.id);
-            saveMyBookings();
+            saveMyBookings(myBookingIds);
 
             // Trigger Edge Function directly from frontend to ensure Telegram delivery (bypass unreliable webhooks)
             try {
@@ -457,6 +460,7 @@
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings' }, function (payload) {
                 var booking = payload.new;
                 // Check if this is one of our bookings
+                var myBookingIds = getMyBookingIds();
                 if (myBookingIds.indexOf(booking.id) === -1) return;
 
                 var t = (window.translations && window.translations[window.currentLang]) || {};
@@ -583,6 +587,7 @@
 
     window.openMyBookings = async function () {
         var t = (window.translations && window.translations[window.currentLang]) || {};
+        var myBookingIds = getMyBookingIds();
 
         if (!myBookingIds || myBookingIds.length === 0) {
             // Show a pretty toast instead of ugly alert
