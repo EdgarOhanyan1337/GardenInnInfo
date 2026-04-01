@@ -982,6 +982,27 @@ body {
     letter-spacing: 1px;
 }
 /* ==================== TIME PICKER ==================== */
+
+/* Custom Hour-only Flatpickr */
+.hour-only-picker .flatpickr-time .numInputWrapper:nth-child(3),
+.hour-only-picker .flatpickr-time .flatpickr-time-separator {
+    display: none !important;
+}
+.hour-only-picker .flatpickr-time input {
+    pointer-events: none; /* Prevent keyboard popping up on mobile */
+    font-size: 28px;
+    font-weight: 700;
+    font-family: var(--font-display);
+}
+.hour-only-picker .flatpickr-time .arrowUp, 
+.hour-only-picker .flatpickr-time .arrowDown {
+    pointer-events: auto; /* allow arrow clicks */
+    padding: 12px; /* Make arrows larger for mobile touch */
+}
+.hour-only-picker {
+    z-index: 99999 !important; /* Ensure it stays above modals and keyboard */
+}
+
 .time-picker-card {
     display: flex;
     align-items: center;

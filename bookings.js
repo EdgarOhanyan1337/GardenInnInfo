@@ -174,22 +174,30 @@
                 flatpickr(timeFromInput, {
                     enableTime: true,
                     noCalendar: true,
-                    dateFormat: "H:i",
+                    dateFormat: "H:00",
                     time_24hr: true,
                     defaultDate: "10:00",
                     disableMobile: true,
-                    allowInput: false
+                    allowInput: false,
+                    minuteIncrement: 60,
+                    onOpen: function(selectedDates, dateStr, instance) {
+                        instance.calendarContainer.classList.add('hour-only-picker');
+                    }
                 });
             }
             if (timeToInput && !isTour) {
                 flatpickr(timeToInput, {
                     enableTime: true,
                     noCalendar: true,
-                    dateFormat: "H:i",
+                    dateFormat: "H:00",
                     time_24hr: true,
                     defaultDate: "12:00",
                     disableMobile: true,
-                    allowInput: false
+                    allowInput: false,
+                    minuteIncrement: 60,
+                    onOpen: function(selectedDates, dateStr, instance) {
+                        instance.calendarContainer.classList.add('hour-only-picker');
+                    }
                 });
             }
         }
