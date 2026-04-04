@@ -460,7 +460,7 @@ function initWiFi() {
     var copyBtn = document.getElementById('wifi-copy-btn');
     if (copyBtn) {
         copyBtn.onclick = () => {
-            navigator.clipboard.writeText('094146454').then(() => {
+            navigator.clipboard.writeText('12345679').then(() => {
                 var span = copyBtn.querySelector('span');
                 if (span) {
                     var original = span.textContent;
@@ -478,7 +478,7 @@ function initQRCode() {
     var container = document.getElementById('wifi-qr-container');
     if (!container || typeof QRCode === 'undefined') return;
     container.innerHTML = '';
-    var wifiString = 'WIFI:T:WPA;S:Rostelecom_23488;P:094146454;;';
+    var wifiString = 'WIFI:T:WPA;S:Garden Inn;P:12345679;;';
     new QRCode(container, {
         text: wifiString,
         width: 180,

@@ -181,6 +181,7 @@ serve(async (req: Request) => {
           .update({
             status: 'accepted',
             accepted_by: staffName,
+            accepted_by_chat_id: String(chatId),
             accepted_at: new Date().toISOString()
           })
           .eq('id', reqId)
@@ -250,6 +251,7 @@ serve(async (req: Request) => {
         await supabase.from('housekeeping_requests').update({
           status: 'accepted',
           accepted_by: staffName,
+          accepted_by_chat_id: String(chatId),
           accepted_at: new Date().toISOString(),
           eta_minutes: etaMinutes,
           eta_set_at: new Date().toISOString()
