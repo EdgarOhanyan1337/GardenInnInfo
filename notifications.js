@@ -109,6 +109,29 @@
                 if (m !== modal) m.classList.remove('active');
             });
             
+            var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            var isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+            if (isIOS && !isStandalone) {
+                var contentDiv = modal.querySelector('.push-prompt-content');
+                if (contentDiv && !contentDiv.hasAttribute('data-ios-injected')) {
+                    contentDiv.setAttribute('data-ios-injected', 'true');
+                    contentDiv.innerHTML = `
+                        <div style="font-size: 48px; margin-bottom: 16px;">📲</div>
+                        <h2 style="font-family: var(--font-display); color: var(--color-primary-light); font-size: 24px; margin-bottom: 12px; font-weight: 700;">Add to Home Screen</h2>
+                        <p style="color: var(--color-text-muted); line-height: 1.5; font-size: 15px; margin-bottom: 24px;">
+                            To receive live notifications on your iPhone, you need to add our app to your home screen.<br><br>
+                            1. Tap the <b>Share</b> button at the bottom of your screen.<br>
+                            2. Scroll down and tap <b>"Add to Home Screen"</b> ➕.<br>
+                            3. Open the app from your home screen.
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <button onclick="onPushPromptSkip()" style="background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 14px; border-radius: 12px; font-weight: 500; font-size: 16px; cursor: pointer;">Got it, I'll do it later</button>
+                        </div>
+                    `;
+                }
+            }
+
             modal.style.display = 'flex';
             setTimeout(function() { modal.classList.add('active'); }, 50);
         }
