@@ -421,7 +421,7 @@ serve(async (req: Request) => {
       .eq('type', 'telegram_booking')
       .eq('enabled', true)
 
-    const chatIds = recipients?.map((r: { value: string }) => r.value) || []
+    const chatIds = [...new Set(recipients?.map((r: { value: string }) => r.value) || [])]
     
     const timeLine = (timeFrom && timeTo) ? `\n🕐 Время: *${timeFrom} — ${timeTo}*` : (timeFrom ? `\n🕐 Выезд: *${timeFrom}*` : '')
     const message = `📅 *Новое Бронирование*\n\n` +

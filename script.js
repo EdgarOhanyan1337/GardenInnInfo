@@ -926,14 +926,8 @@ window.dismissCompletedBanner = function() {
 };
 
 function showEtaBanner(minutes) {
-    var t = translations[currentLang] || translations.en;
-    var msg = '';
-    if (minutes === 0) {
-        msg = t.hkEtaNow || 'Staff is on the way right now!';
-    } else {
-        msg = (t.hkEtaBanner || 'Staff will arrive in approximately') + ' ' + minutes + ' ' + (t.hkEtaMinutes || 'minutes');
-    }
-    showToast('⏱ ' + msg);
+    // Removed toast banner per user request
+    console.log('ETA received:', minutes);
 }
 
 function checkPersistentNotification() {

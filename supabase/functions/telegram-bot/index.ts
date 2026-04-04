@@ -264,13 +264,15 @@ serve(async (req: Request) => {
         })
 
         const room = bData?.room_number || 'Н/Д'
-        const pushBody = etaMinutes === 0 ? 'Staff is on the way right now!' : `Staff will arrive in approximately ${etaMinutes} minutes.`
+        const pushBody = etaMinutes === 0 
+          ? 'Staff has accepted your request and is on the way right now!' 
+          : `Staff has accepted your request and will arrive in approximately ${etaMinutes} minutes.`
 
         if (room !== 'Н/Д') {
           await fetch(`${SUPABASE_URL}/functions/v1/send-web-push`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` },
-            body: JSON.stringify({ room_number: room, title: '⏱ Housekeeping ETA', body: pushBody, url: '/GardenInnInfo/?view=housekeeping' })
+            body: JSON.stringify({ room_number: room, title: '🧹 Housekeeping', body: pushBody, url: '/GardenInnInfo/?view=housekeeping' })
           }).catch(e => console.error('Push error:', e))
         }
 
