@@ -915,8 +915,9 @@
 
     function renderHotDealsTable(data) {
         var html = '<table><tr><th>Image</th><th>Type</th><th>Title EN</th><th>New Price</th><th>Status</th><th>Actions</th></tr>';
-        data.forEach(function(item) {
-            var typeLabel = item.type === 'discount' ? '💰 Sale' : '📢 Anncmt';
+        var discountsOnly = data.filter(function(item) { return item.type === 'discount'; });
+        discountsOnly.forEach(function(item) {
+            var typeLabel = '💰 Sale';
             var statusColor = item.is_active ? '#4ade80' : '#8b98a5';
             var statusText = item.is_active ? 'Active' : 'Hidden';
             var toggleText = item.is_active ? 'Hide' : 'Show';

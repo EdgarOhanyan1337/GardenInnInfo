@@ -248,6 +248,9 @@ serve(async (req: Request) => {
         const { data: bData } = await supabase.from('housekeeping_requests').select('tg_messages, room_number').eq('id', reqId).single()
 
         await supabase.from('housekeeping_requests').update({
+          status: 'accepted',
+          accepted_by: staffName,
+          accepted_at: new Date().toISOString(),
           eta_minutes: etaMinutes,
           eta_set_at: new Date().toISOString()
         }).eq('id', reqId)
@@ -271,16 +274,36 @@ serve(async (req: Request) => {
           }).catch(e => console.error('Push error:', e))
         }
 
-        // Update message: remove ETA buttons, keep only finish button
-        await fetch(`${TG_API}/editMessageReplyMarkup`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: chatId,
-            message_id: messageId,
-            reply_markup: { inline_keyboard: [[ { text: '🏁 Закончить уборку', callback_data: `finish_${reqId}` } ]] }
+        const statusText = `✅ *Принял(а): ${staffName}*\n⏱ ETA: ${etaText}`
+        
+        if (bData && bData.tg_messages && Array.isArray(bData.tg_messages)) {
+          for (const msg of bData.tg_messages) {
+            const isAccepter = String(msg.chat_id) === String(chatId)
+            await fetch(`${TG_API}/editMessageText`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: msg.chat_id,
+                message_id: msg.message_id,
+                text: `🧹 *Заявка на уборку*\n🏠 Room: *${room}*\n\n${statusText}`,
+                parse_mode: 'Markdown',
+                reply_markup: isAccepter ? { inline_keyboard: [[ { text: '🏁 Закончить уборку', callback_data: `finish_${reqId}` } ]] } : { inline_keyboard: [] }
+              })
+            })
+          }
+        } else {
+          await fetch(`${TG_API}/editMessageText`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              message_id: messageId,
+              text: `🧹 *Заявка на уборку*\n🏠 Room: *${room}*\n\n${statusText}`,
+              parse_mode: 'Markdown',
+              reply_markup: { inline_keyboard: [[ { text: '🏁 Закончить уборку', callback_data: `finish_${reqId}` } ]] }
+            })
           })
-        })
+        }
 
       } else if (callbackData.startsWith('finish_')) {
         const reqId = callbackData.replace('finish_', '')
@@ -378,9 +401,10 @@ serve(async (req: Request) => {
       for (const chatId of chatIds) {
         const resp = await sendMessage(chatId, message, {
           reply_markup: {
-            inline_keyboard: [[
-              { text: '✅ Иду', callback_data: `accept_${reqId}` }
-            ]]
+            inline_keyboard: [
+              [ { text: '🚶 Иду (Сейчас)', callback_data: `eta_0_${reqId}` } ],
+              [ { text: '⏱ 15 мин', callback_data: `eta_15_${reqId}` }, { text: '⏱ 30 мин', callback_data: `eta_30_${reqId}` } ]
+            ]
           }
         })
         if (resp && resp.ok && resp.result) {
