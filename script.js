@@ -18,9 +18,9 @@ let notificationRecipients = { telegram: [], email: [] };
 
 // ==================== TRANSLATIONS (UI buttons/labels - hardcoded) ====================
 let translations = {
-    en: { welcome: "Welcome", tagline: "Garden Inn Resort & Spa", services: "Services", rules: "Rules", minibar: "Mini Bar", tours: "Tours", housekeeping: "Housekeeping", contact: "Get in Touch", contactMenu: "Contact Us", wifiMenu: "WiFi", otherContact: "Other", otherMethodsTitle: "Other Methods", more: "More", gallery: "Gallery", price: "Price", about: "Garden Inn Resort offers luxury in a private paradise.", copied: "Copied!", wifi: "WiFi", network: "Network:", password: "Password:", copy: "Copy", wifiInstructions: "Scan QR or enter password.", hkTabCall: "Call", hkTabRate: "Rate", hkRoomLabel: "Room Number", hkRoomPlaceholder: "Enter your room number", hkCallNow: "Call Now", hkSending: "Sending...", hkSuccessTitle: "Request sent! Staff notified.", hkYourCode: "Your code:", hkCodeHint: "Save this code to rate our housekeeping service later.", hkEnterCode: "Enter your 6-digit code", hkHowWas: "How was the cleaning?", hkCommentLabel: "Comments (optional)", hkCommentPlaceholder: "Tell us about your experience...", hkSubmitRating: "Submit Rating", hkThanks: "Thank you for your feedback!", hkBannerTitle: "Housekeeping", hkBannerText: "Staff has accepted your request and is on the way.", hkAlertRoom: "Please enter your room number!", hkAlertConnection: "Connection error. Try again later.", hkAlertError: "Error sending request. Please try again.", hkInvalidCode: "Please enter a valid 6-digit code.", hkCodeNotFound: "Invalid code. Please check and try again.", hkAlreadyRated: "This code has already been used for rating.", bookingFormTitle: "Book Service", bookingHowItWorks: "📋 How it works", bookingStep1: "Fill in your details below", bookingStep2: "Our staff will review your request", bookingStep3: "You'll receive a notification with the result", bookingGuestName: "👤 Your Name", bookingNamePlaceholder: "Enter your name", bookingDate: "📅 Select Date", bookingTime: "🕐 Select Time", bookingTimeFrom: "FROM", bookingTimeTo: "TO", bookingSubmit: "Book Now", bookingHint: "💡 You will be notified on this page once your booking is approved or rejected.", bookingSuccess: "Booking submitted! We will notify you once it's reviewed.", hkHowItWorks: "📋 How it works", hkStep1: "Click \"Call Now\" to request room cleaning", hkStep2: "Staff will receive your request immediately", hkStep3: "You will get a notification when staff is on the way", hkHint: "You will be notified once the staff accepts your request.", myBookings: "My Bookings", myBookingsEmpty: "You have no active bookings yet.", noBookingsYet: "No bookings yet", bookingConfirmTitle: "Do you want to book this service?", bookingPickupTime: "PICKUP", bookingPickupTimeLabel: "Pickup Time", approved: "Approved", pending: "Pending", rejected: "Rejected", cancelled: "Cancelled", hotDeals: "HOT DEAL", hotDealsTitle: "🔥 Hot Deals", hotDealsEmpty: "No active deals right now. Check back later!" },
-    ru: { welcome: "Добро пожаловать", tagline: "Garden Inn Resort & Spa", services: "Услуги", rules: "Правила", minibar: "Мини-бар", tours: "Туры", housekeeping: "Уборка", contact: "Связаться", contactMenu: "Контакты", wifiMenu: "WiFi", otherContact: "Другое", otherMethodsTitle: "Другие способы", more: "Подробнее", gallery: "Галерея", price: "Цена", about: "Garden Inn Resort — роскошный отдых в райском уголке с живописными садами.", copied: "Скопировано!", wifi: "WiFi", network: "Сеть:", password: "Пароль:", copy: "Копировать", wifiInstructions: "Отсканируйте QR-код или введите пароль вручную.", hkTabCall: "Вызвать", hkTabRate: "Оценить", hkRoomLabel: "Номер комнаты", hkRoomPlaceholder: "Введите номер комнаты", hkCallNow: "Вызвать", hkSending: "Отправка...", hkSuccessTitle: "Запрос отправлен! Персонал уведомлен.", hkYourCode: "Ваш код:", hkCodeHint: "Сохраните этот код, чтобы оценить уборку позже.", hkEnterCode: "Введите 6-значный код", hkHowWas: "Как была уборка?", hkCommentLabel: "Комментарий (необязательно)", hkCommentPlaceholder: "Расскажите о вашем опыте...", hkSubmitRating: "Отправить оценку", hkThanks: "Спасибо за ваш отзыв!", hkBannerTitle: "Уборка", hkBannerText: "Персонал принял ваш запрос и уже в пути.", hkAlertRoom: "Пожалуйста, введите номер комнаты!", hkAlertConnection: "Ошибка соединения. Попробуйте позже.", hkAlertError: "Ошибка отправки запроса. Попробуйте снова.", hkInvalidCode: "Пожалуйста, введите корректный 6-значный код.", hkCodeNotFound: "Неверный код. Проверьте и попробуйте снова.", hkAlreadyRated: "Этот код уже был использован для оценки.", bookingFormTitle: "Бронирование услуги", bookingHowItWorks: "📋 Как это работает", bookingStep1: "Заполните свои данные ниже", bookingStep2: "Наш персонал рассмотрит ваш запрос", bookingStep3: "Вы получите уведомление с результатом", bookingGuestName: "👤 Ваше Имя", bookingNamePlaceholder: "Введите ваше имя", bookingDate: "📅 Выберите дату", bookingTime: "🕐 Выберите время", bookingTimeFrom: "С", bookingTimeTo: "ДО", bookingSubmit: "Забронировать", bookingHint: "💡 Вы получите уведомление на этой странице, как только ваше бронирование будет подтверждено или отклонено.", bookingSuccess: "Бронирование отправлено! Мы уведомим вас после проверки.", hkHowItWorks: "📋 Как это работает", hkStep1: "Нажмите \"Вызвать\", чтобы запросить уборку номера", hkStep2: "Персонал немедленно получит ваш запрос", hkStep3: "Вы получите уведомление, когда персонал будет в пути", hkHint: "Вы получите уведомление, как только персонал примет ваш запрос.", myBookings: "Мои брони", myBookingsEmpty: "У вас нет активных бронирований.", noBookingsYet: "У вас нет броней", bookingConfirmTitle: "Хотите забронировать эту услугу?", bookingPickupTime: "ВЫЕЗД", bookingPickupTimeLabel: "Время выезда", approved: "Одобрено", pending: "Ожидание", rejected: "Отклонено", cancelled: "Отменено", hotDeals: "ПРЕДЛОЖЕНИЯ", hotDealsTitle: "🔥 Горячие предложения", hotDealsEmpty: "Сейчас нет активных предложений. Загляните позже!" },
-    hy: { welcome: "Բարի գալուստ", tagline: "Garden Inn Resort & Spa", services: "Ծառայություններ", rules: "Կանոններ", minibar: "Մինի-բար", tours: "Տուրեր", housekeeping: "Մաքրություն", contact: "Կապ", contactMenu: "Կապ մեզ հետ", wifiMenu: "WiFi", otherContact: "Այլ", otherMethodsTitle: "Այլ եղանակներ", more: "Ավելին", gallery: "Պատկերասրահ", price: "Գին", about: "Garden Inn Resort — շքեղ հանգիստ գեղեցիկ այգիներով։", copied: "Պատճենվեց!", wifi: "WiFi", network: "Ցանց՝", password: "Գաղտնաբառ՝", copy: "Պատճենել", wifiInstructions: "Սկանավորեք QR կոդը կամ մուտքագրեք գաղտնաբառը։", hkTabCall: "Կանչել", hkTabRate: "Գնահատել", hkRoomLabel: "Սենյակի համար", hkRoomPlaceholder: "Մուտքագրեք սենյակի համարը", hkCallNow: "Կանչել", hkSending: "Ուղարկվում է...", hkSuccessTitle: "Հարցումը ուղարկվեց! Անձնակազմը տեղեկացվեց։", hkYourCode: "Ձեր կոդը՝", hkCodeHint: "Պահեք այս կոդը՝ հետո մաքրությունը գնահատելու համար։", hkEnterCode: "Մուտքագրեք 6-նիշ կոդը", hkHowWas: "Ինչպես էր մաքրությունը։", hkCommentLabel: "Մեկնաբանություն (կամավոր)", hkCommentPlaceholder: "Պատմեք ձեր փորձի մասին...", hkSubmitRating: "Ուղարկել գնահատականը", hkThanks: "Շնորհակալություն ձեր կարծիքի համար!", hkBannerTitle: "Մաքրություն", hkBannerText: "Անձնակազմը ընդունել է ձեր հարցումը և արդեն ճանապարհին է։", hkAlertRoom: "Խնդրում ենք, մուտքագրեք սենյակի համարը!", hkAlertConnection: "Կապի սխալ։ Փորձեք ավելի ուշ.", hkAlertError: "Սխալ հարցում ուղարկելիս։ Փորձեք կրկին։", hkInvalidCode: "Խնդրում ենք, մուտքագրեք ճիշտ 6-նիշ կոդ։", hkCodeNotFound: "Սխալ կոդ։ Ստուգեք և նորից փորձեք։", hkAlreadyRated: "Այս կոդը արդեն օգտագործվել է գնահատման համար։", bookingFormTitle: "Ծառայության ամրագրում", bookingHowItWorks: "📋 Ինչպես է սա աշխատում", bookingStep1: "Լրացրեք ձեր տվյալները ստորև", bookingStep2: "Մեր անձնակազմը կքննարկի ձեր հարցումը", bookingStep3: "Դուք կստանաք ծանուցում արդյունքի վերաբերյալ", bookingGuestName: "👤 Ձեր Անունը", bookingNamePlaceholder: "Մուտքագրեք ձեր անունը", bookingDate: "📅 Ընտրեք ամսաթիվը", bookingTime: "🕐 Ընտրեք ժամանակը", bookingTimeFrom: "ՍԿՍԱԾ", bookingTimeTo: "ՄԻՆՉԵՎ", bookingSubmit: "Ամրագրել հիմա", bookingHint: "💡 Դուք կծանուցվեք այս էջում, երբ ձեր ամրագրումը հաստատվի կամ մերժվի:", bookingSuccess: "Ամրագրումը ուղարկված է։ Մենք կտեղեկացնենք ձեզ ստուգումից հետո:", hkHowItWorks: "📋 Ինչպես է սա աշխատում", hkStep1: "Սեղմեք «Կանչել» սենյակի մաքրում պատվիրելու համար", hkStep2: "Անձնակազմը անմիջապես կստանա ձեր հարցումը", hkStep3: "Դուք ծանուցում կստանաք, երբ անձնակազմը ճանապարհին լինի", hkHint: "Դուք կծանուցվեք, հենց որ անձնակազմը ընդունի ձեր հարցումը:", myBookings: "Իմ ամրագրումները", myBookingsEmpty: "Դուք չունեք ակտիվ ամրագրումներ:", noBookingsYet: "Դեռ ամրագրումներ չկան", bookingConfirmTitle: "Ցանկանու՞մ եք ամրագրել այս ծառայությունը", bookingPickupTime: "ՄԵԿՆՈՒՄ", bookingPickupTimeLabel: "Մեկնման ժամ", approved: "Հաստատված է", pending: "Սպասում է", rejected: "Մերժված է", cancelled: "Չեղարկված է", hotDeals: "ԱՌԱՋԱՐԿՆԵՐ", hotDealsTitle: "🔥 Թեժ Առաջարկներ", hotDealsEmpty: "Այս պահին ակտիվ առաջարկներ չկան։" }
+    en: { welcome: "Welcome", tagline: "Garden Inn Resort & Spa", services: "Services", rules: "Rules", minibar: "Mini Bar", tours: "Tours", housekeeping: "Housekeeping", contact: "Get in Touch", contactMenu: "Contact Us", wifiMenu: "WiFi", otherContact: "Other", otherMethodsTitle: "Other Methods", more: "More", gallery: "Gallery", price: "Price", about: "Garden Inn Resort offers luxury in a private paradise.", copied: "Copied!", wifi: "WiFi", network: "Network:", password: "Password:", copy: "Copy", wifiInstructions: "Scan QR or enter password.", hkTabCall: "Call", hkTabRate: "Rate", hkRoomLabel: "Room Number", hkRoomPlaceholder: "Enter your room number", hkCallNow: "Call Now", hkSending: "Sending...", hkSuccessTitle: "Request sent! Staff notified.", hkYourCode: "Your code:", hkCodeHint: "Save this code to rate our housekeeping service later.", hkEnterCode: "Enter your 6-digit code", hkHowWas: "How was the cleaning?", hkCommentLabel: "Comments (optional)", hkCommentPlaceholder: "Tell us about your experience...", hkSubmitRating: "Submit Rating", hkThanks: "Thank you for your feedback!", hkBannerTitle: "Housekeeping", hkBannerText: "Staff has accepted your request and is on the way.", hkAlertRoom: "Please enter your room number!", hkAlertConnection: "Connection error. Try again later.", hkAlertError: "Error sending request. Please try again.", hkInvalidCode: "Please enter a valid 6-digit code.", hkCodeNotFound: "Invalid code. Please check and try again.", hkAlreadyRated: "This code has already been used for rating.", bookingFormTitle: "Book Service", bookingHowItWorks: "📋 How it works", bookingStep1: "Fill in your details below", bookingStep2: "Our staff will review your request", bookingStep3: "You'll receive a notification with the result", bookingGuestName: "👤 Your Name", bookingNamePlaceholder: "Enter your name", bookingDate: "📅 Select Date", bookingTime: "🕐 Select Time", bookingTimeFrom: "FROM", bookingTimeTo: "TO", bookingSubmit: "Book Now", bookingHint: "💡 You will be notified on this page once your booking is approved or rejected.", bookingSuccess: "Booking submitted! We will notify you once it's reviewed.", hkHowItWorks: "📋 How it works", hkStep1: "Click \"Call Now\" to request room cleaning", hkStep2: "Staff will receive your request immediately", hkStep3: "You will get a notification when staff is on the way", hkHint: "You will be notified once the staff accepts your request.", myBookings: "My Bookings", myBookingsEmpty: "You have no active bookings yet.", noBookingsYet: "No bookings yet", bookingConfirmTitle: "Do you want to book this service?", bookingPickupTime: "PICKUP", bookingPickupTimeLabel: "Pickup Time", approved: "Approved", pending: "Pending", rejected: "Rejected", cancelled: "Cancelled", hotDeals: "HOT DEAL", hotDealsTitle: "🔥 Hot Deals", hotDealsEmpty: "No active deals right now. Check back later!", announcements: "Announcements", announcementsTitle: "📢 Announcements", announcementsEmpty: "No announcements right now.", hkOffHours: "Sorry, our working day has ended. Housekeeping is available from 8:00 to 23:00. Please try again in the morning!", hkEtaBanner: "Staff will arrive in approximately", hkEtaNow: "Staff is on the way right now!", hkEtaMinutes: "minutes" },
+    ru: { welcome: "Добро пожаловать", tagline: "Garden Inn Resort & Spa", services: "Услуги", rules: "Правила", minibar: "Мини-бар", tours: "Туры", housekeeping: "Уборка", contact: "Связаться", contactMenu: "Контакты", wifiMenu: "WiFi", otherContact: "Другое", otherMethodsTitle: "Другие способы", more: "Подробнее", gallery: "Галерея", price: "Цена", about: "Garden Inn Resort — роскошный отдых в райском уголке с живописными садами.", copied: "Скопировано!", wifi: "WiFi", network: "Сеть:", password: "Пароль:", copy: "Копировать", wifiInstructions: "Отсканируйте QR-код или введите пароль вручную.", hkTabCall: "Вызвать", hkTabRate: "Оценить", hkRoomLabel: "Номер комнаты", hkRoomPlaceholder: "Введите номер комнаты", hkCallNow: "Вызвать", hkSending: "Отправка...", hkSuccessTitle: "Запрос отправлен! Персонал уведомлен.", hkYourCode: "Ваш код:", hkCodeHint: "Сохраните этот код, чтобы оценить уборку позже.", hkEnterCode: "Введите 6-значный код", hkHowWas: "Как была уборка?", hkCommentLabel: "Комментарий (необязательно)", hkCommentPlaceholder: "Расскажите о вашем опыте...", hkSubmitRating: "Отправить оценку", hkThanks: "Спасибо за ваш отзыв!", hkBannerTitle: "Уборка", hkBannerText: "Персонал принял ваш запрос и уже в пути.", hkAlertRoom: "Пожалуйста, введите номер комнаты!", hkAlertConnection: "Ошибка соединения. Попробуйте позже.", hkAlertError: "Ошибка отправки запроса. Попробуйте снова.", hkInvalidCode: "Пожалуйста, введите корректный 6-значный код.", hkCodeNotFound: "Неверный код. Проверьте и попробуйте снова.", hkAlreadyRated: "Этот код уже был использован для оценки.", bookingFormTitle: "Бронирование услуги", bookingHowItWorks: "📋 Как это работает", bookingStep1: "Заполните свои данные ниже", bookingStep2: "Наш персонал рассмотрит ваш запрос", bookingStep3: "Вы получите уведомление с результатом", bookingGuestName: "👤 Ваше Имя", bookingNamePlaceholder: "Введите ваше имя", bookingDate: "📅 Выберите дату", bookingTime: "🕐 Выберите время", bookingTimeFrom: "С", bookingTimeTo: "ДО", bookingSubmit: "Забронировать", bookingHint: "💡 Вы получите уведомление на этой странице, как только ваше бронирование будет подтверждено или отклонено.", bookingSuccess: "Бронирование отправлено! Мы уведомим вас после проверки.", hkHowItWorks: "📋 Как это работает", hkStep1: "Нажмите \"Вызвать\", чтобы запросить уборку номера", hkStep2: "Персонал немедленно получит ваш запрос", hkStep3: "Вы получите уведомление, когда персонал будет в пути", hkHint: "Вы получите уведомление, как только персонал примет ваш запрос.", myBookings: "Мои брони", myBookingsEmpty: "У вас нет активных бронирований.", noBookingsYet: "У вас нет броней", bookingConfirmTitle: "Хотите забронировать эту услугу?", bookingPickupTime: "ВЫЕЗД", bookingPickupTimeLabel: "Время выезда", approved: "Одобрено", pending: "Ожидание", rejected: "Отклонено", cancelled: "Отменено", hotDeals: "ПРЕДЛОЖЕНИЯ", hotDealsTitle: "🔥 Горячие предложения", hotDealsEmpty: "Сейчас нет активных предложений. Загляните позже!", announcements: "Объявления", announcementsTitle: "📢 Объявления", announcementsEmpty: "Сейчас нет объявлений.", hkOffHours: "К сожалению, рабочий день завершён. Уборка доступна с 8:00 до 23:00. Пожалуйста, обратитесь утром!", hkEtaBanner: "Персонал прибудет примерно через", hkEtaNow: "Персонал уже идёт!", hkEtaMinutes: "минут" },
+    hy: { welcome: "Բարի գալուստ", tagline: "Garden Inn Resort & Spa", services: "Ծառայություններ", rules: "Կանոններ", minibar: "Մինի-բար", tours: "Տուրեր", housekeeping: "Մաքրություն", contact: "Կապ", contactMenu: "Կապ մեզ հետ", wifiMenu: "WiFi", otherContact: "Այլ", otherMethodsTitle: "Այլ եղանակներ", more: "Ավելին", gallery: "Պատկերասրահ", price: "Գին", about: "Garden Inn Resort — շքեղ հանգիստ գեղեցիկ այգիներով։", copied: "Պատճենվեց!", wifi: "WiFi", network: "Ցանց՝", password: "Գաղտնաբառ՝", copy: "Պատճենել", wifiInstructions: "Սկանավորեք QR կոդը կամ մուտքագրեք գաղտնաբառը։", hkTabCall: "Կանչել", hkTabRate: "Գնահատել", hkRoomLabel: "Սենյակի համար", hkRoomPlaceholder: "Մուտքագրեք սենյակի համարը", hkCallNow: "Կանչել", hkSending: "Ուղարկվում է...", hkSuccessTitle: "Հարցումը ուղարկվեց! Անձնակազմը տեղեկացվեց։", hkYourCode: "Ձեր կոդը՝", hkCodeHint: "Պահեք այս կոդը՝ հետո մաքրությունը գնահատելու համար։", hkEnterCode: "Մուտքագրեք 6-նիշ կոդը", hkHowWas: "Ինչպես էր մաքրությունը։", hkCommentLabel: "Մեկնաբանություն (կամավոր)", hkCommentPlaceholder: "Պատմեք ձեր փորձի մասին...", hkSubmitRating: "Ուղարկել գնահատականը", hkThanks: "Շնորհակալություն ձեր կարծիքի համար!", hkBannerTitle: "Մաքրություն", hkBannerText: "Անձնակազմը ընդունել է ձեր հարցումը և արդեն ճանապարհին է։", hkAlertRoom: "Խնդրում ենք, մուտքագրեք սենյակի համարը!", hkAlertConnection: "Կապի սխալ։ Փորձեք ավելի ուշ.", hkAlertError: "Սխալ հարցում ուղարկելիս։ Փորձեք կրկին։", hkInvalidCode: "Խնդրում ենք, մուտքագրեք ճիշտ 6-նիշ կոդ։", hkCodeNotFound: "Սխալ կոդ։ Ստուգեք և նորից փորձեք։", hkAlreadyRated: "Այս կոդը արդեն օգտագործվել է գնահատման համար։", bookingFormTitle: "Ծառայության ամրագրում", bookingHowItWorks: "📋 Ինչպես է սա աշխատում", bookingStep1: "Լրացրեք ձեր տվյալները ստորև", bookingStep2: "Մեր անձնակազմը կքննարկի ձեր հարցումը", bookingStep3: "Դուք կստանաք ծանուցում արդյունքի վերաբերյալ", bookingGuestName: "👤 Ձեր Անունը", bookingNamePlaceholder: "Մուտքագրեք ձեր անունը", bookingDate: "📅 Ընտրեք ամսաթիվը", bookingTime: "🕐 Ընտրեք ժամանակը", bookingTimeFrom: "ՍԿՍԱԾ", bookingTimeTo: "ՄԻՆՉԵՎ", bookingSubmit: "Ամրագրել հիմա", bookingHint: "💡 Դուք կծանուցվեք այս էջում, երբ ձեր ամրագրումը հաստատվի կամ մերժվի:", bookingSuccess: "Ամրագրումը ուղարկված է։ Մենք կտեղեկացնենք ձեզ ստուգումից հետո:", hkHowItWorks: "📋 Ինչպես է սա աշխատում", hkStep1: "Սեղմեք «Կանչել» սենյակի մաքրում պատվիրելու համար", hkStep2: "Անձնակազմը անմիջապես կստանա ձեր հարցումը", hkStep3: "Դուք ծանուցում կստանաք, երբ անձնակազմը ճանապարհին լինի", hkHint: "Դուք կծանուցվեք, հենց որ անձնակազմը ընդունի ձեր հարցումը:", myBookings: "Իմ ամրագրումները", myBookingsEmpty: "Դուք չունեք ակտիվ ամրագրումներ:", noBookingsYet: "Դեռ ամրագրումներ չկան", bookingConfirmTitle: "Ցանկանու՞մ եք ամրագրել այս ծառայությունը", bookingPickupTime: "ՄԵԿՆՈՒՄ", bookingPickupTimeLabel: "Մեկնման ժամ", approved: "Հաստատված է", pending: "Սպասում է", rejected: "Մերժված է", cancelled: "Չեղարկված է", hotDeals: "ԱՌԱՋԱՐԿՆԵՐ", hotDealsTitle: "🔥 Թեժ Առաջարկներ", hotDealsEmpty: "Այս պահին ակտիվ առաջարկներ չկան։", announcements: "Հայտարարություններ", announcementsTitle: "📢 Հայտարարություններ", announcementsEmpty: "Այս պահին հայտարարություններ չկան։", hkOffHours: "Ափսոս, աշխատանքային օրը ավարտվել է։ Մաքրությունը հասանելի է 8:00-ից 23:00։ Խնդրում ենք փորձեք առավոտյան!", hkEtaBanner: "Անձնակազմը կժամանի մոտավորապես", hkEtaNow: "Անձնակազմը արդեն ճանապարհին է!", hkEtaMinutes: "րոպե" }
 };
 
 // ==================== STATE ====================
@@ -623,6 +623,13 @@ window.callHousekeeping = async function () {
     if (!room) { alert(t.hkAlertRoom || 'Room not detected. Please scan the QR code.'); return; }
     if (!supabaseClient) { alert(t.hkAlertConnection); return; }
 
+    // Check working hours (8:00 - 23:00 Armenia time)
+    var armeniaHour = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Yerevan', hour: 'numeric', hour12: false }).format(new Date()));
+    if (armeniaHour >= 23 || armeniaHour < 8) {
+        showToast(t.hkOffHours || 'Housekeeping is available from 8:00 to 23:00.');
+        return;
+    }
+
     var code = generateCode();
     var submitBtn = document.getElementById('hk-submit-btn');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = t.hkSending; }
@@ -777,6 +784,12 @@ async function initSupabaseFeatures() {
                     showHousekeepingCompletedBanner();
                     localStorage.removeItem('hk_accepted_id');
                 }
+                // If ETA was set by cleaner
+                if ((pendingId && pendingId == newRec.id) || (acceptedId && acceptedId == newRec.id)) {
+                    if (newRec.eta_minutes !== null && newRec.eta_minutes !== undefined) {
+                        showEtaBanner(newRec.eta_minutes);
+                    }
+                }
             }
         })
         .subscribe();
@@ -912,6 +925,17 @@ window.dismissCompletedBanner = function() {
     localStorage.removeItem('hk_active_notification');
 };
 
+function showEtaBanner(minutes) {
+    var t = translations[currentLang] || translations.en;
+    var msg = '';
+    if (minutes === 0) {
+        msg = t.hkEtaNow || 'Staff is on the way right now!';
+    } else {
+        msg = (t.hkEtaBanner || 'Staff will arrive in approximately') + ' ' + minutes + ' ' + (t.hkEtaMinutes || 'minutes');
+    }
+    showToast('⏱ ' + msg);
+}
+
 function checkPersistentNotification() {
     var notifState = localStorage.getItem('hk_active_notification');
     if (notifState === 'accepted' || notifState === 'true') {
@@ -956,15 +980,16 @@ function initStarRating() {
 async function loadHotDeals() {
     if (!supabaseClient) return;
     try {
-        // 1. Check if Hot Deals is globally enabled
         const { data: config } = await supabaseClient.from('app_settings')
             .select('value').eq('key', 'hot_deals_active').single();
         
         const isEnabled = config && config.value === 'true';
         const hotDealBtn = document.getElementById('hot-deals-nav-btn');
+        const annBtn = document.getElementById('announcements-nav-btn');
         
-        if (!isEnabled && hotDealBtn) {
-            hotDealBtn.style.display = 'none';
+        if (!isEnabled) {
+            if (hotDealBtn) hotDealBtn.style.display = 'none';
+            if (annBtn) annBtn.style.display = 'none';
             dynamicHotDeals = [];
             if (typeof renderMinibar === 'function') renderMinibar();
             if (typeof renderServices === 'function') renderServices();
@@ -972,102 +997,77 @@ async function loadHotDeals() {
             return;
         }
 
-        // 2. Load active deals
         const { data: deals } = await supabaseClient.from('hot_deals')
             .select('*').eq('is_active', true).order('created_at', { ascending: false });
             
         dynamicHotDeals = deals || [];
 
-        // Trigger updates so the badges reflect dynamically
         if (typeof renderMinibar === 'function') renderMinibar();
         if (typeof renderServices === 'function') renderServices();
         if (typeof renderTours === 'function') renderTours();
 
-        if (hotDealBtn) {
-            // Show button only if feature is active AND there is at least one active deal
-            hotDealBtn.style.display = (dynamicHotDeals.length > 0) ? 'flex' : 'none';
-        }
+        // Split into discounts and announcements
+        const discounts = dynamicHotDeals.filter(d => d.type === 'discount');
+        const announcements = dynamicHotDeals.filter(d => d.type === 'announcement');
 
-        const container = document.getElementById('hot-deals-list');
-        const emptyState = document.getElementById('hot-deals-empty');
-        const loadingState = document.getElementById('hot-deals-loading');
-        if (!container) return;
+        // Hot Deals button visibility
+        if (hotDealBtn) hotDealBtn.style.display = discounts.length > 0 ? 'flex' : 'none';
+        // Announcements button visibility
+        if (annBtn) annBtn.style.display = announcements.length > 0 ? 'flex' : 'none';
 
-        if (loadingState) loadingState.style.display = 'none';
+        // Render Hot Deals (discounts only)
+        renderDealList('hot-deals-list', 'hot-deals-empty', 'hot-deals-loading', discounts, true);
+        // Render Announcements
+        renderDealList('announcements-list', 'announcements-empty', 'announcements-loading', announcements, false);
 
-        if (dynamicHotDeals.length === 0) {
-            container.innerHTML = '';
-            if (emptyState) emptyState.style.display = 'block';
-            return;
-        }
-
-        if (emptyState) emptyState.style.display = 'none';
-        container.innerHTML = '';
-
-        dynamicHotDeals.forEach(deal => {
-            const title = deal['title_' + currentLang] || deal.title_en;
-            const desc = deal['description_' + currentLang] || deal.description_en;
-            let priceHtml = '';
-
-            let displayOldPrice = (deal.old_price || '').split('\n')[0];
-            let displayNewPrice = (deal.new_price || '').split('\n')[0];
-
-            if (deal.type === 'discount' && displayOldPrice) {
-                priceHtml = `
-                    <div class="hot-deal-price-box" style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; width: 100%;">
-                        <span class="hot-deal-old-price">${displayOldPrice}</span>
-                        <span class="hot-deal-new-price">${displayNewPrice || 'FREE'}</span>
-                    </div>
-                `;
-            } else if (displayNewPrice) {
-                 priceHtml = `
-                    <div class="hot-deal-price-box" style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; width: 100%;">
-                        <span class="hot-deal-new-price">${displayNewPrice}</span>
-                    </div>
-                `;
-            } else if (deal.type === 'announcement') {
-                priceHtml = ``;
-            }
-
-            let actionHtml = '';
-            let isService = dynamicServices.some(s => s.service_key === deal.reference_id);
-            if (deal.reference_id && window.openDetail && isService) {
-                 actionHtml = `<div style="position: absolute; right: 0; bottom: 0;"><button class="hk-submit-btn" style="padding: 6px 16px; font-size: 0.85rem; border-radius: 6px; margin:0;" onclick="openDetail('${deal.reference_id}')">${translations[currentLang].more}</button></div>`;
-            }
-
-            const imgHtml = deal.image_url ? `
-                <div class="product-image hot-deal-image-wrapper" data-images='["${deal.image_url}"]'>
-                    <img src="${deal.image_url}" class="hot-deal-image" onerror="this.style.display='none'">
-                    <div class="product-overlay">
-                        <button class="view-btn" aria-label="View Image">&#128065;</button>
-                    </div>
-                </div>` : '';
-            const badgeHtml = deal.type === 'discount' ? `<div class="hot-deal-badge" style="z-index: 5;">SALE</div>` : '';
-
-            const article = document.createElement('div');
-            article.className = 'hot-deal-card';
-            article.innerHTML = `
-                ${badgeHtml}
-                ${imgHtml}
-                <div class="hot-deal-content">
-                    <h3 class="hot-deal-title">${title}</h3>
-                    <p class="hot-deal-desc">${desc || ''}</p>
-                    <div class="hot-deal-footer" style="display:flex; justify-content:center; align-items:center; position: relative;">
-                        ${priceHtml}
-                        ${actionHtml}
-                    </div>
-                </div>
-            `;
-            container.appendChild(article);
-        });
-        
-        // Initialize lightbox logic for the new .view-btn elements
-        if (typeof initLightboxTriggers === 'function') {
-            initLightboxTriggers();
-        }
+        if (typeof initLightboxTriggers === 'function') initLightboxTriggers();
     } catch(e) {
         console.error('Error loading hot deals:', e);
     }
+}
+
+function renderDealList(containerId, emptyId, loadingId, items, isDiscount) {
+    const container = document.getElementById(containerId);
+    const emptyState = document.getElementById(emptyId);
+    const loadingState = document.getElementById(loadingId);
+    if (!container) return;
+
+    if (loadingState) loadingState.style.display = 'none';
+    if (items.length === 0) {
+        container.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+    }
+    if (emptyState) emptyState.style.display = 'none';
+    container.innerHTML = '';
+
+    items.forEach(deal => {
+        const title = deal['title_' + currentLang] || deal.title_en;
+        const desc = deal['description_' + currentLang] || deal.description_en;
+        let priceHtml = '';
+        let displayOldPrice = (deal.old_price || '').split('\n')[0];
+        let displayNewPrice = (deal.new_price || '').split('\n')[0];
+
+        if (isDiscount && displayOldPrice) {
+            priceHtml = `<div class="hot-deal-price-box" style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; width: 100%;"><span class="hot-deal-old-price">${displayOldPrice}</span><span class="hot-deal-new-price">${displayNewPrice || 'FREE'}</span></div>`;
+        } else if (displayNewPrice) {
+            priceHtml = `<div class="hot-deal-price-box" style="text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; width: 100%;"><span class="hot-deal-new-price">${displayNewPrice}</span></div>`;
+        }
+
+        let actionHtml = '';
+        let isService = dynamicServices.some(s => s.service_key === deal.reference_id);
+        if (deal.reference_id && window.openDetail && isService) {
+            actionHtml = `<div style="position: absolute; right: 0; bottom: 0;"><button class="hk-submit-btn" style="padding: 6px 16px; font-size: 0.85rem; border-radius: 6px; margin:0;" onclick="openDetail('${deal.reference_id}')">${translations[currentLang].more}</button></div>`;
+        }
+
+        const imgHtml = deal.image_url ? `<div class="product-image hot-deal-image-wrapper" data-images='["${deal.image_url}"]'><img src="${deal.image_url}" class="hot-deal-image" onerror="this.style.display='none'"><div class="product-overlay"><button class="view-btn" aria-label="View Image">&#128065;</button></div></div>` : '';
+        const badgeHtml = isDiscount ? `<div class="hot-deal-badge" style="z-index: 5;">SALE</div>` : '';
+
+        const article = document.createElement('div');
+        article.className = 'hot-deal-card';
+        article.innerHTML = `${badgeHtml}${imgHtml}<div class="hot-deal-content"><h3 class="hot-deal-title">${title}</h3><p class="hot-deal-desc">${desc || ''}</p><div class="hot-deal-footer" style="display:flex; justify-content:center; align-items:center; position: relative;">${priceHtml}${actionHtml}</div></div>`;
+        container.appendChild(article);
+    });
 }
 
 // ==================== INIT ====================

@@ -579,6 +579,9 @@
             <a onclick="navTo('hot_deals', loadHotDealsAdmin, this)">
                 <span class="nav-emoji" style="color:#ff4757;">🔥</span> Hot Deals
             </a>
+            <a onclick="navTo('announcements', loadAnnouncementsAdmin, this)">
+                <span class="nav-emoji" style="color:#3b82f6;">📢</span> Announcements
+            </a>
             <a onclick="logout()" class="logout-btn">
                 <span class="nav-emoji">🚪</span> Logout
             </a>
@@ -657,6 +660,55 @@
                 <div class="card" style="margin-top:24px;">
                     <h3><span class="card-icon">🔥</span> Active & Past Deals</h3>
                     <div class="table-wrapper" id="hot-deals-table-container">Loading deals...</div>
+                </div>
+            </div>
+
+            <!-- ==================== ANNOUNCEMENTS SECTION ==================== -->
+            <div id="announcements-section" style="display:none;">
+                <div class="card">
+                    <h3 style="margin-bottom:12px;"><span class="card-icon">📢</span> <span id="ann-submit-btn-title">Create New Announcement</span></h3>
+                    <div style="display:flex; flex-direction:column; gap:12px;">
+                        <div>
+                            <label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Title (EN)</label>
+                            <input id="ann-title-en" placeholder="Announcement title (English)" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Title (RU)</label>
+                            <input id="ann-title-ru" placeholder="Заголовок (Русский)" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Title (HY)</label>
+                            <input id="ann-title-hy" placeholder="Վերնագիր (Հայերեն)" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Description (EN)</label>
+                            <textarea id="ann-desc-en" placeholder="Description (English)" rows="3" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; resize:vertical;"></textarea>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Description (RU)</label>
+                            <textarea id="ann-desc-ru" placeholder="Описание (Русский)" rows="3" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; resize:vertical;"></textarea>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Description (HY)</label>
+                            <textarea id="ann-desc-hy" placeholder="Նկարագրություն (Հայերdelays)" rows="3" style="width:100%; padding:10px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:6px; resize:vertical;"></textarea>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:13px; color:#8b98a5; margin-bottom:4px;">Image (optional)</label>
+                            <input type="file" id="ann-image" accept="image/*" style="color:#8b98a5;">
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="checkbox" id="ann-send-push" checked>
+                            <label for="ann-send-push" style="font-size:13px;">Send push notification to all guests</label>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button id="ann-submit-btn-action" onclick="saveAnnouncement()" style="background:#3b82f6; color:#fff; padding:10px 16px; border:none; border-radius:8px; font-weight:600; cursor:pointer;">Save & Publish</button>
+                            <button id="ann-cancel-btn" onclick="cancelEditAnnouncement()" style="background:rgba(255,255,255,0.1); color:#fff; padding:10px 16px; border:none; border-radius:8px; display:none; cursor:pointer;">Cancel Edit</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:24px;">
+                    <h3><span class="card-icon">📢</span> Active & Past Announcements</h3>
+                    <div class="table-wrapper" id="announcements-table-container">Loading announcements...</div>
                 </div>
             </div>
 

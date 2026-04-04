@@ -71,7 +71,8 @@
         'housekeeping_requests': 'housekeeping-section',
         'housekeeping_ratings': 'ratings-section',
         'bookings': 'bookings-section',
-        'hot_deals': 'hot-deals-section'
+        'hot_deals': 'hot-deals-section',
+        'announcements': 'announcements-section'
     };
 
     window.loadData = async function(table, renderCallback) {
@@ -1111,11 +1112,11 @@
         var sendPush = document.getElementById('hd-send-push').checked;
         if (sendPush && !isEditing) {
             try {
-                await fetch(SUPABASE_URL + '/functions/v1/send-web-push', {
+                await fetch(ADM_URL + '/functions/v1/send-web-push', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + SUPABASE_KEY
+                        'Authorization': 'Bearer ' + ADM_KEY
                     },
                     body: JSON.stringify({
                         broadcast: true,
@@ -1129,8 +1130,125 @@
             }
         }
 
-        cancelEditHotDeal();
+    cancelEditHotDeal();
         loadHotDealsDataDirect();
+    };
+
+    // --- ANNOUNCEMENTS ---
+    window.editState.announcements = null;
+
+    window.loadAnnouncementsAdmin = async function() {
+        // Load announcements (type=announcement) from hot_deals table
+        Object.values(sectionMap).forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+        var el = document.getElementById('announcements-section');
+        if (el) el.style.display = 'block';
+
+        var { data, error } = await db.from('hot_deals').select('*').eq('type', 'announcement').order('created_at', { ascending: false });
+        if (error) { console.error('Load announcements error:', error); return; }
+        window.currentTableData['announcements'] = data || [];
+        renderAnnouncementsTable(data || []);
+    };
+
+    function renderAnnouncementsTable(data) {
+        var html = '<table><tr><th>Image</th><th>Title EN</th><th>Status</th><th>Actions</th></tr>';
+        data.forEach(function(item) {
+            var statusColor = item.is_active ? '#4ade80' : '#8b98a5';
+            var statusText = item.is_active ? 'Active' : 'Hidden';
+            var toggleText = item.is_active ? 'Hide' : 'Show';
+            html += '<tr style="' + (item.is_active ? '' : 'opacity:0.6') + '"><td><img src="' + (item.image_url || '') + '" width="50" onerror="this.src=\'https://placehold.co/50x50?text=No+Image\'"></td>' +
+                '<td><b>' + (item.title_en || '-') + '</b></td>' +
+                '<td style="color:' + statusColor + '"><b>' + statusText + '</b></td>' +
+                '<td style="display:flex;gap:6px;flex-wrap:wrap;">' +
+                '<button style="background:rgba(255,255,255,0.1); color:#fff; border:none; padding:6px 10px; border-radius:6px; font-weight:600; cursor:pointer;" onclick="toggleAnnouncementActive(\'' + item.id + '\',' + !item.is_active + ')">' + toggleText + '</button>' +
+                '<button class="btn-edit" onclick="startEditAnnouncement(\'' + item.id + '\')">Edit</button>' +
+                '<button class="btn-danger" onclick="deleteAnnouncement(\'' + item.id + '\')">Delete</button></td></tr>';
+        });
+        html += '</table>';
+        document.getElementById('announcements-table-container').innerHTML = html;
+    }
+
+    window.toggleAnnouncementActive = async function(id, val) {
+        await db.from('hot_deals').update({ is_active: val }).eq('id', id);
+        loadAnnouncementsAdmin();
+    };
+
+    window.deleteAnnouncement = async function(id) {
+        if (!confirm('Delete this announcement?')) return;
+        await db.from('hot_deals').delete().eq('id', id);
+        loadAnnouncementsAdmin();
+    };
+
+    window.startEditAnnouncement = function(id) {
+        var item = (window.currentTableData['announcements'] || []).find(function(i) { return i.id === id; });
+        if (!item) return;
+        window.editState.announcements = id;
+        document.getElementById('ann-title-en').value = item.title_en || '';
+        document.getElementById('ann-title-ru').value = item.title_ru || '';
+        document.getElementById('ann-title-hy').value = item.title_hy || '';
+        document.getElementById('ann-desc-en').value = item.description_en || '';
+        document.getElementById('ann-desc-ru').value = item.description_ru || '';
+        document.getElementById('ann-desc-hy').value = item.description_hy || '';
+        document.getElementById('ann-submit-btn-title').textContent = 'Edit Announcement';
+        document.getElementById('ann-cancel-btn').style.display = 'inline-block';
+    };
+
+    window.cancelEditAnnouncement = function() {
+        window.editState.announcements = null;
+        document.getElementById('ann-title-en').value = '';
+        document.getElementById('ann-title-ru').value = '';
+        document.getElementById('ann-title-hy').value = '';
+        document.getElementById('ann-desc-en').value = '';
+        document.getElementById('ann-desc-ru').value = '';
+        document.getElementById('ann-desc-hy').value = '';
+        document.getElementById('ann-image').value = '';
+        document.getElementById('ann-submit-btn-title').textContent = 'Create New Announcement';
+        document.getElementById('ann-cancel-btn').style.display = 'none';
+    };
+
+    window.saveAnnouncement = async function() {
+        var isEditing = !!window.editState.announcements;
+        var titleEn = document.getElementById('ann-title-en').value.trim();
+        if (!titleEn) { alert('Title (EN) is required'); return; }
+
+        var obj = {
+            type: 'announcement',
+            title_en: titleEn,
+            title_ru: document.getElementById('ann-title-ru').value.trim() || titleEn,
+            title_hy: document.getElementById('ann-title-hy').value.trim() || titleEn,
+            description_en: document.getElementById('ann-desc-en').value.trim(),
+            description_ru: document.getElementById('ann-desc-ru').value.trim(),
+            description_hy: document.getElementById('ann-desc-hy').value.trim(),
+            is_active: true
+        };
+
+        var imageFile = document.getElementById('ann-image').files[0];
+        if (imageFile) {
+            var url = await uploadImage(imageFile);
+            if (url) obj.image_url = url;
+        }
+
+        if (isEditing) {
+            await db.from('hot_deals').update(obj).eq('id', window.editState.announcements);
+        } else {
+            await db.from('hot_deals').insert([obj]);
+        }
+
+        var sendPush = document.getElementById('ann-send-push').checked;
+        if (sendPush && !isEditing) {
+            try {
+                await fetch(ADM_URL + '/functions/v1/send-web-push', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ADM_KEY },
+                    body: JSON.stringify({ broadcast: true, title: '📢 ' + titleEn, body: obj.description_en || 'New announcement!', url: '/GardenInnInfo/' })
+                });
+            } catch (e) { console.error('Push error:', e); }
+        }
+
+        cancelEditAnnouncement();
+        loadAnnouncementsAdmin();
     };
 
 })();

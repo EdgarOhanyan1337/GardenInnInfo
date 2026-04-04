@@ -74,7 +74,7 @@ serve(async (req: Request) => {
           await sendMessage(chatId,
             `✅ *${firstName}*, вы уже зарегистрированы!\n\n` +
             `Вы будете получать уведомления о заявках на уборку.\n\n` +
-            `Команды:\n/status — проверить статус\n/stop — отключить уведомления\n/resume — включить`
+            `Команды:\n/status — проверить статус`
           )
         } else {
           await sendMessage(chatId,
@@ -108,40 +108,9 @@ serve(async (req: Request) => {
         return new Response('OK', { status: 200, headers: corsHeaders })
       }
 
-      // --- /stop command ---
-      if (text === '/stop') {
-        await supabase
-          .from('notification_recipients')
-          .update({ enabled: false })
-          .eq('type', 'telegram')
-          .eq('value', String(chatId))
-
-        await sendMessage(chatId,
-          `🔴 Уведомления отключены.\n\nЧтобы включить снова, отправьте /resume`
-        )
-        return new Response('OK', { status: 200, headers: corsHeaders })
-      }
-
-      // --- /resume command ---
-      if (text === '/resume') {
-        const { data: rec } = await supabase
-          .from('notification_recipients')
-          .select('enabled')
-          .eq('type', 'telegram')
-          .eq('value', String(chatId))
-
-        if (rec && rec.length > 0 && !rec[0].enabled) {
-          await supabase
-            .from('notification_recipients')
-            .update({ enabled: true })
-            .eq('type', 'telegram')
-            .eq('value', String(chatId))
-          await sendMessage(chatId, `🟢 Уведомления включены! Вы снова будете получать заявки.`)
-        } else if (rec && rec.length > 0 && rec[0].enabled) {
-          await sendMessage(chatId, `✅ Уведомления уже включены.`)
-        } else {
-          await sendMessage(chatId, `❌ Вы не зарегистрированы. Отправьте /start`)
-        }
+      // /stop and /resume are disabled for staff
+      if (text === '/stop' || text === '/resume') {
+        await sendMessage(chatId, `ℹ️ Эта команда недоступна. Уведомления всегда активны для персонала.`)
         return new Response('OK', { status: 200, headers: corsHeaders })
       }
 
@@ -176,7 +145,7 @@ serve(async (req: Request) => {
               `✅ *Регистрация успешна!*\n\n` +
               `Добро пожаловать, *${firstName}*! 🎉\n` +
               `Теперь вы будете получать уведомления о заявках на уборку.\n\n` +
-              `Команды:\n/status — проверить статус\n/stop — отключить\n/resume — включить`
+              `Команды:\n/status — проверить статус`
             )
           }
         } else {
@@ -188,7 +157,7 @@ serve(async (req: Request) => {
       // Already registered, unknown command
       await sendMessage(chatId,
         `🌿 *Garden Inn Bot*\n\n` +
-        `Команды:\n/status — проверить статус\n/stop — отключить уведомления\n/resume — включить уведомления`
+        `Команды:\n/status — проверить статус`
       )
       return new Response('OK', { status: 200, headers: corsHeaders })
     }
@@ -247,7 +216,10 @@ serve(async (req: Request) => {
                 message_id: msg.message_id,
                 text: `🧹 *Заявка на уборку*\n🏠 Room: *${room}*\n\n${statusText}`,
                 parse_mode: 'Markdown',
-                reply_markup: isAccepter ? { inline_keyboard: [[ { text: '🏁 Закончить уборку', callback_data: `finish_${reqId}` } ]] } : { inline_keyboard: [] }
+                reply_markup: isAccepter ? { inline_keyboard: [
+                  [ { text: '🚶 Иду', callback_data: `eta_0_${reqId}` }, { text: '⏱ 15 мин', callback_data: `eta_15_${reqId}` }, { text: '⏱ 30 мин', callback_data: `eta_30_${reqId}` } ],
+                  [ { text: '🏁 Закончить уборку', callback_data: `finish_${reqId}` } ]
+                ] } : { inline_keyboard: [] }
               })
             })
           }
@@ -260,10 +232,56 @@ serve(async (req: Request) => {
               message_id: messageId,
               text: `🧹 *Заявка на уборку*\n✅ *Принял(а): ${staffName}*`,
               parse_mode: 'Markdown',
-              reply_markup: { inline_keyboard: [[ { text: '🏁 Закончить уборку', callback_data: `finish_${reqId}` } ]] }
+              reply_markup: { inline_keyboard: [
+                  [ { text: '🚶 Иду', callback_data: `eta_0_${reqId}` }, { text: '⏱ 15 мин', callback_data: `eta_15_${reqId}` }, { text: '⏱ 30 мин', callback_data: `eta_30_${reqId}` } ],
+                  [ { text: '🏁 Закончить уборку', callback_data: `finish_${reqId}` } ]
+                ] }
             })
           })
         }
+      } else if (callbackData.startsWith('eta_')) {
+        // ETA response: eta_0_reqId, eta_15_reqId, eta_30_reqId
+        const parts = callbackData.split('_')
+        const etaMinutes = parseInt(parts[1])
+        const reqId = parts.slice(2).join('_')
+
+        const { data: bData } = await supabase.from('housekeeping_requests').select('tg_messages, room_number').eq('id', reqId).single()
+
+        await supabase.from('housekeeping_requests').update({
+          eta_minutes: etaMinutes,
+          eta_set_at: new Date().toISOString()
+        }).eq('id', reqId)
+
+        const etaText = etaMinutes === 0 ? 'Уже идёт!' : `~${etaMinutes} мин`
+
+        await fetch(`${TG_API}/answerCallbackQuery`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ callback_query_id: body.callback_query.id, text: `ETA: ${etaText}` })
+        })
+
+        const room = bData?.room_number || 'Н/Д'
+        const pushBody = etaMinutes === 0 ? 'Staff is on the way right now!' : `Staff will arrive in approximately ${etaMinutes} minutes.`
+
+        if (room !== 'Н/Д') {
+          await fetch(`${SUPABASE_URL}/functions/v1/send-web-push`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` },
+            body: JSON.stringify({ room_number: room, title: '⏱ Housekeeping ETA', body: pushBody, url: '/GardenInnInfo/?view=housekeeping' })
+          }).catch(e => console.error('Push error:', e))
+        }
+
+        // Update message: remove ETA buttons, keep only finish button
+        await fetch(`${TG_API}/editMessageReplyMarkup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            message_id: messageId,
+            reply_markup: { inline_keyboard: [[ { text: '🏁 Закончить уборку', callback_data: `finish_${reqId}` } ]] }
+          })
+        })
+
       } else if (callbackData.startsWith('finish_')) {
         const reqId = callbackData.replace('finish_', '')
 

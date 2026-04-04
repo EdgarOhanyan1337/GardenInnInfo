@@ -81,6 +81,9 @@ CREATE TABLE housekeeping_requests (
   accepted_by TEXT DEFAULT NULL,
   accepted_at TIMESTAMPTZ DEFAULT NULL,
   tg_messages JSONB DEFAULT '[]'::JSONB,
+  eta_minutes INTEGER DEFAULT NULL,
+  eta_set_at TIMESTAMPTZ DEFAULT NULL,
+  completed_at TIMESTAMPTZ DEFAULT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

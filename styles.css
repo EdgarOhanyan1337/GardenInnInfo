@@ -466,7 +466,7 @@ body {
 }
 
 .nav-icon {
-    font-size: 1.5rem;
+    font-size: 2.25rem;
     filter: grayscale(0);
     transition: transform var(--transition-bounce);
 }
@@ -1833,7 +1833,7 @@ body {
     }
     
     .nav-icon {
-        font-size: 1.25rem;
+        font-size: 1.875rem;
     }
     
     .contact-section {
@@ -2005,7 +2005,7 @@ body {
     }
     
     .nav-icon {
-        font-size: 1.1rem;
+        font-size: 1.65rem;
     }
     
     .modal {
@@ -2437,6 +2437,7 @@ body {
 }
 
 /* Date Input Styling */
+
 .booking-date-input {
     color-scheme: dark;
     cursor: pointer;

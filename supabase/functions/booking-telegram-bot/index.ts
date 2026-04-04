@@ -381,11 +381,13 @@ serve(async (req: Request) => {
   // ==========================================
   // 3. Database Webhook (INSERT trigger)
   // ==========================================
-  if ((body.type === 'INSERT' || body.type === 'FRONTEND_INSERT') && body.table === 'bookings') {
-    // If it's the webhook, delay for 2 seconds to let the frontend win the race
-    if (body.type === 'INSERT') {
-       await new Promise(resolve => setTimeout(resolve, 2000));
-    }
+  if (body.type === 'INSERT' && body.table === 'bookings') {
+    // Skip database webhook entirely - frontend always sends FRONTEND_INSERT directly
+    // This prevents duplicate Telegram messages from the race condition
+    return new Response('Skipped webhook (frontend handles this)', { status: 200, headers: corsHeaders })
+  }
+
+  if (body.type === 'FRONTEND_INSERT' && body.table === 'bookings') {
 
     const guestName = body.record.guest_name
     const room = body.record.room_number
