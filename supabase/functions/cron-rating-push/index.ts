@@ -50,7 +50,7 @@ serve(async () => {
         const room = req.room_number
         const msg = `⚠️ *ВНИМАНИЕ!*\nЗаявка на уборку из номера *${room}* висит без ответа уже более 15 минут!\nПожалуйста, примите её как можно скорее.`
         for (const chatId of chatIds) {
-          await sendMessage(chatId, msg, {
+          await sendMessage(String(chatId), msg, {
             reply_markup: {
               inline_keyboard: [[ { text: '✅ Принять заявку', callback_data: `accept_${req.id}` } ]]
             }
@@ -63,33 +63,40 @@ serve(async () => {
     }
 
     // =========================================================
-    // 2. ETA Reminders (30 minutes expired ETA)
+    // 2. ETA Reminders (Time expired)
     // =========================================================
-    const thirtyMinsAgo = new Date(Date.now() - 30 * 60000).toISOString()
     const { data: etaReqs } = await supabase
       .from('housekeeping_requests')
       .select('*')
       .eq('status', 'accepted')
-      .eq('eta_minutes', 30)
       .eq('eta_reminder_sent', false)
-      .lte('eta_set_at', thirtyMinsAgo)
+      .not('eta_minutes', 'is', null)
       .not('accepted_by_chat_id', 'is', null)
 
     if (etaReqs && etaReqs.length > 0) {
-      console.log(`Found ${etaReqs.length} ETA requests to remind.`)
       for (const req of etaReqs) {
-        const room = req.room_number
-        const chatId = req.accepted_by_chat_id
-        
-        await sendMessage(chatId, `⏰ *Время вышло!*\n\nВы указали, что подойдете в номер *${room}* через 30 минут.\nУже прошло полчаса. Вы идете?`, {
-          reply_markup: {
-            inline_keyboard: [[ { text: '🚶 Уже иду', callback_data: `eta_0_${req.id}` } ]]
-          }
-        })
+        const etaLimitTimeMs = new Date(req.eta_set_at).getTime() + (req.eta_minutes * 60000)
+        if (Date.now() >= etaLimitTimeMs) {
+          const room = req.room_number
+          const chatId = String(req.accepted_by_chat_id)
+          
+          await sendMessage(chatId, `⏰ *Время подошло!*\n\nПора начинать уборку в номере *${room}*. (вы выбрали ETA ${req.eta_minutes} мин)`)
 
-        await supabase.from('housekeeping_requests')
-          .update({ eta_reminder_sent: true })
-          .eq('id', req.id)
+          if (room && room !== 'Н/Д') {
+            await fetch(`${SUPABASE_URL}/functions/v1/send-web-push`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` },
+              body: JSON.stringify({ room_number: room, title: '🧹 Housekeeping Arriving', body: 'Our staff will be at your room momentarily.', url: '/GardenInnInfo/?view=housekeeping' })
+            }).catch(e => console.error('Push error:', e))
+          }
+
+          await supabase.from('housekeeping_requests')
+            .update({ 
+               eta_reminder_sent: true,
+               eta_minutes: 0
+            })
+            .eq('id', req.id)
+        }
       }
     }
 
