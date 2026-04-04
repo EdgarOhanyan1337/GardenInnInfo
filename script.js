@@ -840,6 +840,7 @@ window.dismissHousekeepingBanner = function() {
     }
     stopTitleFlash();
     localStorage.removeItem('hk_active_notification');
+    localStorage.removeItem('hk_eta_minutes');
 };
 
 function showHousekeepingAcceptedBanner() {
@@ -857,11 +858,22 @@ function showHousekeepingAcceptedBanner() {
     banner.id = 'hk-realtime-banner';
     banner.className = 'hk-notification-banner';
     var t = translations[currentLang] || translations.en;
+    
+    var msg = t.hkBannerText;
+    var savedEta = localStorage.getItem('hk_eta_minutes');
+    if (savedEta !== null) {
+        if (savedEta == 0) {
+            msg = t.hkEtaNow || 'Staff is on the way right now!';
+        } else {
+            msg = (t.hkEtaBanner || 'Staff will arrive in approximately') + ' ' + savedEta + ' ' + (t.hkEtaMinutes || 'minutes');
+        }
+    }
+
     banner.innerHTML = `
         <div class="hk-banner-icon">🧹</div>
         <div class="hk-banner-content">
             <div class="hk-banner-title">${t.hkBannerTitle}</div>
-            <div class="hk-banner-text">${t.hkBannerText}</div>
+            <div class="hk-banner-text" id="hk-live-eta-text">${msg}</div>
         </div>
         <button class="hk-banner-close" onclick="dismissHousekeepingBanner()">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -923,11 +935,23 @@ window.dismissCompletedBanner = function() {
     }
     stopTitleFlash();
     localStorage.removeItem('hk_active_notification');
+    localStorage.removeItem('hk_eta_minutes');
 };
 
 function showEtaBanner(minutes) {
-    // Removed toast banner per user request
-    console.log('ETA received:', minutes);
+    localStorage.setItem('hk_eta_minutes', minutes);
+    var t = translations[currentLang] || translations.en;
+    var msg = '';
+    if (minutes === 0) {
+        msg = t.hkEtaNow || 'Staff is on the way right now!';
+    } else {
+        msg = (t.hkEtaBanner || 'Staff will arrive in approximately') + ' ' + minutes + ' ' + (t.hkEtaMinutes || 'minutes');
+    }
+    
+    var liveText = document.getElementById('hk-live-eta-text');
+    if (liveText) {
+        liveText.textContent = msg;
+    }
 }
 
 function checkPersistentNotification() {
