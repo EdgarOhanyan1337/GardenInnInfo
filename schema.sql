@@ -248,6 +248,18 @@ ALTER TABLE rooms DISABLE ROW LEVEL SECURITY;
 GRANT ALL ON rooms TO anon, authenticated, service_role;
 
 -- ============================================
+-- STAFF ROLES
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS staff_roles (
+  email TEXT PRIMARY KEY,
+  role TEXT NOT NULL DEFAULT 'guest' CHECK (role IN ('guest', 'admin', 'owner'))
+);
+
+ALTER TABLE staff_roles DISABLE ROW LEVEL SECURITY;
+GRANT ALL ON staff_roles TO anon, authenticated, service_role;
+
+-- ============================================
 -- AUTO-REGISTER ROOM ACCOUNTS
 -- ============================================
 
@@ -280,20 +292,11 @@ BEGIN
         '{"provider": "email", "providers": ["email"]}'::jsonb
       );
     END IF;
+
+    -- Ensure 'guest' role is assigned
+    INSERT INTO staff_roles (email, role) VALUES (user_email, 'guest') ON CONFLICT DO NOTHING;
   END LOOP;
 END $$;
-
--- ============================================
--- STAFF ROLES
--- ============================================
-
-CREATE TABLE IF NOT EXISTS staff_roles (
-  email TEXT PRIMARY KEY,
-  role TEXT NOT NULL DEFAULT 'guest' CHECK (role IN ('guest', 'admin', 'owner'))
-);
-
-ALTER TABLE staff_roles DISABLE ROW LEVEL SECURITY;
-GRANT ALL ON staff_roles TO anon, authenticated, service_role;
 
 -- ============================================
 -- HOT DEALS SYSTEM
