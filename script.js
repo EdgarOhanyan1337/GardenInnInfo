@@ -70,7 +70,7 @@ function renderMinibar() {
             let deal = dynamicHotDeals.find(d => d.reference_id === item.id && d.type === 'discount' && d.is_active);
             if (deal) {
                 let displayP = (deal.new_price || '🔥 Sale').split('\n')[0];
-                priceHtml = '<span style="text-decoration:line-through; font-size:0.8em; color:#7f8fa6;">' + item.price + ' AMD</span> <br><span style="color:#4cd137; font-weight:bold;">' + displayP + '</span>';
+                priceHtml = '<span style="text-decoration:line-through; font-size:0.8em; color:#7f8fa6;">' + item.price + ' AMD</span> <br><span style="color:#ff4757; font-weight:bold;">' + displayP + '</span>';
                 badgeHtml = '<div style="position:absolute; top:8px; left:8px; background:#ff4757; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; z-index:2;">🔥 % SALE</div>';
             }
         }
@@ -323,7 +323,7 @@ function openDetail(serviceKey) {
                 // Centre the price items and use a bottom border for a clean, centered list look
                 priceInfo += '<div style="display:flex; flex-direction:column; align-items:center; background:rgba(0,0,0,0.1); padding:8px 12px; border-radius:6px; border-bottom: 2px solid #ff4757;">';
                 if (oPrice) priceInfo += '<span style="text-decoration:line-through; opacity:0.6; font-size:0.85em; margin-bottom:2px;">' + oPrice + '</span>';
-                if (nPrice) priceInfo += '<span style="color:#4cd137; font-size:1.05em; font-weight:bold;">' + nPrice + '</span>';
+                if (nPrice) priceInfo += '<span style="color:#ff4757; font-size:1.05em; font-weight:bold;">' + nPrice + '</span>';
                 priceInfo += '</div>';
             }
             priceInfo += '</div>';
