@@ -26,15 +26,61 @@
     }
 
     // --- AUTH ---
+    window.applyRolePermissions = function(role) {
+        var sidebarLinks = document.querySelectorAll('.sidebar a');
+        var allowedForAdmin = ['Notifications', 'Housekeeping Logs', 'HK Ratings', 'Bookings'];
+        
+        sidebarLinks.forEach(function(link) {
+            if (link.classList.contains('logout-btn')) return; // always show logout
+            var text = link.textContent.trim();
+            
+            if (role === 'guest') {
+                link.style.display = 'none';
+            } else if (role === 'admin') {
+                var isAllowed = allowedForAdmin.some(function(allowed) { return text.includes(allowed); });
+                link.style.display = isAllowed ? 'flex' : 'none';
+            } else {
+                // owner
+                link.style.display = 'flex';
+            }
+        });
+    };
+
+    window.initializeAdminSession = async function(email) {
+        var userRole = 'owner'; // Default fallback
+        try {
+            var { data, error } = await db.from('staff_roles').select('role').eq('email', email).single();
+            if (data && data.role) {
+                userRole = data.role;
+            }
+        } catch (e) {
+            console.error('Role fetch error:', e);
+        }
+
+        applyRolePermissions(userRole);
+
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+
+        if (userRole === 'guest') {
+            document.querySelector('.content').innerHTML = '<div style="padding: 40px; text-align: center;"><h2>Access Denied</h2><p>Guests do not have access to the admin panel.</p></div>';
+        } else if (userRole === 'admin') {
+            // Click the front most allowed link
+            var firstAllowed = document.querySelector('.sidebar a[style*="display: flex"]');
+            if (firstAllowed) firstAllowed.click();
+            else loadData('bookings', renderBookings);
+        } else {
+            loadData('minibar_items', renderMinibar);
+        }
+    };
+
     window.login = async function() {
         var email = document.getElementById('email').value;
         var pass = document.getElementById('password').value;
-        var { error } = await db.auth.signInWithPassword({ email: email, password: pass });
+        var { data, error } = await db.auth.signInWithPassword({ email: email, password: pass });
         if (error) { alert('Login Failed: ' + error.message); return; }
         localStorage.setItem(ADM_LOGIN_TIME_KEY, String(Date.now()));
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-        loadData('minibar_items', renderMinibar);
+        await initializeAdminSession(data.session.user.email);
     };
 
     window.logout = async function() {
@@ -54,9 +100,7 @@
                 localStorage.removeItem(ADM_LOGIN_TIME_KEY);
                 return; // stays on login screen
             }
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            loadData('minibar_items', renderMinibar);
+            await initializeAdminSession(result.data.session.user.email);
         }
     });
 
@@ -746,7 +790,9 @@
             } else if (item.status === 'rejected') {
                 actions = '<span style="color:#f87171; font-size:12px;">' + (item.reject_reason || 'Rejected') + '</span>';
             } else if (item.status === 'approved') {
-                actions = '<button onclick="cancelBooking(\'' + item.id + '\')" style="background:#f87171; color:#fff; padding:6px; border:none; border-radius:4px;">Cancel</button>';
+                if (!isPast) {
+                    actions = '<button onclick="cancelBooking(\'' + item.id + '\')" style="background:#f87171; color:#fff; padding:6px; border:none; border-radius:4px;">Cancel</button>';
+                }
             }
 
             // Service/Tour name display

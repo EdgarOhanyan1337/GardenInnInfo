@@ -284,6 +284,18 @@ BEGIN
 END $$;
 
 -- ============================================
+-- STAFF ROLES
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS staff_roles (
+  email TEXT PRIMARY KEY,
+  role TEXT NOT NULL DEFAULT 'guest' CHECK (role IN ('guest', 'admin', 'owner'))
+);
+
+ALTER TABLE staff_roles DISABLE ROW LEVEL SECURITY;
+GRANT ALL ON staff_roles TO anon, authenticated, service_role;
+
+-- ============================================
 -- HOT DEALS SYSTEM
 -- ============================================
 
