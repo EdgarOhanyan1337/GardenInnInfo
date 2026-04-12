@@ -582,6 +582,88 @@
                 justify-content: center;
             }
         }
+
+        /* ==================== DRAG & DROP REORDER ==================== */
+        .drag-handle {
+            cursor: grab;
+            user-select: none;
+            font-size: 16px;
+            color: #4a5568;
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            line-height: 1;
+        }
+
+        .drag-handle:hover {
+            color: #4ade80;
+            background: rgba(74, 222, 128, 0.1);
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        tr[draggable="true"] {
+            transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+        }
+
+        tr.dragging {
+            opacity: 0.4;
+            background: rgba(74, 222, 128, 0.05) !important;
+        }
+
+        tr.drag-over {
+            border-top: 2px solid #4ade80 !important;
+            position: relative;
+        }
+
+        tr.drag-over::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #4ade80, #22c55e);
+            box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+            z-index: 10;
+        }
+
+        /* Reorder save toast */
+        .reorder-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: linear-gradient(135deg, #1a2332, #1e293b);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            color: #4ade80;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 9999;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            animation: toastSlideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reorder-toast.error {
+            border-color: rgba(248, 113, 113, 0.3);
+            color: #f87171;
+        }
+
+        @keyframes toastSlideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes toastSlideOut {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(20px); opacity: 0; }
+        }
     </style>
 </head>
 

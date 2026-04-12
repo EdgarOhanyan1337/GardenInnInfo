@@ -119,6 +119,9 @@
         'announcements': 'announcements-section'
     };
 
+    // Tables that support manual ordering via order_index
+    var orderableTables = ['minibar_items', 'services', 'tours'];
+
     window.loadData = async function(table, renderCallback) {
         Object.values(sectionMap).forEach(function(id) {
             var el = document.getElementById(id);
@@ -130,9 +133,16 @@
             if (el) el.style.display = 'block';
         }
         try {
-            var query = db.from(table).select(
-                table === 'bookings' ? '*, services(title_ru, title_en), tours(title_ru, title_en)' : '*'
-            ).order('created_at', { ascending: false });
+            var selectFields = table === 'bookings' ? '*, services(title_ru, title_en), tours(title_ru, title_en)' : '*';
+            var query = db.from(table).select(selectFields);
+
+            // Orderable tables: sort by order_index first, then created_at as tiebreaker
+            if (orderableTables.indexOf(table) !== -1) {
+                query = query.order('order_index', { ascending: true }).order('created_at', { ascending: true });
+            } else {
+                query = query.order('created_at', { ascending: false });
+            }
+
             var { data, error } = await query;
             if (error) { console.error('Load error:', error); renderCallback([]); return; }
             window.currentTableData[table] = data || [];
@@ -145,9 +155,11 @@
 
     // --- MINIBAR ---
     window.renderMinibar = function(data) {
-        var html = '<table><tr><th>Image</th><th>Name</th><th>Price</th><th>Actions</th></tr>';
+        var html = '<table><tr><th style="width:40px;"></th><th>Image</th><th>Name</th><th>Price</th><th>Actions</th></tr>';
         data.forEach(function(item) {
-            html += '<tr><td><img src="' + item.image_url + '" width="50" onerror="this.src=\'https://placehold.co/50x50?text=No+Image\'"></td>' +
+            html += '<tr draggable="true" data-id="' + item.id + '">' +
+                '<td><span class="drag-handle" title="Drag to reorder">⠿</span></td>' +
+                '<td><img src="' + item.image_url + '" width="50" onerror="this.src=\'https://placehold.co/50x50?text=No+Image\'"></td>' +
                 '<td>' + item.name + '</td><td>' + item.price + ' AMD</td>' +
                 '<td><div style="display:flex;gap:6px;">' +
                 '<button class="btn-edit" onclick="startEditMinibar(\'' + item.id + '\')">Edit</button>' +
@@ -155,6 +167,7 @@
         });
         html += '</table>';
         document.getElementById('minibar-table').innerHTML = html;
+        initDragAndDrop('minibar-table', 'minibar_items', renderMinibar);
     };
 
     window.startEditMinibar = function(id) {
@@ -196,6 +209,8 @@
             error = res.error;
         } else {
             updateData.image_url = uploadUrl || '';
+            // Auto-assign order_index = max + 1 so new item appears at end
+            updateData.order_index = getNextOrderIndex('minibar_items');
             var res = await db.from('minibar_items').insert([updateData]);
             error = res.error;
         }
@@ -213,10 +228,12 @@
     };
 
     window.renderServices = function(data) {
-        var html = '<table><tr><th>Icon</th><th>Key</th><th>Title EN</th><th>Title RU</th><th>Title HY</th><th>Type & Price</th><th>Actions</th></tr>';
+        var html = '<table><tr><th style="width:40px;"></th><th>Icon</th><th>Key</th><th>Title EN</th><th>Title RU</th><th>Title HY</th><th>Type & Price</th><th>Actions</th></tr>';
         data.forEach(function(item) {
             var priceDisplay = item.status_type === 'paid' && item.price ? ' (' + item.price + ')' : '';
-            html += '<tr><td>' + item.icon + '</td><td>' + item.service_key + '</td>' +
+            html += '<tr draggable="true" data-id="' + item.id + '">' +
+                '<td><span class="drag-handle" title="Drag to reorder">⠿</span></td>' +
+                '<td>' + item.icon + '</td><td>' + item.service_key + '</td>' +
                 '<td>' + item.title_en + '</td><td>' + item.title_ru + '</td><td>' + item.title_hy + '</td>' +
                 '<td>' + item.status_type + priceDisplay + '</td>' +
                 '<td style="display:flex;gap:6px;">' +
@@ -225,6 +242,7 @@
         });
         html += '</table>';
         document.getElementById('services-table').innerHTML = html;
+        initDragAndDrop('services-table', 'services', renderServices);
     };
 
     window.startEditService = function(id) {
@@ -306,6 +324,7 @@
             error = res.error;
         } else {
             if (!updateData.images) updateData.images = [];
+            updateData.order_index = getNextOrderIndex('services');
             var res = await db.from('services').insert([updateData]);
             error = res.error;
         }
@@ -317,9 +336,11 @@
 
     // --- TOURS (multi-lang) ---
     window.renderTours = function(data) {
-        var html = '<table><tr><th>Icon</th><th>Key</th><th>Title EN</th><th>Title RU</th><th>Title HY</th><th>Price</th><th>Actions</th></tr>';
+        var html = '<table><tr><th style="width:40px;"></th><th>Icon</th><th>Key</th><th>Title EN</th><th>Title RU</th><th>Title HY</th><th>Price</th><th>Actions</th></tr>';
         data.forEach(function(item) {
-            html += '<tr><td>' + item.icon + '</td><td>' + item.tour_key + '</td>' +
+            html += '<tr draggable="true" data-id="' + item.id + '">' +
+                '<td><span class="drag-handle" title="Drag to reorder">⠿</span></td>' +
+                '<td>' + item.icon + '</td><td>' + item.tour_key + '</td>' +
                 '<td>' + item.title_en + '</td><td>' + item.title_ru + '</td><td>' + item.title_hy + '</td>' +
                 '<td>' + item.price + '</td>' +
                 '<td style="display:flex;gap:6px;">' +
@@ -328,6 +349,7 @@
         });
         html += '</table>';
         document.getElementById('tours-table').innerHTML = html;
+        initDragAndDrop('tours-table', 'tours', renderTours);
     };
 
     window.startEditTour = function(id) {
@@ -402,6 +424,7 @@
             error = res.error;
         } else {
             if (!updateData.images) updateData.images = [];
+            updateData.order_index = getNextOrderIndex('tours');
             var res = await db.from('tours').insert([updateData]);
             error = res.error;
         }
@@ -917,13 +940,13 @@
         // Ensure reference data is loaded before building dropdown
         var promises = [];
         if (!window.currentTableData['minibar_items']) {
-             promises.push(db.from('minibar_items').select('*').order('created_at', { ascending: false }).then(function(res) { if (!res.error) window.currentTableData['minibar_items'] = res.data || []; }));
+             promises.push(db.from('minibar_items').select('*').order('order_index', { ascending: true }).then(function(res) { if (!res.error) window.currentTableData['minibar_items'] = res.data || []; }));
         }
         if (!window.currentTableData['services']) {
-             promises.push(db.from('services').select('*').order('created_at', { ascending: false }).then(function(res) { if (!res.error) window.currentTableData['services'] = res.data || []; }));
+             promises.push(db.from('services').select('*').order('order_index', { ascending: true }).then(function(res) { if (!res.error) window.currentTableData['services'] = res.data || []; }));
         }
         if (!window.currentTableData['tours']) {
-             promises.push(db.from('tours').select('*').order('created_at', { ascending: false }).then(function(res) { if (!res.error) window.currentTableData['tours'] = res.data || []; }));
+             promises.push(db.from('tours').select('*').order('order_index', { ascending: true }).then(function(res) { if (!res.error) window.currentTableData['tours'] = res.data || []; }));
         }
         if (promises.length > 0) {
             await Promise.all(promises);
@@ -1297,5 +1320,247 @@
         cancelEditAnnouncement();
         loadAnnouncementsAdmin();
     };
+
+    // ==================== DRAG & DROP REORDER ENGINE ====================
+
+    var dragState = {
+        draggedRow: null,
+        sourceTable: null,
+        reorderTimer: null
+    };
+
+    /**
+     * Get the next order_index value for a table (max + 1).
+     * Uses cached currentTableData to avoid extra DB calls.
+     */
+    function getNextOrderIndex(table) {
+        var items = window.currentTableData[table] || [];
+        var maxIdx = 0;
+        items.forEach(function(item) {
+            var idx = item.order_index || 0;
+            if (idx > maxIdx) maxIdx = idx;
+        });
+        return maxIdx + 1;
+    }
+
+    /**
+     * Initialize drag-and-drop for a table container.
+     * @param {string} containerId - The wrapper div ID (e.g. 'minibar-table')
+     * @param {string} tableName - Supabase table name
+     * @param {function} renderCallback - Function to re-render after save
+     */
+    function initDragAndDrop(containerId, tableName, renderCallback) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+
+        var table = container.querySelector('table');
+        if (!table) return;
+
+        var rows = table.querySelectorAll('tr[draggable="true"]');
+
+        rows.forEach(function(row) {
+            // --- DRAG START ---
+            row.addEventListener('dragstart', function(e) {
+                dragState.draggedRow = row;
+                dragState.sourceTable = tableName;
+                row.classList.add('dragging');
+                // Required for Firefox
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', row.dataset.id);
+            });
+
+            // --- DRAG OVER ---
+            row.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+
+                // Remove drag-over from all rows first
+                rows.forEach(function(r) { r.classList.remove('drag-over'); });
+
+                if (row !== dragState.draggedRow) {
+                    row.classList.add('drag-over');
+                }
+            });
+
+            // --- DRAG ENTER ---
+            row.addEventListener('dragenter', function(e) {
+                e.preventDefault();
+            });
+
+            // --- DRAG LEAVE ---
+            row.addEventListener('dragleave', function() {
+                row.classList.remove('drag-over');
+            });
+
+            // --- DROP ---
+            row.addEventListener('drop', function(e) {
+                e.preventDefault();
+                rows.forEach(function(r) { r.classList.remove('drag-over'); });
+
+                if (!dragState.draggedRow || dragState.draggedRow === row) return;
+
+                // Determine insert position based on mouse Y relative to target row
+                var tbody = table.querySelector('tbody') || table;
+                var rect = row.getBoundingClientRect();
+                var midY = rect.top + rect.height / 2;
+
+                if (e.clientY < midY) {
+                    tbody.insertBefore(dragState.draggedRow, row);
+                } else {
+                    tbody.insertBefore(dragState.draggedRow, row.nextSibling);
+                }
+
+                // Debounced save: wait 500ms after last drop before saving
+                clearTimeout(dragState.reorderTimer);
+                dragState.reorderTimer = setTimeout(function() {
+                    saveReorder(containerId, tableName);
+                }, 500);
+            });
+
+            // --- DRAG END ---
+            row.addEventListener('dragend', function() {
+                row.classList.remove('dragging');
+                rows.forEach(function(r) { r.classList.remove('drag-over'); });
+                dragState.draggedRow = null;
+            });
+
+            // --- TOUCH SUPPORT (Mobile) ---
+            var touchStartY = 0;
+            var touchClone = null;
+
+            row.addEventListener('touchstart', function(e) {
+                if (!e.target.classList.contains('drag-handle')) return;
+                e.preventDefault();
+                dragState.draggedRow = row;
+                dragState.sourceTable = tableName;
+                touchStartY = e.touches[0].clientY;
+                row.classList.add('dragging');
+            }, { passive: false });
+
+            row.addEventListener('touchmove', function(e) {
+                if (!dragState.draggedRow || dragState.draggedRow !== row) return;
+                e.preventDefault();
+
+                var touchY = e.touches[0].clientY;
+                var allRows = Array.from(table.querySelectorAll('tr[draggable="true"]'));
+                allRows.forEach(function(r) { r.classList.remove('drag-over'); });
+
+                // Find which row we're hovering over
+                for (var i = 0; i < allRows.length; i++) {
+                    var r = allRows[i];
+                    if (r === dragState.draggedRow) continue;
+                    var rect = r.getBoundingClientRect();
+                    if (touchY > rect.top && touchY < rect.bottom) {
+                        r.classList.add('drag-over');
+                        break;
+                    }
+                }
+            }, { passive: false });
+
+            row.addEventListener('touchend', function(e) {
+                if (!dragState.draggedRow || dragState.draggedRow !== row) return;
+
+                var allRows = Array.from(table.querySelectorAll('tr[draggable="true"]'));
+                var overRow = allRows.find(function(r) { return r.classList.contains('drag-over'); });
+
+                allRows.forEach(function(r) { r.classList.remove('drag-over'); });
+                row.classList.remove('dragging');
+
+                if (overRow && overRow !== dragState.draggedRow) {
+                    var tbody = table.querySelector('tbody') || table;
+                    var rect = overRow.getBoundingClientRect();
+                    var touchY = e.changedTouches[0].clientY;
+                    if (touchY < rect.top + rect.height / 2) {
+                        tbody.insertBefore(dragState.draggedRow, overRow);
+                    } else {
+                        tbody.insertBefore(dragState.draggedRow, overRow.nextSibling);
+                    }
+
+                    clearTimeout(dragState.reorderTimer);
+                    dragState.reorderTimer = setTimeout(function() {
+                        saveReorder(containerId, tableName);
+                    }, 500);
+                }
+
+                dragState.draggedRow = null;
+            });
+        });
+    }
+
+    /**
+     * Save the current DOM order to Supabase.
+     * Reads all row data-id attributes in DOM order, assigns sequential order_index,
+     * and batch-updates via Promise.all.
+     */
+    async function saveReorder(containerId, tableName) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+
+        var tableEl = container.querySelector('table');
+        if (!tableEl) return;
+
+        var rows = tableEl.querySelectorAll('tr[data-id]');
+        var updates = [];
+
+        rows.forEach(function(row, index) {
+            updates.push({
+                id: row.dataset.id,
+                order_index: index + 1
+            });
+        });
+
+        if (updates.length === 0) return;
+
+        try {
+            // Batch update: each item gets its new order_index
+            var promises = updates.map(function(u) {
+                return db.from(tableName).update({ order_index: u.order_index }).eq('id', u.id);
+            });
+            var results = await Promise.all(promises);
+
+            // Check for errors
+            var hasError = results.some(function(r) { return r.error; });
+            if (hasError) {
+                showReorderToast('⚠️ Error saving order', true);
+                console.error('Reorder errors:', results.filter(function(r) { return r.error; }));
+            } else {
+                showReorderToast('✓ Order saved');
+                // Update local cache to reflect new order
+                var cachedData = window.currentTableData[tableName];
+                if (cachedData) {
+                    updates.forEach(function(u) {
+                        var item = cachedData.find(function(d) { return d.id === u.id; });
+                        if (item) item.order_index = u.order_index;
+                    });
+                }
+            }
+        } catch (e) {
+            console.error('Reorder save error:', e);
+            showReorderToast('⚠️ Error saving order', true);
+        }
+    }
+
+    /**
+     * Show a small toast notification for reorder feedback.
+     */
+    function showReorderToast(message, isError) {
+        // Remove existing toast
+        var existing = document.querySelector('.reorder-toast');
+        if (existing) existing.remove();
+
+        var toast = document.createElement('div');
+        toast.className = 'reorder-toast' + (isError ? ' error' : '');
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        // Auto-remove after 2.5 seconds
+        setTimeout(function() {
+            toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+            setTimeout(function() { toast.remove(); }, 300);
+        }, 2500);
+    }
+
+    // Expose for use by render functions
+    window.initDragAndDrop = initDragAndDrop;
 
 })();

@@ -52,7 +52,7 @@ async function loadTranslations() {
 async function loadMinibar() {
     if (!supabaseClient) return;
     try {
-        const { data } = await supabaseClient.from('minibar_items').select('*');
+        const { data } = await supabaseClient.from('minibar_items').select('*').order('order_index', { ascending: true });
         if (!data || data.length === 0) return;
         dynamicMinibar = data;
         renderMinibar();
@@ -90,7 +90,7 @@ function renderMinibar() {
 async function loadServices() {
     if (!supabaseClient) return;
     try {
-        const { data } = await supabaseClient.from('services').select('*');
+        const { data } = await supabaseClient.from('services').select('*').order('order_index', { ascending: true });
         if (!data) return;
         dynamicServices = data;
         renderServices();
@@ -132,7 +132,7 @@ function renderServices() {
 async function loadTours() {
     if (!supabaseClient) return;
     try {
-        const { data } = await supabaseClient.from('tours').select('*');
+        const { data } = await supabaseClient.from('tours').select('*').order('order_index', { ascending: true });
         if (!data) return;
         dynamicTours = data;
         renderTours();
