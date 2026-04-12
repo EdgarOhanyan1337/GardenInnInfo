@@ -1361,9 +1361,11 @@
 
     /**
      * Initialize drag-and-drop for a table container.
-     * @param {string} containerId - The wrapper div ID (e.g. 'minibar-table')
-     * @param {string} tableName - Supabase table name
-     * @param {function} renderCallback - Function to re-render after save
+     * Rewritten to eliminate layout-shift jitter:
+     * - Uses box-shadow indicators (no border = no layout shift)
+     * - Throttled dragover to prevent rapid class toggling
+     * - Dead zone in center of rows to reduce flicker
+     * - DOM reorder happens only on drop, not during drag
      */
     function initDragAndDrop(containerId, tableName, renderCallback) {
         var container = document.getElementById(containerId);
@@ -1373,29 +1375,54 @@
         if (!table) return;
 
         var rows = table.querySelectorAll('tr[draggable="true"]');
+        var lastIndicator = { id: null, pos: null }; // throttle: only update if changed
+
+        function clearAllIndicators() {
+            table.querySelectorAll('.drag-over-above, .drag-over-below').forEach(function(r) {
+                r.classList.remove('drag-over-above', 'drag-over-below');
+            });
+        }
 
         rows.forEach(function(row) {
             // --- DRAG START ---
             row.addEventListener('dragstart', function(e) {
                 dragState.draggedRow = row;
                 dragState.sourceTable = tableName;
-                row.classList.add('dragging');
-                // Required for Firefox
+                // Small delay so browser captures the row for ghost image before we fade it
+                setTimeout(function() { row.classList.add('dragging'); }, 0);
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/plain', row.dataset.id);
             });
 
-            // --- DRAG OVER ---
+            // --- DRAG OVER (throttled + dead zone) ---
             row.addEventListener('dragover', function(e) {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
+                if (!dragState.draggedRow || dragState.draggedRow === row) return;
 
-                // Remove drag-over from all rows first
-                rows.forEach(function(r) { r.classList.remove('drag-over'); });
+                var rect = row.getBoundingClientRect();
+                var relY = e.clientY - rect.top;
+                var pct = relY / rect.height;
 
-                if (row !== dragState.draggedRow) {
-                    row.classList.add('drag-over');
+                // Dead zone: 30%-70% center band — don't change indicator
+                var pos;
+                if (pct < 0.4) {
+                    pos = 'above';
+                } else if (pct > 0.6) {
+                    pos = 'below';
+                } else {
+                    // In dead zone — keep whatever was shown, or default
+                    return;
                 }
+
+                // Only update DOM if the indicator actually changed
+                var rowId = row.dataset.id;
+                if (lastIndicator.id === rowId && lastIndicator.pos === pos) return;
+
+                clearAllIndicators();
+                row.classList.add('drag-over-' + pos);
+                lastIndicator.id = rowId;
+                lastIndicator.pos = pos;
             });
 
             // --- DRAG ENTER ---
@@ -1404,29 +1431,37 @@
             });
 
             // --- DRAG LEAVE ---
-            row.addEventListener('dragleave', function() {
-                row.classList.remove('drag-over');
+            row.addEventListener('dragleave', function(e) {
+                // Only clear if actually leaving the row (not entering a child element)
+                if (!row.contains(e.relatedTarget)) {
+                    row.classList.remove('drag-over-above', 'drag-over-below');
+                    if (lastIndicator.id === row.dataset.id) {
+                        lastIndicator.id = null;
+                        lastIndicator.pos = null;
+                    }
+                }
             });
 
             // --- DROP ---
             row.addEventListener('drop', function(e) {
                 e.preventDefault();
-                rows.forEach(function(r) { r.classList.remove('drag-over'); });
+                if (!dragState.draggedRow || dragState.draggedRow === row) {
+                    clearAllIndicators();
+                    return;
+                }
 
-                if (!dragState.draggedRow || dragState.draggedRow === row) return;
-
-                // Determine insert position based on mouse Y relative to target row
                 var tbody = table.querySelector('tbody') || table;
-                var rect = row.getBoundingClientRect();
-                var midY = rect.top + rect.height / 2;
+                var isAbove = row.classList.contains('drag-over-above');
 
-                if (e.clientY < midY) {
+                clearAllIndicators();
+
+                if (isAbove) {
                     tbody.insertBefore(dragState.draggedRow, row);
                 } else {
                     tbody.insertBefore(dragState.draggedRow, row.nextSibling);
                 }
 
-                // Debounced save: wait 500ms after last drop before saving
+                // Debounced save
                 clearTimeout(dragState.reorderTimer);
                 dragState.reorderTimer = setTimeout(function() {
                     saveReorder(containerId, tableName);
@@ -1436,20 +1471,18 @@
             // --- DRAG END ---
             row.addEventListener('dragend', function() {
                 row.classList.remove('dragging');
-                rows.forEach(function(r) { r.classList.remove('drag-over'); });
+                clearAllIndicators();
+                lastIndicator.id = null;
+                lastIndicator.pos = null;
                 dragState.draggedRow = null;
             });
 
             // --- TOUCH SUPPORT (Mobile) ---
-            var touchStartY = 0;
-            var touchClone = null;
-
             row.addEventListener('touchstart', function(e) {
                 if (!e.target.classList.contains('drag-handle')) return;
                 e.preventDefault();
                 dragState.draggedRow = row;
                 dragState.sourceTable = tableName;
-                touchStartY = e.touches[0].clientY;
                 row.classList.add('dragging');
             }, { passive: false });
 
@@ -1459,15 +1492,15 @@
 
                 var touchY = e.touches[0].clientY;
                 var allRows = Array.from(table.querySelectorAll('tr[draggable="true"]'));
-                allRows.forEach(function(r) { r.classList.remove('drag-over'); });
+                clearAllIndicators();
 
-                // Find which row we're hovering over
                 for (var i = 0; i < allRows.length; i++) {
                     var r = allRows[i];
                     if (r === dragState.draggedRow) continue;
                     var rect = r.getBoundingClientRect();
                     if (touchY > rect.top && touchY < rect.bottom) {
-                        r.classList.add('drag-over');
+                        var mid = rect.top + rect.height / 2;
+                        r.classList.add(touchY < mid ? 'drag-over-above' : 'drag-over-below');
                         break;
                     }
                 }
@@ -1477,16 +1510,16 @@
                 if (!dragState.draggedRow || dragState.draggedRow !== row) return;
 
                 var allRows = Array.from(table.querySelectorAll('tr[draggable="true"]'));
-                var overRow = allRows.find(function(r) { return r.classList.contains('drag-over'); });
+                var overAbove = allRows.find(function(r) { return r.classList.contains('drag-over-above'); });
+                var overBelow = allRows.find(function(r) { return r.classList.contains('drag-over-below'); });
+                var overRow = overAbove || overBelow;
 
-                allRows.forEach(function(r) { r.classList.remove('drag-over'); });
+                clearAllIndicators();
                 row.classList.remove('dragging');
 
                 if (overRow && overRow !== dragState.draggedRow) {
                     var tbody = table.querySelector('tbody') || table;
-                    var rect = overRow.getBoundingClientRect();
-                    var touchY = e.changedTouches[0].clientY;
-                    if (touchY < rect.top + rect.height / 2) {
+                    if (overAbove) {
                         tbody.insertBefore(dragState.draggedRow, overRow);
                     } else {
                         tbody.insertBefore(dragState.draggedRow, overRow.nextSibling);
