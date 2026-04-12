@@ -8,7 +8,9 @@
     <title>Garden Inn Resort | Garden Green Resort & Spa</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <!-- Flatpickr (Custom Date/Time UI) — base only, our styles.css handles theming -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="icon" type="image/png" href="assets/logo.png">
@@ -23,8 +25,7 @@
 <body>
     <!-- Background Video - REPLACE THIS: Your hotel background video -->
     <video id="bg-video" autoplay loop muted playsinline aria-hidden="true">
-        <source src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_5MB.mp4"
-            type="video/mp4" alt="[ФОНОВОЕ ВИДЕО ОТЕЛЯ - Замените на свое видео]">
+        <source src="assets/backgroudvideo.mp4" type="video/mp4" alt="[ФОНОВОЕ ВИДЕО ОТЕЛЯ - Замените на свое видео]">
     </video>
     <div class="overlay" aria-hidden="true"></div>
 
@@ -32,42 +33,47 @@
     <header class="header" role="banner">
         <div class="logo" id="logo-container">
             <!-- Premium Garden / Forest Geometric Vector Logo Icon (Overlapping Leaves) -->
-            <svg id="logo-img" width="46" height="46" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="transition: transform var(--transition-bounce);">
+            <svg id="logo-img" width="46" height="46" viewBox="0 0 100 100" fill="none"
+                xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+                style="transition: transform var(--transition-bounce);">
                 <!-- Left leaf -->
-                <path class="leaf" d="M48 85 C 10 80, 5 35, 30 20 C 40 40, 55 60, 48 85 Z" fill="url(#leaf-light)" fill-opacity="0.9"/>
+                <path class="leaf" d="M48 85 C 10 80, 5 35, 30 20 C 40 40, 55 60, 48 85 Z" fill="url(#leaf-light)"
+                    fill-opacity="0.9" />
                 <!-- Right leaf -->
-                <path class="leaf" d="M52 85 C 90 80, 95 35, 70 20 C 60 40, 45 60, 52 85 Z" fill="url(#leaf-dark)" fill-opacity="0.9"/>
+                <path class="leaf" d="M52 85 C 90 80, 95 35, 70 20 C 60 40, 45 60, 52 85 Z" fill="url(#leaf-dark)"
+                    fill-opacity="0.9" />
                 <!-- Center top leaf -->
-                <path class="leaf" d="M50 85 C 30 70, 30 25, 50 10 C 70 25, 70 70, 50 85 Z" fill="url(#leaf-accent)" fill-opacity="0.95"/>
-                
+                <path class="leaf" d="M50 85 C 30 70, 30 25, 50 10 C 70 25, 70 70, 50 85 Z" fill="url(#leaf-accent)"
+                    fill-opacity="0.95" />
+
                 <defs>
                     <linearGradient id="leaf-light" x1="5" y1="20" x2="48" y2="85" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#A8E063"/>
-                        <stop offset="1" stop-color="#4F9D6B"/>
+                        <stop stop-color="#A8E063" />
+                        <stop offset="1" stop-color="#4F9D6B" />
                     </linearGradient>
                     <linearGradient id="leaf-dark" x1="95" y1="20" x2="52" y2="85" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#4F9D6B"/>
-                        <stop offset="1" stop-color="#1B5E20"/>
+                        <stop stop-color="#4F9D6B" />
+                        <stop offset="1" stop-color="#1B5E20" />
                     </linearGradient>
                     <linearGradient id="leaf-accent" x1="50" y1="10" x2="50" y2="85" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#D4E157"/>
-                        <stop offset="1" stop-color="#2E7D32"/>
+                        <stop stop-color="#D4E157" />
+                        <stop offset="1" stop-color="#2E7D32" />
                     </linearGradient>
                     <!-- Gradient for the subline RESORT & SPA -->
                     <linearGradient id="logo-green-grad" x1="0" y1="0" x2="240" y2="0" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#A8E063"/>
-                        <stop offset="0.5" stop-color="#4F9D6B"/>
-                        <stop offset="1" stop-color="#A8E063"/>
+                        <stop stop-color="#A8E063" />
+                        <stop offset="0.5" stop-color="#4F9D6B" />
+                        <stop offset="1" stop-color="#A8E063" />
                     </linearGradient>
                     <!-- Dark gradient for light theme -->
                     <linearGradient id="logo-dark-grad" x1="0" y1="0" x2="240" y2="0" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#1B5E20"/>
-                        <stop offset="0.5" stop-color="#2E7D32"/>
-                        <stop offset="1" stop-color="#1B5E20"/>
+                        <stop stop-color="#1B5E20" />
+                        <stop offset="0.5" stop-color="#2E7D32" />
+                        <stop offset="1" stop-color="#1B5E20" />
                     </linearGradient>
                 </defs>
             </svg>
-            
+
             <svg viewBox="0 0 240 60" class="logo-svg-animation" aria-label="Garden Inn">
                 <text x="0" y="40" class="logo-svg-text">
                     <tspan class="logo-letter" style="animation-delay: 0s">G</tspan>
@@ -105,11 +111,13 @@
                 <h1 data-key="welcome">Welcome</h1>
                 <p data-key="tagline" class="tagline">Garden Green Resort & Spa</p>
                 <nav class="main-nav" aria-label="Основная навигация">
-                    <button id="hot-deals-nav-btn" class="nav-btn wide-btn hot-deal-btn" data-modal="hot-deals" style="display: none;">
+                    <button id="hot-deals-nav-btn" class="nav-btn wide-btn hot-deal-btn" data-modal="hot-deals"
+                        style="display: none;">
                         <span class="nav-icon">🔥</span>
                         <span data-key="hotDeals">HOT DEAL</span>
                     </button>
-                    <button id="announcements-nav-btn" class="nav-btn wide-btn" data-modal="announcements" style="display: none;">
+                    <button id="announcements-nav-btn" class="nav-btn wide-btn" data-modal="announcements"
+                        style="display: none;">
                         <span class="nav-icon">📢</span>
                         <span data-key="announcements">Announcements</span>
                     </button>
@@ -159,29 +167,33 @@
                 <svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="ig-green" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stop-color="#2E8B57"/>
-                            <stop offset="100%" stop-color="#3CB371"/>
+                            <stop offset="0%" stop-color="#2E8B57" />
+                            <stop offset="100%" stop-color="#3CB371" />
                         </linearGradient>
                     </defs>
-                    <circle cx="24" cy="24" r="24" fill="url(#ig-green)"/>
-                    <rect x="10" y="10" width="28" height="28" rx="8" stroke="white" stroke-width="2.5" fill="none"/>
-                    <circle cx="24" cy="24" r="7.5" stroke="white" stroke-width="2.5" fill="none"/>
-                    <circle cx="33" cy="15" r="2" fill="white"/>
+                    <circle cx="24" cy="24" r="24" fill="url(#ig-green)" />
+                    <rect x="10" y="10" width="28" height="28" rx="8" stroke="white" stroke-width="2.5" fill="none" />
+                    <circle cx="24" cy="24" r="7.5" stroke="white" stroke-width="2.5" fill="none" />
+                    <circle cx="33" cy="15" r="2" fill="white" />
                 </svg>
             </a>
             <a href="https://www.facebook.com/GardenInnResortSevan/" target="_blank" rel="noopener noreferrer"
                 class="social-icon facebook" aria-label="Facebook">
                 <svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="24" cy="24" r="24" fill="#228B22"/>
-                    <path d="M33.5 30.9L34.7 24H28.1V19.5C28.1 17.6 28.9 15.8 31.8 15.8H35V9.9C35 9.9 32.1 9.4 29.3 9.4C23.5 9.4 19.7 12.9 19.7 19.2V24H13.7V30.9H19.7V47.6C21.1 47.9 22.5 48 24 48C25.5 48 26.9 47.9 28.1 47.6V30.9H33.5Z" fill="white"/>
+                    <circle cx="24" cy="24" r="24" fill="#228B22" />
+                    <path
+                        d="M33.5 30.9L34.7 24H28.1V19.5C28.1 17.6 28.9 15.8 31.8 15.8H35V9.9C35 9.9 32.1 9.4 29.3 9.4C23.5 9.4 19.7 12.9 19.7 19.2V24H13.7V30.9H19.7V47.6C21.1 47.9 22.5 48 24 48C25.5 48 26.9 47.9 28.1 47.6V30.9H33.5Z"
+                        fill="white" />
                 </svg>
             </a>
             <a href="https://www.booking.com/hotel/am/garden-inn-resort-sevan.ru.html" target="_blank"
                 rel="noopener noreferrer" class="social-icon booking" aria-label="Booking.com">
                 <svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="24" cy="24" r="24" fill="#1B5E20"/>
-                    <path d="M14 14h8.5c3.6 0 6 2 6 5 0 2.1-1.2 3.7-3.1 4.3 2.3 0.5 3.8 2.4 3.8 4.8 0 3.4-2.7 5.9-6.5 5.9H14V14zm5 7.8h3.2c1.5 0 2.4-0.9 2.4-2.2 0-1.3-0.9-2.2-2.4-2.2H19v4.4zm0 8.8h3.6c1.7 0 2.7-1 2.7-2.5s-1-2.5-2.7-2.5H19v5z" fill="white"/>
-                    <circle cx="35" cy="27" r="3" fill="white"/>
+                    <circle cx="24" cy="24" r="24" fill="#1B5E20" />
+                    <path
+                        d="M14 14h8.5c3.6 0 6 2 6 5 0 2.1-1.2 3.7-3.1 4.3 2.3 0.5 3.8 2.4 3.8 4.8 0 3.4-2.7 5.9-6.5 5.9H14V14zm5 7.8h3.2c1.5 0 2.4-0.9 2.4-2.2 0-1.3-0.9-2.2-2.4-2.2H19v4.4zm0 8.8h3.6c1.7 0 2.7-1 2.7-2.5s-1-2.5-2.7-2.5H19v5z"
+                        fill="white" />
+                    <circle cx="35" cy="27" r="3" fill="white" />
                 </svg>
             </a>
         </nav>
@@ -208,7 +220,8 @@
             <div id="hot-deals-list" class="hot-deals-grid" style="display:flex; flex-direction:column; gap:16px;">
                 <!-- Dynamically populated -->
             </div>
-            <div id="hot-deals-empty" style="display:none; text-align:center; padding: 32px 16px; color: var(--color-text-muted);">
+            <div id="hot-deals-empty"
+                style="display:none; text-align:center; padding: 32px 16px; color: var(--color-text-muted);">
                 <div style="font-size:48px; margin-bottom:12px;">😔</div>
                 <p data-key="hotDealsEmpty">No active deals right now. Check back later!</p>
             </div>
@@ -219,7 +232,8 @@
     </section>
 
     <!-- Announcements Modal -->
-    <section id="announcements-modal" class="modal" aria-labelledby="announcements-title" role="dialog" aria-modal="true">
+    <section id="announcements-modal" class="modal" aria-labelledby="announcements-title" role="dialog"
+        aria-modal="true">
         <div class="modal-content glass scrollable">
             <button class="modal-close" data-modal="announcements" aria-label="Close">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -230,7 +244,8 @@
             <div id="announcements-list" style="display:flex; flex-direction:column; gap:16px;">
                 <!-- Dynamically populated -->
             </div>
-            <div id="announcements-empty" style="display:none; text-align:center; padding: 32px 16px; color: var(--color-text-muted);">
+            <div id="announcements-empty"
+                style="display:none; text-align:center; padding: 32px 16px; color: var(--color-text-muted);">
                 <div style="font-size:48px; margin-bottom:12px;">📭</div>
                 <p data-key="announcementsEmpty">No announcements right now.</p>
             </div>
@@ -521,7 +536,7 @@
     <!-- Booking System -->
     <script src="notifications.js?v=28"></script>
     <script src="bookings.js?v=28"></script>
-    
+
     <!-- Housekeeping Modal (Call + Rate) -->
     <!-- Housekeeping Modal (Call + Rate) -->
     <section id="housekeeping-modal" class="modal" role="dialog" aria-modal="true">
@@ -548,7 +563,7 @@
                 <div class="hk-input-group" id="hk-room-group" style="display:none;">
                     <input type="hidden" id="hk-room">
                 </div>
-                
+
                 <!-- How it works info -->
                 <div class="booking-info-card" id="hk-info-card">
                     <div class="booking-info-title" data-key="hkHowItWorks">📋 How it works</div>
@@ -572,7 +587,8 @@
                     <button id="hk-submit-btn" class="hk-submit-btn" onclick="callHousekeeping()">
                         <span>&#x1F9F9;</span> <span data-key="hkCallNow">Call Now</span>
                     </button>
-                    <p class="booking-form-hint" id="hk-form-hint" style="margin-top: 12px;" data-key="hkHint">You will be notified once the staff accepts your request.</p>
+                    <p class="booking-form-hint" id="hk-form-hint" style="margin-top: 12px;" data-key="hkHint">You will
+                        be notified once the staff accepts your request.</p>
                 </div>
                 <div id="hk-msg" class="hk-success-msg">
                     <div class="hk-success-icon">&#x2705;</div>
@@ -581,15 +597,18 @@
                         <span class="hk-code-label" data-key="hkYourCode">Your code:</span>
                         <strong id="hk-code-display" class="hk-code-value"></strong>
                     </div>
-                    <p class="hk-code-hint" data-key="hkCodeHint">Save this code to rate our housekeeping service later.</p>
+                    <p class="hk-code-hint" data-key="hkCodeHint">Save this code to rate our housekeeping service later.
+                    </p>
                 </div>
             </div>
 
             <!-- RATE TAB -->
             <div id="hk-rate-view" class="hk-view" style="display:none;">
                 <div class="hk-input-group">
-                    <label class="hk-label">&#x1F511; <span data-key="hkEnterCode">Enter your 6-digit code</span></label>
-                    <input type="text" id="hk-rate-code" class="hk-input hk-code-input" placeholder="&#x2022; &#x2022; &#x2022; &#x2022; &#x2022; &#x2022;" maxlength="6">
+                    <label class="hk-label">&#x1F511; <span data-key="hkEnterCode">Enter your 6-digit
+                            code</span></label>
+                    <input type="text" id="hk-rate-code" class="hk-input hk-code-input"
+                        placeholder="&#x2022; &#x2022; &#x2022; &#x2022; &#x2022; &#x2022;" maxlength="6">
                 </div>
 
                 <div class="hk-input-group">
@@ -606,7 +625,9 @@
 
                 <div class="hk-input-group">
                     <label class="hk-label">&#x1F4AC; <span data-key="hkCommentLabel">Comments (optional)</span></label>
-                    <textarea id="hk-rate-comment" class="hk-input hk-textarea" placeholder="Tell us about your experience..." data-placeholder-key="hkCommentPlaceholder" rows="3"></textarea>
+                    <textarea id="hk-rate-comment" class="hk-input hk-textarea"
+                        placeholder="Tell us about your experience..." data-placeholder-key="hkCommentPlaceholder"
+                        rows="3"></textarea>
                 </div>
 
                 <button class="hk-submit-btn" onclick="rateHousekeeping()">
@@ -679,7 +700,8 @@
             <div class="booking-form-body">
                 <div class="hk-input-group">
                     <label class="hk-label booking-form-label" data-key="bookingGuestName">👤 Your Name</label>
-                    <input type="text" id="booking-guest-name" class="hk-input" placeholder="Enter your name" data-placeholder-key="bookingNamePlaceholder">
+                    <input type="text" id="booking-guest-name" class="hk-input" placeholder="Enter your name"
+                        data-placeholder-key="bookingNamePlaceholder">
                 </div>
                 <div class="booking-form-group" id="booking-room-group" style="display:none;">
                     <input type="hidden" id="booking-room-number">
@@ -693,26 +715,31 @@
                     <div class="time-picker-card">
                         <div class="time-picker-slot">
                             <span class="time-picker-label" data-key="bookingTimeFrom">FROM</span>
-                            <input type="text" id="booking-time-from" class="time-picker-input" placeholder="10:00" readonly="readonly">
+                            <input type="text" id="booking-time-from" class="time-picker-input" placeholder="10:00"
+                                readonly="readonly">
                         </div>
                         <div class="time-picker-divider">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round">
+                                <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
                         </div>
                         <div class="time-picker-slot">
                             <span class="time-picker-label" data-key="bookingTimeTo">TO</span>
-                            <input type="text" id="booking-time-to" class="time-picker-input" placeholder="12:00" readonly="readonly">
+                            <input type="text" id="booking-time-to" class="time-picker-input" placeholder="12:00"
+                                readonly="readonly">
                         </div>
                     </div>
                 </div>
                 <button id="booking-submit-btn" class="hk-submit-btn" onclick="submitBooking()">
                     <span>📅</span> <span data-key="bookingSubmit">Book Now</span>
                 </button>
-                <p class="booking-form-hint" data-key="bookingHint">💡 You will be notified on this page once your booking is approved or rejected.</p>
+                <p class="booking-form-hint" data-key="bookingHint">💡 You will be notified on this page once your
+                    booking is approved or rejected.</p>
                 <div id="booking-msg" class="hk-success-msg">
                     <div class="hk-success-icon">🎉</div>
-                    <p class="hk-success-title" data-key="bookingSuccess">Booking submitted! We will notify you once it's reviewed.</p>
+                    <p class="hk-success-title" data-key="bookingSuccess">Booking submitted! We will notify you once
+                        it's reviewed.</p>
                 </div>
                 <div id="booking-err" class="hk-error-msg"></div>
             </div>
@@ -731,7 +758,8 @@
             <div id="my-bookings-list" style="display:flex; flex-direction:column; gap:12px;">
                 <!-- Dynamically populated -->
             </div>
-            <div id="my-bookings-empty" style="display:none; text-align:center; padding: 32px 16px; color: var(--color-text-muted);">
+            <div id="my-bookings-empty"
+                style="display:none; text-align:center; padding: 32px 16px; color: var(--color-text-muted);">
                 <div style="font-size:48px; margin-bottom:12px;">📭</div>
                 <p data-key="myBookingsEmpty">You have no active bookings yet.</p>
             </div>
@@ -753,7 +781,8 @@
                 </div>
                 <div class="room-login-field">
                     <label class="room-login-label">Password</label>
-                    <input type="password" id="room-login-password" class="room-login-input" placeholder="Enter password">
+                    <input type="password" id="room-login-password" class="room-login-input"
+                        placeholder="Enter password">
                 </div>
                 <div id="room-login-error" class="room-login-error" style="display:none;"></div>
                 <button id="room-login-btn" class="room-login-btn" onclick="handleRoomLogin()">
@@ -767,14 +796,24 @@
 
     <!-- Push Notifications Enable Modal -->
     <section id="push-prompt-modal" class="modal" role="dialog" aria-modal="true">
-        <div class="modal-content glass push-prompt-content" style="text-align: center; max-width: 400px; padding: 32px 24px;">
+        <div class="modal-content glass push-prompt-content"
+            style="text-align: center; max-width: 400px; padding: 32px 24px;">
             <div style="font-size: 48px; margin-bottom: 16px;">🔔</div>
-            <h2 style="font-family: var(--font-display); color: var(--color-primary-light); font-size: 24px; margin-bottom: 12px; font-weight: 700;">Stay Updated!</h2>
-            <p style="color: var(--color-text-muted); line-height: 1.5; font-size: 15px; margin-bottom: 24px;">Turn on notifications to get instant alerts when your room cleaning is done, when your bookings are approved, and to be the first to know about our new services and tours. <br><br><strong>It's very important for a seamless hotel experience!</strong></p>
-            
+            <h2
+                style="font-family: var(--font-display); color: var(--color-primary-light); font-size: 24px; margin-bottom: 12px; font-weight: 700;">
+                Stay Updated!</h2>
+            <p style="color: var(--color-text-muted); line-height: 1.5; font-size: 15px; margin-bottom: 24px;">Turn on
+                notifications to get instant alerts when your room cleaning is done, when your bookings are approved,
+                and to be the first to know about our new services and tours. <br><br><strong>It's very important for a
+                    seamless hotel experience!</strong></p>
+
             <div style="display: flex; flex-direction: column; gap: 12px;">
-                <button id="push-accept-btn" onclick="onPushPromptAccept()" style="background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(26, 188, 156, 0.3);">Enable Notifications</button>
-                <button onclick="onPushPromptSkip()" style="background: transparent; color: var(--color-text-muted); border: none; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: underline; padding: 12px;">Remind Me Later</button>
+                <button id="push-accept-btn" onclick="onPushPromptAccept()"
+                    style="background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(26, 188, 156, 0.3);">Enable
+                    Notifications</button>
+                <button onclick="onPushPromptSkip()"
+                    style="background: transparent; color: var(--color-text-muted); border: none; font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: underline; padding: 12px;">Remind
+                    Me Later</button>
             </div>
         </div>
     </section>
