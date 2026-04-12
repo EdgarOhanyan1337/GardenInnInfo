@@ -120,7 +120,7 @@
     };
 
     // Tables that support manual ordering via order_index
-    var orderableTables = ['minibar_items', 'services', 'tours'];
+    var orderableTables = ['minibar_items', 'services', 'tours', 'rules', 'translations', 'hot_deals'];
 
     window.loadData = async function(table, renderCallback) {
         Object.values(sectionMap).forEach(function(id) {
@@ -436,15 +436,18 @@
 
     // --- RULES (multi-lang) ---
     window.renderRules = function(data) {
-        var html = '<table><tr><th>Icon</th><th>Text EN</th><th>Text RU</th><th>Text HY</th><th>Actions</th></tr>';
+        var html = '<table><tr><th style="width:40px;"></th><th>Icon</th><th>Text EN</th><th>Text RU</th><th>Text HY</th><th>Actions</th></tr>';
         data.forEach(function(item) {
-            html += '<tr><td>' + item.icon + '</td><td>' + item.text_en + '</td><td>' + item.text_ru + '</td><td>' + item.text_hy + '</td>' +
+            html += '<tr draggable="true" data-id="' + item.id + '">' +
+                '<td><span class="drag-handle" title="Drag to reorder">⠿</span></td>' +
+                '<td>' + item.icon + '</td><td>' + item.text_en + '</td><td>' + item.text_ru + '</td><td>' + item.text_hy + '</td>' +
                 '<td style="display:flex;gap:6px;">' +
                 '<button class="btn-edit" onclick="startEditRule(\'' + item.id + '\')">Edit</button>' +
                 '<button class="btn-danger" onclick="deleteItem(\'rules\',\'' + item.id + '\',renderRules)">Delete</button></td></tr>';
         });
         html += '</table>';
         document.getElementById('rules-table').innerHTML = html;
+        initDragAndDrop('rules-table', 'rules', renderRules);
     };
 
     window.startEditRule = function(id) {
@@ -485,6 +488,7 @@
             var res = await db.from('rules').update(updateData).eq('id', window.editState.rules);
             error = res.error;
         } else {
+            updateData.order_index = getNextOrderIndex('rules');
             var res = await db.from('rules').insert([updateData]);
             error = res.error;
         }
@@ -496,15 +500,18 @@
 
     // --- TRANSLATIONS ---
     window.renderTranslations = function(data) {
-        var html = '<table><tr><th>Key</th><th>EN</th><th>RU</th><th>HY</th><th>Actions</th></tr>';
+        var html = '<table><tr><th style="width:40px;"></th><th>Key</th><th>EN</th><th>RU</th><th>HY</th><th>Actions</th></tr>';
         data.forEach(function(item) {
-            html += '<tr><td><b>' + item.key + '</b></td><td>' + item.en + '</td><td>' + item.ru + '</td><td>' + item.hy + '</td>' +
+            html += '<tr draggable="true" data-id="' + item.id + '">' +
+                '<td><span class="drag-handle" title="Drag to reorder">⠿</span></td>' +
+                '<td><b>' + item.key + '</b></td><td>' + item.en + '</td><td>' + item.ru + '</td><td>' + item.hy + '</td>' +
                 '<td style="display:flex;gap:6px;">' +
                 '<button class="btn-edit" onclick="startEditTranslation(\'' + item.id + '\')">Edit</button>' +
                 '<button class="btn-danger" onclick="deleteItem(\'translations\',\'' + item.id + '\',renderTranslations)">Delete</button></td></tr>';
         });
         html += '</table>';
         document.getElementById('translations-table').innerHTML = html;
+        initDragAndDrop('translations-table', 'translations', renderTranslations);
     };
 
     window.startEditTranslation = function(id) {
@@ -545,6 +552,7 @@
             var res = await db.from('translations').update(updateData).eq('id', window.editState.translations);
             error = res.error;
         } else {
+            updateData.order_index = getNextOrderIndex('translations');
             var res = await db.from('translations').upsert([updateData], { onConflict: 'key' });
             error = res.error;
         }
@@ -983,7 +991,7 @@
     };
 
     function renderHotDealsTable(data) {
-        var html = '<table><tr><th>Image</th><th>Type</th><th>Title EN</th><th>New Price</th><th>Status</th><th>Actions</th></tr>';
+        var html = '<table><tr><th style="width:40px;"></th><th>Image</th><th>Type</th><th>Title EN</th><th>New Price</th><th>Status</th><th>Actions</th></tr>';
         var discountsOnly = data.filter(function(item) { return item.type === 'discount'; });
         discountsOnly.forEach(function(item) {
             var typeLabel = '💰 Sale';
@@ -991,7 +999,9 @@
             var statusText = item.is_active ? 'Active' : 'Hidden';
             var toggleText = item.is_active ? 'Hide' : 'Show';
             
-            html += '<tr style="' + (item.is_active ? '' : 'opacity:0.6') + '"><td><img src="' + item.image_url + '" width="50" onerror="this.src=\'https://placehold.co/50x50?text=No+Image\'"></td>' +
+            html += '<tr draggable="true" data-id="' + item.id + '" style="' + (item.is_active ? '' : 'opacity:0.6') + '">' +
+                '<td><span class="drag-handle" title="Drag to reorder">⠿</span></td>' +
+                '<td><img src="' + item.image_url + '" width="50" onerror="this.src=\'https://placehold.co/50x50?text=No+Image\'"></td>' +
                 '<td>' + typeLabel + '</td>' +
                 '<td><b>' + (item.title_en || '-') + '</b></td>' +
                 '<td>' + (item.new_price || '-') + '</td>' +
@@ -1003,6 +1013,7 @@
         });
         html += '</table>';
         document.getElementById('hot-deals-table-container').innerHTML = html;
+        initDragAndDrop('hot-deals-table-container', 'hot_deals', function() { loadHotDealsDataDirect(); });
     }
 
     window.loadHotDealsDataDirect = function() {
@@ -1172,6 +1183,7 @@
             err = res.error;
         } else {
             updateData.image_url = updateData.image_url || '';
+            updateData.order_index = getNextOrderIndex('hot_deals');
             var res = await db.from('hot_deals').insert([updateData]);
             err = res.error;
         }
@@ -1216,19 +1228,21 @@
         var el = document.getElementById('announcements-section');
         if (el) el.style.display = 'block';
 
-        var { data, error } = await db.from('hot_deals').select('*').eq('type', 'announcement').order('created_at', { ascending: false });
+        var { data, error } = await db.from('hot_deals').select('*').eq('type', 'announcement').order('order_index', { ascending: true }).order('created_at', { ascending: false });
         if (error) { console.error('Load announcements error:', error); return; }
         window.currentTableData['announcements'] = data || [];
         renderAnnouncementsTable(data || []);
     };
 
     function renderAnnouncementsTable(data) {
-        var html = '<table><tr><th>Image</th><th>Title EN</th><th>Status</th><th>Actions</th></tr>';
+        var html = '<table><tr><th style="width:40px;"></th><th>Image</th><th>Title EN</th><th>Status</th><th>Actions</th></tr>';
         data.forEach(function(item) {
             var statusColor = item.is_active ? '#4ade80' : '#8b98a5';
             var statusText = item.is_active ? 'Active' : 'Hidden';
             var toggleText = item.is_active ? 'Hide' : 'Show';
-            html += '<tr style="' + (item.is_active ? '' : 'opacity:0.6') + '"><td><img src="' + (item.image_url || '') + '" width="50" onerror="this.src=\'https://placehold.co/50x50?text=No+Image\'"></td>' +
+            html += '<tr draggable="true" data-id="' + item.id + '" style="' + (item.is_active ? '' : 'opacity:0.6') + '">' +
+                '<td><span class="drag-handle" title="Drag to reorder">⠿</span></td>' +
+                '<td><img src="' + (item.image_url || '') + '" width="50" onerror="this.src=\'https://placehold.co/50x50?text=No+Image\'"></td>' +
                 '<td><b>' + (item.title_en || '-') + '</b></td>' +
                 '<td style="color:' + statusColor + '"><b>' + statusText + '</b></td>' +
                 '<td style="display:flex;gap:6px;flex-wrap:wrap;">' +
@@ -1238,6 +1252,7 @@
         });
         html += '</table>';
         document.getElementById('announcements-table-container').innerHTML = html;
+        initDragAndDrop('announcements-table-container', 'hot_deals', function() { loadAnnouncementsAdmin(); });
     }
 
     window.toggleAnnouncementActive = async function(id, val) {
@@ -1303,6 +1318,7 @@
         if (isEditing) {
             await db.from('hot_deals').update(obj).eq('id', window.editState.announcements);
         } else {
+            obj.order_index = getNextOrderIndex('announcements');
             await db.from('hot_deals').insert([obj]);
         }
 

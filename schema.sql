@@ -61,6 +61,7 @@ CREATE TABLE rules (
   text_en TEXT NOT NULL DEFAULT '',
   text_ru TEXT NOT NULL DEFAULT '',
   text_hy TEXT NOT NULL DEFAULT '',
+  order_index INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -70,6 +71,7 @@ CREATE TABLE translations (
   en TEXT NOT NULL DEFAULT '',
   ru TEXT NOT NULL DEFAULT '',
   hy TEXT NOT NULL DEFAULT '',
+  order_index INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -317,6 +319,7 @@ CREATE TABLE IF NOT EXISTS hot_deals (
     is_paid boolean default false,
     image_url text,
     is_active boolean default true,
+    order_index integer default 0,
     created_at timestamp with time zone default timezone('utc'::text, now())
 );
 

@@ -172,7 +172,7 @@ function renderTours() {
 async function loadRules() {
     if (!supabaseClient) return;
     try {
-        const { data } = await supabaseClient.from('rules').select('*');
+        const { data } = await supabaseClient.from('rules').select('*').order('order_index', { ascending: true });
         const container = document.querySelector('#rules-modal .rules-grid, #rules-modal .rules-list');
         if (!container || !data || data.length === 0) return;
         container.innerHTML = '';
@@ -1016,7 +1016,7 @@ async function loadHotDeals() {
         }
 
         const { data: deals } = await supabaseClient.from('hot_deals')
-            .select('*').eq('is_active', true).order('created_at', { ascending: false });
+            .select('*').eq('is_active', true).order('order_index', { ascending: true }).order('created_at', { ascending: false });
             
         dynamicHotDeals = deals || [];
 
