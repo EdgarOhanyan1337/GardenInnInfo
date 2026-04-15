@@ -155,12 +155,12 @@
 
     // --- MINIBAR ---
     window.renderMinibar = function(data) {
-        var html = '<table><tr><th style="width:40px;"></th><th>Image</th><th>Name</th><th>Price</th><th>Actions</th></tr>';
+        var html = '<table><tr><th style="width:40px;"></th><th>Image</th><th>Name EN</th><th>Name RU</th><th>Name HY</th><th>Price</th><th>Actions</th></tr>';
         data.forEach(function(item) {
             html += '<tr draggable="true" data-id="' + item.id + '">' +
                 '<td><span class="drag-handle" title="Drag to reorder">⠿</span></td>' +
                 '<td><img src="' + item.image_url + '" width="50" onerror="this.src=\'https://placehold.co/50x50?text=No+Image\'"></td>' +
-                '<td>' + item.name + '</td><td>' + item.price + ' AMD</td>' +
+                '<td>' + (item.name_en || item.name || '') + '</td><td>' + (item.name_ru || '') + '</td><td>' + (item.name_hy || '') + '</td><td>' + item.price + ' AMD</td>' +
                 '<td><div style="display:flex;gap:6px;">' +
                 '<button class="btn-edit" onclick="startEditMinibar(\'' + item.id + '\')">Edit</button>' +
                 '<button class="btn-danger" onclick="deleteItem(\'minibar_items\',\'' + item.id + '\',renderMinibar)">Delete</button></div></td></tr>';
@@ -174,7 +174,9 @@
         var item = window.currentTableData['minibar_items'].find(function(i) { return i.id === id; });
         if (!item) return;
         window.editState.minibar_items = id;
-        document.getElementById('mb-name').value = item.name || '';
+        document.getElementById('mb-name-en').value = item.name_en || item.name || '';
+        document.getElementById('mb-name-ru').value = item.name_ru || '';
+        document.getElementById('mb-name-hy').value = item.name_hy || '';
         document.getElementById('mb-price').value = item.price || '';
         document.getElementById('mb-submit-btn').textContent = 'Update Item';
         document.getElementById('mb-cancel-btn').style.display = 'inline-flex';
@@ -183,7 +185,9 @@
 
     window.cancelEditMinibar = function() {
         window.editState.minibar_items = null;
-        document.getElementById('mb-name').value = '';
+        document.getElementById('mb-name-en').value = '';
+        document.getElementById('mb-name-ru').value = '';
+        document.getElementById('mb-name-hy').value = '';
         document.getElementById('mb-price').value = '';
         document.getElementById('mb-file').value = '';
         document.getElementById('mb-submit-btn').textContent = '+ Add Item';
@@ -191,16 +195,18 @@
     };
 
     window.addMinibarItem = async function() {
-        var name = document.getElementById('mb-name').value;
+        var name_en = document.getElementById('mb-name-en').value;
+        var name_ru = document.getElementById('mb-name-ru').value || name_en;
+        var name_hy = document.getElementById('mb-name-hy').value || name_en;
         var price = document.getElementById('mb-price').value;
-        if (!name || !price) { alert('Fill in name and price!'); return; }
+        if (!name_en || !price) { alert('Fill in English name and price!'); return; }
         
         var file = document.getElementById('mb-file').files[0];
         var isEditing = window.editState.minibar_items !== null;
         var uploadUrl = null;
         if (file) { uploadUrl = await uploadImage(file); if (!uploadUrl) return; }
         
-        var updateData = { name: name, price: parseInt(price) };
+        var updateData = { name_en: name_en, name_ru: name_ru, name_hy: name_hy, price: parseInt(price) };
         if (uploadUrl) updateData.image_url = uploadUrl;
 
         var error;

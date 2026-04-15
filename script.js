@@ -74,14 +74,15 @@ function renderMinibar() {
                 badgeHtml = '<div style="position:absolute; top:8px; left:8px; background:#ff4757; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; z-index:2;">🔥 % SALE</div>';
             }
         }
+        var title = item['name_' + currentLang] || item.name_en || item.name || '';
         const article = document.createElement('article');
         article.className = 'product-card';
         article.style.position = 'relative';
         article.innerHTML = badgeHtml + '<div class="product-image" data-images=\'["' + item.image_url + '"]\'>' +
-            '<img src="' + item.image_url + '" alt="' + item.name + '" loading="lazy" onerror="this.style.display=\'none\'">' +
+            '<img src="' + item.image_url + '" alt="' + title + '" loading="lazy" onerror="this.style.display=\'none\'">' +
             '<div class="product-overlay"><button class="view-btn">&#128065;</button></div>' +
             '</div>' +
-            '<div class="product-info"><h4>' + item.name + '</h4><p class="price" style="line-height:1.2; margin-top:4px;">' + priceHtml + '</p></div>';
+            '<div class="product-info"><h4>' + title + '</h4><p class="price" style="line-height:1.2; margin-top:4px;">' + priceHtml + '</p></div>';
         container.appendChild(article);
     });
     initLightboxTriggers();

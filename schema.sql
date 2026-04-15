@@ -17,9 +17,12 @@ DROP TABLE IF EXISTS housekeeping_ratings CASCADE;
 
 CREATE TABLE minibar_items (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
+  name_en TEXT NOT NULL DEFAULT '',
+  name_ru TEXT NOT NULL DEFAULT '',
+  name_hy TEXT NOT NULL DEFAULT '',
   price INTEGER NOT NULL,
   image_url TEXT NOT NULL DEFAULT '',
+  order_index INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
