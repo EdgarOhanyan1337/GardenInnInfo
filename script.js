@@ -80,7 +80,6 @@ function renderMinibar() {
         article.style.position = 'relative';
         article.innerHTML = badgeHtml + '<div class="product-image" data-images=\'["' + item.image_url + '"]\'>' +
             '<img src="' + item.image_url + '" alt="' + title + '" loading="lazy" onerror="this.style.display=\'none\'">' +
-            '<div class="product-overlay"><button class="view-btn">&#128065;</button></div>' +
             '</div>' +
             '<div class="product-info"><h4>' + title + '</h4><p class="price" style="line-height:1.2; margin-top:4px;">' + priceHtml + '</p></div>';
         container.appendChild(article);
@@ -423,10 +422,9 @@ function navLightbox(dir) {
 }
 
 function initLightboxTriggers() {
-    document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.onclick = () => {
-            var card = btn.closest('.product-image');
-            if (!card) return;
+    document.querySelectorAll('.product-image[data-images]').forEach(card => {
+        card.style.cursor = 'pointer';
+        card.onclick = () => {
             try {
                 var imgs = JSON.parse(card.dataset.images);
                 openLightbox(imgs, 0);
@@ -1079,7 +1077,7 @@ function renderDealList(containerId, emptyId, loadingId, items, isDiscount) {
             actionHtml = `<div style="position: absolute; right: 0; bottom: 0;"><button class="hk-submit-btn" style="padding: 6px 16px; font-size: 0.85rem; border-radius: 6px; margin:0;" onclick="openDetail('${deal.reference_id}')">${translations[currentLang].more}</button></div>`;
         }
 
-        const imgHtml = deal.image_url ? `<div class="product-image hot-deal-image-wrapper" data-images='["${deal.image_url}"]'><img src="${deal.image_url}" class="hot-deal-image" onerror="this.style.display='none'"><div class="product-overlay"><button class="view-btn" aria-label="View Image">&#128065;</button></div></div>` : '';
+        const imgHtml = deal.image_url ? `<div class="product-image hot-deal-image-wrapper" data-images='["${deal.image_url}"]'><img src="${deal.image_url}" class="hot-deal-image" onerror="this.style.display='none'"></div>` : '';
         const badgeHtml = isDiscount ? `<div class="hot-deal-badge" style="z-index: 5;">SALE</div>` : '';
 
         const article = document.createElement('div');
